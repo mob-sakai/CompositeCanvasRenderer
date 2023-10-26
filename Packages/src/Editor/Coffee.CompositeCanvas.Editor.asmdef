@@ -1,0 +1,17 @@
+{
+    "name": "Coffee.CompositeCanvas.Editor",
+    "references": [
+        "GUID:c395afef9f97d4b19bfc6a5f8b0b2a98"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
