@@ -1,0 +1,17 @@
+{
+  "name": "com.coffee.simple-scene-navigator",
+  "displayName": "Simple Scene Navigator",
+  "description": "",
+  "version": "1.0.0",
+  "unity": "2018.3",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mob-sakai/SimpleSceneNavigator.git"
+  },
+  "author": "mob-sakai <sakai861104@gmail.com> (https://github.com/mob-sakai)",
+  "dependencies": {},
+  "keywords": [
+    "utility"
+  ]
+}
