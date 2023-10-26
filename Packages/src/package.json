@@ -2,7 +2,7 @@
   "name": "com.coffee.composite-canvas-renderer",
   "displayName": "Composite Canvas Renderer",
   "description": "",
-  "version": "1.0.0",
+  "version": "1.0.0-preview.1",
   "unity": "2019.1",
   "license": "MIT",
   "repository": {
