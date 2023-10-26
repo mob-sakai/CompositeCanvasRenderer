@@ -1,0 +1,30 @@
+{
+  "name": "com.coffee.composite-canvas-renderer",
+  "displayName": "Composite Canvas Renderer",
+  "description": "",
+  "version": "1.0.0",
+  "unity": "2019.1",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mob-sakai/CompositeCanvasRenderer.git"
+  },
+  "author": {
+    "name": "mob-sakai",
+    "email": "sakai861104@gmail.com",
+    "url": "https://github.com/mob-sakai"
+  },
+  "dependencies": {
+    "com.unity.ugui": "1.0.0"
+  },
+  "keywords": [
+    "ui"
+  ],
+  "samples": [
+    {
+      "displayName": "Demo",
+      "description": "Composite Canvas Renderer Demo",
+      "path": "Samples~/Demo"
+    }
+  ]
+}
