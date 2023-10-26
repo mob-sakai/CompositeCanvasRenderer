@@ -1,0 +1,64 @@
+# Required secrets
+#   UNITY_LICENSE: The contents of Unity license file
+name: 🔖 Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - preview
+      - main
+      - v*.x
+    tags-ignore:
+      - "**"
+
+jobs:
+  release:
+    name: 🔖 Release (${{ github.ref_name }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    outputs:
+      channel: ${{ steps.release.outputs.new_release_channel }}
+      released: ${{ steps.release.outputs.new_release_published }}
+      tag: ${{ steps.release.outputs.new_release_git_tag }}
+    steps:
+      - name: 🚚 Checkout (${{ github.ref_name }})
+        uses: actions/checkout@v4
+
+      - name: 🔖 Run semantic release
+        uses: cycjimmy/semantic-release-action@v3
+        id: release
+        with:
+          working_directory: Packages/src
+          extra_plugins: |
+            @semantic-release/changelog
+            @semantic-release/git
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+  merge:
+    name: 🔀 Merge to develop
+    needs: release
+    if: needs.release.outputs.released == 'true'
+    uses: ./.github/workflows/merge.yml
+    with:
+      from: ${{ needs.release.outputs.tag }}
+      to: develop
+    permissions:
+      contents: write
+
+  deploy:
+    name: 🚀 Deploy pages
+    needs: release
+    if: needs.release.outputs.channel == 'main' || needs.release.outputs.channel == 'preview'
+    uses: ./.github/workflows/deploy.yml
+    secrets:
+      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+    permissions:
+      contents: read
+      checks: write
+      pages: write
+      id-token: write

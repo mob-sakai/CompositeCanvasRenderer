@@ -1,0 +1,68 @@
+# Required secrets
+#   UNITY_LICENSE: The contents of Unity license file
+name: 🧪 Test
+
+env:
+  minVersion: "2019.4"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - develop
+    tags:
+      - "!*"
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  setup:
+    name: ⚙️ Setup
+    runs-on: ubuntu-latest
+    outputs:
+      versions: ${{ steps.setup.outputs.versions }}
+    steps:
+      - name: ⚙️ Find target Unity versions
+        id: setup
+        run: |
+          VERSIONS=`npx unity-changeset list --versions --latest-patch --min ${{ env.minVersion }} --json`
+          echo "==== Target Unity Versions ===="
+          echo "${VERSIONS}"
+          echo "versions=${VERSIONS}" >> $GITHUB_OUTPUT
+
+  test:
+    name: 🧪 Run tests
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      contents: read
+    needs: setup
+    strategy:
+      fail-fast: false
+      matrix:
+         version: ${{ fromJson(needs.setup.outputs.versions) }}
+    steps:
+      - name: 🚚 Checkout
+        uses: actions/checkout@v4
+
+      - name: 📥 Cache library
+        uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-${{ matrix.version }}-${{ github.sha }}
+          restore-keys: |
+            Library-${{ matrix.version }}-
+            Library-
+
+      - name: 🧪 Run tests
+        uses: game-ci/unity-test-runner@v3
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          customParameters: -nographics
+          unityVersion: ${{ matrix.version }}
+          checkName: ${{ matrix.version }} Test Results
+          githubToken: ${{ github.token }}
+          coverageOptions: "dontClear;generateHtmlReport;generateBadgeReport;pathFilters:+**/Packages/src/**;assemblyFilters:+<packages>,-*.Editor,-*.Test"
