@@ -206,6 +206,9 @@ namespace CompositeCanvas
                         CompositeCanvasRendererProjectSettings.cacheRendererMaterial);
                     return _material;
                 }
+
+                MaterialRegistry.Release(ref _material);
+                return graphicMat;
             }
 
             MaterialRegistry.Release(ref _material);
