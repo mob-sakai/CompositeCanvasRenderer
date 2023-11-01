@@ -34,7 +34,7 @@ jobs:
           dotnet tool install -g docfx
 
           # install Cofee.DocFxForUnity
-          # npx openupm-cli add 'com.coffee.docfx-for-unity@https://github.com/mob-sakai/DocFxForUnity.git?path=Packages/src#develop'
+          npx openupm-cli add 'com.coffee.docfx-for-unity@https://github.com/mob-sakai/TestPkgDev.git?path=Packages/src#develop'
 
       - name: 📥 Cache Library
         uses: actions/cache@v3
