@@ -1,0 +1,69 @@
+# Required secrets
+#   UNITY_LICENSE: The contents of Unity license file
+name: 🔍 Build Code Coverage
+
+env:
+  targetPlatform: StandaloneLinux64
+
+on:
+  workflow_call:
+    secrets:
+      UNITY_LICENSE:
+        description: The contents of Unity license file
+        required: true
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: 🔍 Build Code Coverage
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
+    steps:
+      - name: ⚙️ Setup Unity version
+        id: setup
+        run: |
+          echo "Find LTS Unity version..."
+          LTS_VERSION=`npx unity-changeset list --versions --latest-patch --lts | head -n 1`
+          echo "unityVersion=${LTS_VERSION}" >> $GITHUB_OUTPUT
+          echo "Target Unity Version: ${LTS_VERSION}" >> $GITHUB_STEP_SUMMARY
+          echo "Target Unity Version: ${LTS_VERSION}"
+
+      - name: 🚚 Checkout
+        uses: actions/checkout@v4
+
+      - name: 📥 Cache Library
+        uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-${{ steps.setup.outputs.unityVersion }}-${{ env.targetPlatform }}-${{ github.sha }}
+          restore-keys: |
+            Library-${{ steps.setup.outputs.unityVersion }}-${{ env.targetPlatform }}-
+            Library-${{ steps.setup.outputs.unityVersion }}-
+            Library-
+
+      - name: 🧪 Run Tests
+        uses: game-ci/unity-test-runner@v3
+        timeout-minutes: 30
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          customImage: mobsakai/unity3d:${{ steps.setup.outputs.unityVersion }}
+          # unityVersion: ${{ steps.setup.outputs.unityVersion }}
+          customParameters: -nographics
+          githubToken: ${{ github.token }}
+          coverageOptions: "dontClear;generateHtmlReport;generateBadgeReport;pathFilters:+**/Packages/src/**;assemblyFilters:+<packages>"
+          # coverageOptions: "dontClear;generateHtmlReport;generateBadgeReport;pathFilters:+**/Packages/src/**;assemblyFilters:+<packages>,-*.Editor,-*.Test"
+
+      - name: 🔍 Report Summary
+        run: |
+          ls -la
+          ls -la CodeCoverage/Report
+          cat CodeCoverage/Report/Summary.md >> $GITHUB_STEP_SUMMARY
+
+      - name: 📦 Upload Code Coverage Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: CodeCoverage
+          path: CodeCoverage/Report

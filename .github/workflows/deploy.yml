@@ -2,9 +2,6 @@
 #   UNITY_LICENSE: The contents of Unity license file
 name: 🚀 Deploy
 
-env:
-  ltsVersion: "2022.3"
-
 on:
   workflow_call:
     secrets:
@@ -14,105 +11,51 @@ on:
   workflow_dispatch:
 
 jobs:
-  setup:
-    name: ⚙️ Setup
-    runs-on: ubuntu-latest
-    outputs:
-      unityVersion: ${{ steps.setup.outputs.unityVersion }}
-    steps:
-      - name: ⚙️ Setup LTS Unity version
-        id: setup
-        run: |
-          LTS_VERSION=`npx unity-changeset list --versions --latest-patch --grep ${{ env.ltsVersion }}`
-          echo "unityVersion=${LTS_VERSION}" >> $GITHUB_OUTPUT
-          echo "Target Unity Version: ${LTS_VERSION}" >> $GITHUB_STEP_SUMMARY
-          echo "Target Unity Version: ${LTS_VERSION}"
-
-  test:
-    name: 🧪 Run tests
-    needs: setup
-    runs-on: ubuntu-latest
+  code-coverage:
+    name: 🔍 Code Coverage
+    uses: ./.github/workflows/build_code_coverage.yml
+    secrets:
+      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
     permissions:
       contents: read
       checks: write
-    steps:
-      - name: 🚚 Checkout
-        uses: actions/checkout@v4
 
-      - name: 📥 Cache library
-        uses: actions/cache@v3
-        with:
-          path: Library
-          key: Library-${{ needs.setup.outputs.unityVersion }}-${{ github.sha }}
-          restore-keys: |
-            Library-${{ needs.setup.outputs.unityVersion }}-
-            Library-
-
-      - name: 🧪 Run tests
-        uses: game-ci/unity-test-runner@v3
-        env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-        with:
-          customParameters: -nographics
-          unityVersion: ${{ needs.setup.outputs.unityVersion }}
-          githubToken: ${{ github.token }}
-          coverageOptions: "dontClear;generateHtmlReport;generateBadgeReport;pathFilters:+**/Packages/src/**;assemblyFilters:+<packages>,-*.Editor,-*.Test"
-
-      - name: 📦 Upload test results
-        uses: actions/upload-artifact@v3
-        with:
-          name: CodeCoverage
-          path: CodeCoverage/Report
-
-  build:
-    name: 🛠️ Build demo
-    needs: setup
-    runs-on: ubuntu-latest
+  demo:
+    name: 🎮 Demo
+    uses: ./.github/workflows/build_demo_player.yml
+    secrets:
+      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
     permissions:
       contents: read
-    steps:
-      - name: 🚚 Checkout
-        uses: actions/checkout@v4
 
-      - name: 📥 Cache Library
-        uses: actions/cache@v3
-        with:
-          path: Library
-          key: Library-${{ needs.setup.outputs.unityVersion }}-${{ github.sha }}
-          restore-keys: |
-            Library-${{ needs.setup.outputs.unityVersion }}-
-            Library-
-
-      - name: 🛠️ Build demo
-        uses: game-ci/unity-builder@v3
-        env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-        with:
-          unityVersion: ${{ needs.setup.outputs.unityVersion }}
-          targetPlatform: WebGL
-          allowDirtyBuild: true
-
-      - name: 📦 Upload demo
-        uses: actions/upload-artifact@v3
-        with:
-          name: Build
-          path: build/WebGL/WebGL
+  doc:
+    name: 📘 Doc
+    uses: ./.github/workflows/build_documentation.yml
+    secrets:
+      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+    permissions:
+      contents: read
 
   deploy:
-    name: 🚀 Deploy to GitHub Pages
-    needs: [test, build]
+    name: 🚀 Deploy
+    needs: [code-coverage, demo, doc]
     runs-on: ubuntu-latest
     permissions:
       pages: write
       id-token: write
     steps:
-      - name: 📦 Download artifacts in _site
+      - name: 📦 Download Artifacts To '_site'
         uses: actions/download-artifact@v3
         with:
           path: _site
 
-      - name: 📦 Upload _site as GitHub Pages
+      - name: 🚚 Move Documentation Files To '_site'
+        run: |
+          mv _site/Documentation/*  _site/
+          rm -r _site/Documentation
+
+      - name: 📦 Upload '_site'
         uses: actions/upload-pages-artifact@v2
 
-      - name: 🚀 Deploy to GitHub Pages
+      - name: 🚀 Deploy To GitHub Pages
         uses: actions/deploy-pages@v2

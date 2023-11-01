@@ -31,8 +31,6 @@ jobs:
       - name: 🔀 Merge '${{ inputs.from }}' into '${{ inputs.to }}'
         continue-on-error: true
         run: |
-          echo "Merge '${{ inputs.from }}' into '${{ inputs.to }}'" >> $GITHUB_STEP_SUMMARY
-
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 

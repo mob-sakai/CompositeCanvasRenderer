@@ -4,6 +4,7 @@ name: 🧪 Test
 
 env:
   minVersion: "2019.4"
+  targetPlatform: StandaloneLinux64
 
 on:
   workflow_dispatch:
@@ -22,15 +23,15 @@ jobs:
     name: ⚙️ Setup
     runs-on: ubuntu-latest
     outputs:
-      versions: ${{ steps.setup.outputs.versions }}
+      unityVersions: ${{ steps.setup.outputs.unityVersions }}
     steps:
       - name: ⚙️ Find target Unity versions
         id: setup
         run: |
-          VERSIONS=`npx unity-changeset list --versions --latest-patch --min ${{ env.minVersion }} --json`
+          UNITY_VERSIONS=`npx unity-changeset list --versions --latest-patch --min ${{ env.minVersion }} --json`
           echo "==== Target Unity Versions ===="
-          echo "${VERSIONS}"
-          echo "versions=${VERSIONS}" >> $GITHUB_OUTPUT
+          echo "${UNITY_VERSIONS}"
+          echo "unityVersions=${UNITY_VERSIONS}" >> $GITHUB_OUTPUT
 
   test:
     name: 🧪 Run tests
@@ -42,7 +43,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-         version: ${{ fromJson(needs.setup.outputs.versions) }}
+        unityVersion: ${{ fromJson(needs.setup.outputs.unityVersions) }}
     steps:
       - name: 🚚 Checkout
         uses: actions/checkout@v4
@@ -51,18 +52,21 @@ jobs:
         uses: actions/cache@v3
         with:
           path: Library
-          key: Library-${{ matrix.version }}-${{ github.sha }}
+          key: Library-${{ matrix.unityVersion }}-${{ env.targetPlatform }}-${{ github.sha }}
           restore-keys: |
-            Library-${{ matrix.version }}-
+            Library-${{ matrix.unityVersion }}-${{ env.targetPlatform }}-
+            Library-${{ matrix.unityVersion }}-
             Library-
 
       - name: 🧪 Run tests
         uses: game-ci/unity-test-runner@v3
+        timeout-minutes: 30
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
+          customImage: mobsakai/unity3d:${{ matrix.unityVersion }}
+          # unityVersion: ${{ matrix.unityVersion }}
           customParameters: -nographics
-          unityVersion: ${{ matrix.version }}
-          checkName: ${{ matrix.version }} Test Results
+          checkName: ${{ matrix.unityVersion }} Test Results
           githubToken: ${{ github.token }}
           coverageOptions: "dontClear;generateHtmlReport;generateBadgeReport;pathFilters:+**/Packages/src/**;assemblyFilters:+<packages>,-*.Editor,-*.Test"

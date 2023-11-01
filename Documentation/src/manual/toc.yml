@@ -1,0 +1,22 @@
+- name: Overview
+  href: Overview.md
+- name: How to use
+  items:
+  - name: Installation
+    href: Installation.md
+  - name: Usage
+    href: Usage.md
+- name: Built-in Effects
+  items:
+  - name: Shadow
+    href: Shadow.md
+  - name: Outline
+    href: Outline.md
+  - name: Glow
+    href: Glow.md
+  - name: Bloom
+    href: Bloom.md
+  - name: Mirror
+    href: Mirror.md
+- name: How To Customize Effects
+  href: How_To_Customize_Effects.md

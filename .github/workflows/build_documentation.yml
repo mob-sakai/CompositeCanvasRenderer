@@ -1,0 +1,69 @@
+# Required secrets
+#   UNITY_LICENSE: The contents of Unity license file
+name: 📘 Build Documentation
+
+env:
+  targetPlatform: StandaloneLinux64
+
+on:
+  workflow_call:
+    secrets:
+      UNITY_LICENSE:
+        description: The contents of Unity license file
+        required: true
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: 📘 Build Documentation
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: 🚚 Checkout
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Setup Unity version
+        id: setup
+        run: |
+          TARGET_VERSION=`npx unity-changeset list --versions --latest-patch --lts | head -n 1`
+          echo "unityVersion=${TARGET_VERSION}" >> $GITHUB_OUTPUT
+          echo "Target Unity Version: ${TARGET_VERSION}" | tee -a $GITHUB_STEP_SUMMARY
+
+          # install docfx
+          dotnet tool install -g docfx
+
+          # install Cofee.DocFxForUnity
+          # npx openupm-cli add 'com.coffee.docfx-for-unity@https://github.com/mob-sakai/DocFxForUnity.git?path=Packages/src#develop'
+
+      - name: 📥 Cache Library
+        uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library-${{ steps.setup.outputs.unityVersion }}-${{ env.targetPlatform }}-${{ github.sha }}
+          restore-keys: |
+            Library-${{ steps.setup.outputs.unityVersion }}-${{ env.targetPlatform }}-
+            Library-${{ steps.setup.outputs.unityVersion }}-
+            Library-
+
+      - name: 🛠️ Run UnityEditor To Setup '*.csproj'
+        uses: game-ci/unity-builder@v3
+        timeout-minutes: 30
+        continue-on-error: true # NOTE: Disabling the check for the "Build results" output? https://github.com/game-ci/unity-builder/issues/563
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          customImage: mobsakai/unity3d:${{ steps.setup.outputs.unityVersion }}
+          # unityVersion: ${{ steps.setup.outputs.unityVersion }}
+          targetPlatform: ${{ env.targetPlatform }}
+          allowDirtyBuild: true
+          buildMethod: Coffee.DocFxForUnity.SetupCsProj
+
+      - name: 📘 Build docfx
+        run: docfx Documentation/docfx.json
+
+      - name: 📦 Upload Documentation
+        uses: actions/upload-artifact@v3
+        with:
+          name: Documentation
+          path: Documentation/_site

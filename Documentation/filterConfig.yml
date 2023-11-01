@@ -1,0 +1,13 @@
+apiRules:
+- exclude:
+    uidRegex: ^System\.Object
+    type: Type
+- exclude:
+    uidRegex: ^UnityEngine\.Object\..*(Find|Instantiate|Destroy|Equals)
+    type: Member
+- exclude:
+    uidRegex: ^UnityEngine\.Component\..*(Message|Component)
+    type: Member
+- exclude:
+    uidRegex: ^UnityEngine\.MonoBehaviour\..*(Coroutine|Invok|print|destroyCancellationToken|useGUILayout|runInEditMode)
+    type: Member

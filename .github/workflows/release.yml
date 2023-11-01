@@ -39,7 +39,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
-  merge:
+      - run: |
+          echo "🔖 New release published: '${{ steps.release.outputs.new_release_published }}'" | tee -a $GITHUB_STEP_SUMMARY
+          echo "🔖 New release channel: '${{ steps.release.outputs.new_release_channel }}'" | tee -a $GITHUB_STEP_SUMMARY
+          echo "🔖 New release git tag: '${{ steps.release.outputs.new_release_git_tag }}'" | tee -a $GITHUB_STEP_SUMMARY
+
+  merge-to-develop:
     name: 🔀 Merge to develop
     needs: release
     if: needs.release.outputs.released == 'true'
@@ -50,10 +55,21 @@ jobs:
     permissions:
       contents: write
 
+  merge-to-preview:
+    name: 🔀 Merge to preview
+    needs: release
+    if: needs.release.outputs.released == 'true' && needs.release.outputs.channel == ''
+    uses: ./.github/workflows/merge.yml
+    with:
+      from: ${{ needs.release.outputs.tag }}
+      to: preview
+    permissions:
+      contents: write
+
   deploy:
     name: 🚀 Deploy pages
     needs: release
-    if: needs.release.outputs.channel == 'main' || needs.release.outputs.channel == 'preview'
+    if: needs.release.outputs.channel == ''
     uses: ./.github/workflows/deploy.yml
     secrets:
       UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
