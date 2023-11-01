@@ -14,7 +14,7 @@ namespace CompositeCanvas.Demos
 
         private void LateUpdate()
         {
-            var valid = m_CompositeCanvasRenderer && m_CompositeCanvasRenderer.hasBakeBuffer;
+            var valid = m_CompositeCanvasRenderer && m_CompositeCanvasRenderer.currentBakeBuffer;
             texture = valid ? m_CompositeCanvasRenderer.mainTexture : null;
             canvasRenderer.SetAlpha(valid ? 1 : 0);
         }

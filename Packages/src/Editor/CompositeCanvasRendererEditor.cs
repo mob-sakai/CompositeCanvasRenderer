@@ -203,12 +203,12 @@ namespace CompositeCanvas
 
         public override bool HasPreviewGUI()
         {
-            return _current && _current.hasBakeBuffer;
+            return _current && _current.currentBakeBuffer;
         }
 
         public override void OnPreviewGUI(Rect rect, GUIStyle background)
         {
-            var tex = _current.mainTexture;
+            var tex = _current.currentBakeBuffer;
             var outer = new Rect(0, 0, tex.width, tex.height);
             var uv = new Rect(0, 0, 1, 1);
             var color = Color.white;
@@ -217,7 +217,7 @@ namespace CompositeCanvas
 
         public override string GetInfoString()
         {
-            var tex = _current.mainTexture;
+            var tex = _current.currentBakeBuffer;
             return $"Texture Size: {tex.width}x{tex.height}";
         }
     }

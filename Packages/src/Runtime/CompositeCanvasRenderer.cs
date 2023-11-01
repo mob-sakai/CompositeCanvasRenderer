@@ -129,7 +129,7 @@ namespace CompositeCanvas
             }
         }
 
-        public bool hasBakeBuffer => _bakeBuffer;
+        public RenderTexture currentBakeBuffer => _bakeBuffer;
 
         public DownSamplingRate downSamplingRate
         {
