@@ -192,7 +192,7 @@ namespace CompositeCanvas
 
             if (_isBaking)
             {
-                var (_, _, graphicMat) = CompositeCanvasRenderer.Decompose(graphic);
+                var (_, _, graphicMat, _) = CompositeCanvasRenderer.Decompose(graphic);
                 graphicMat = graphicMat ? graphicMat : baseMaterial;
                 var isDefaultShader = graphicMat.shader == graphic.defaultMaterial.shader;
                 if (isDefaultShader)
@@ -262,6 +262,7 @@ namespace CompositeCanvas
             if (!graphic) return;
             var prevColor = _color;
             _color = graphic.canvasRenderer.GetColor();
+            _color.a *= graphic.canvasRenderer.GetInheritedAlpha();
             if (prevColor != _color)
             {
                 SetRendererDirty();
@@ -318,7 +319,7 @@ namespace CompositeCanvas
 
             // Get the mesh, texture and material for rendering.
             Profiler.BeginSample("(CCR)[CompositeCanvasSource] Bake > Decompose");
-            var (graphicMesh, graphicTex, graphicMat) = CompositeCanvasRenderer.Decompose(graphic);
+            var (graphicMesh, graphicTex, graphicMat, colorId) = CompositeCanvasRenderer.Decompose(graphic);
             graphicMesh = graphicMesh ? graphicMesh : _mesh;
             Profiler.EndSample();
 
@@ -351,7 +352,9 @@ namespace CompositeCanvas
                 }
             }
 
-            _mpb.SetVector(ShaderPropertyIds.color, graphic.canvasRenderer.GetColor());
+            var color = graphic.canvasRenderer.GetColor();
+            color.a *= graphic.canvasRenderer.GetInheritedAlpha();
+            _mpb.SetVector(colorId, color);
             Profiler.EndSample();
 
             Profiler.BeginSample("(CCR)[CompositeCanvasSource] Bake > Calc Matrix");
