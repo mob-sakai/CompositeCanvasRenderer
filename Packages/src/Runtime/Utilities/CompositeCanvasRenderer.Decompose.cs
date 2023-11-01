@@ -21,7 +21,7 @@ namespace CompositeCanvas
             if (graphic is TextMeshProUGUI textMeshProUGUI)
             {
                 var mat = textMeshProUGUI.fontSharedMaterial;
-                return (textMeshProUGUI.mesh, mat.mainTexture, textMeshProUGUI.fontMaterial);
+                return (textMeshProUGUI.mesh, mat.mainTexture, mat);
             }
 
             if (graphic is TMP_SubMeshUI subMeshUI)
