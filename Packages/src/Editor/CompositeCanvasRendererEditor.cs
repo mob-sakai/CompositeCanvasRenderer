@@ -27,6 +27,7 @@ namespace CompositeCanvas
         private SerializedProperty _dstBlendMode;
         private SerializedProperty _extends;
         private SerializedProperty _foreground;
+        private SerializedProperty _orthographic;
 
         private Editor _materialEditor;
         private SerializedProperty _showSourceGraphics;
@@ -41,6 +42,7 @@ namespace CompositeCanvas
             _downSamplingRate = serializedObject.FindProperty("m_DownSamplingRate");
             _foreground = serializedObject.FindProperty("m_Foreground");
             _extends = serializedObject.FindProperty("m_Extends");
+            _orthographic = serializedObject.FindProperty("m_Orthographic");
             _colorMode = serializedObject.FindProperty("m_ColorMode");
             _blendType = serializedObject.FindProperty("m_BlendType");
             _srcBlendMode = serializedObject.FindProperty("m_SrcBlendMode");
@@ -69,6 +71,7 @@ namespace CompositeCanvas
 
             EditorGUILayout.PropertyField(_downSamplingRate);
             EditorGUILayout.PropertyField(_extends);
+            EditorGUILayout.PropertyField(_orthographic);
             ShowSourceGraphicsControlGUI();
             DrawEffectDropdown();
 

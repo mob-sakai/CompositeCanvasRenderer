@@ -37,6 +37,9 @@ namespace CompositeCanvas
         private bool m_ShowSourceGraphics = true;
 
         [SerializeField]
+        private bool m_Orthographic;
+
+        [SerializeField]
         private Vector2 m_Extends;
 
         [Header("Rendering")]
@@ -215,12 +218,13 @@ namespace CompositeCanvas
             }
         }
 
-        public bool isWorldSpace => canvas && canvas.renderMode == RenderMode.WorldSpace;
+        public bool isRelativeSpace => m_Orthographic || (canvas && canvas.renderMode == RenderMode.WorldSpace);
 
         public bool perspective
         {
             get
             {
+                if (m_Orthographic) return false;
                 if (FrameCache.TryGet(this, nameof(perspective), out bool isPerspective))
                 {
                     return isPerspective;
@@ -398,7 +402,7 @@ namespace CompositeCanvas
             ListPool<Component>.Return(ref components);
             Profiler.EndSample();
 
-            if (!isWorldSpace)
+            if (!isRelativeSpace)
             {
                 Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] UpdateGeometry > Modify for perspective");
                 // Relative L2W matrix from rootCanvas to this.
@@ -609,7 +613,7 @@ namespace CompositeCanvas
                 var pivot = rectTransform.pivot * 2 - Vector2.one;
 
                 // In world space, orthographic vp will be used.
-                if (isWorldSpace)
+                if (isRelativeSpace)
                 {
                     //var biasScale = (Vector3.one * 2).GetScaled(relative.lossyScale.Inverse());
                     var viewMatrix = Matrix4x4.identity;
@@ -691,13 +695,13 @@ namespace CompositeCanvas
             bakedCount++;
         }
 
-        private static void GetViewProjectionMatrix(Canvas canvas, out Matrix4x4 vMatrix, out Matrix4x4 pMatrix)
+        private void GetViewProjectionMatrix(Canvas canvas, out Matrix4x4 vMatrix, out Matrix4x4 pMatrix)
         {
             // Get view and projection matrices.
             Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] GetViewProjectionMatrix");
             var rootCanvas = canvas.rootCanvas;
             var cam = rootCanvas.worldCamera;
-            if (rootCanvas && rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay && cam)
+            if (!m_Orthographic && rootCanvas && rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay && cam)
             {
                 vMatrix = cam.worldToCameraMatrix;
                 pMatrix = GL.GetGPUProjectionMatrix(cam.projectionMatrix, false);

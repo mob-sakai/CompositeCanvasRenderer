@@ -358,7 +358,7 @@ namespace CompositeCanvas
             Profiler.EndSample();
 
             Profiler.BeginSample("(CCR)[CompositeCanvasSource] Bake > Calc Matrix");
-            var matrix = _renderer.isWorldSpace
+            var matrix = _renderer.isRelativeSpace
                 ? _renderer.transform.worldToLocalMatrix * transform.localToWorldMatrix
                 : transform.localToWorldMatrix;
             Profiler.EndSample();
