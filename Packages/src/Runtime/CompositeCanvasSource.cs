@@ -255,6 +255,7 @@ namespace CompositeCanvas
                         () => CompositeCanvasRenderer.CreateMaterial(colorMode, srcBlend, dstBlend),
                         CompositeCanvasRendererProjectSettings.cacheRendererMaterial);
                     graphicMat = _material;
+                    _mpb.SetFloat(ShaderPropertyIds.alphaMultiplier, 1);
                 }
                 else
                 {
