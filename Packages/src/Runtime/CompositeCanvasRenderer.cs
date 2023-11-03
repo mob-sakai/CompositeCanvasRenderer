@@ -9,7 +9,7 @@ using UnityEngine.UI;
 namespace CompositeCanvas
 {
     [RequireComponent(typeof(CanvasRenderer))]
-    public partial class CompositeCanvasRenderer : MaskableGraphic
+    public class CompositeCanvasRenderer : MaskableGraphic
     {
         internal const HideFlags k_Temporary = HideFlags.DontSave | HideFlags.NotEditable;
 

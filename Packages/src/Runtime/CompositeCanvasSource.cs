@@ -20,25 +20,6 @@ namespace CompositeCanvas
                 x => x != null,
                 x => x.Clear());
 
-        private static readonly ObjectPool<Mesh> s_MeshPool = new ObjectPool<Mesh>(
-            () =>
-            {
-                var mesh = new Mesh
-                {
-                    hideFlags = HideFlags.DontSave | HideFlags.NotEditable
-                };
-                mesh.MarkDynamic();
-                return mesh;
-            },
-            mesh => mesh,
-            mesh =>
-            {
-                if (mesh)
-                {
-                    mesh.Clear();
-                }
-            });
-
         private Action _checkRenderColor;
         private Color _color;
         private Graphic _graphic;
@@ -95,7 +76,7 @@ namespace CompositeCanvas
             UIExtraCallbacks.onBeforeCanvasRebuild -= _checkRenderColor;
 
             MaterialRegistry.Release(ref _material);
-            s_MeshPool.Return(ref _mesh);
+            MeshExtensions.Return(ref _mesh);
             s_MaterialPropertyBlockPool.Return(ref _mpb);
             UpdateRenderer(null);
 
@@ -144,75 +125,17 @@ namespace CompositeCanvas
         }
 #endif
 
-        // public int CompareTo(CompositeCanvasSource other)
-        // {
-        //     Profiler.BeginSample("(CCR)[CompositeCanvasSource] CompareTo");
-        //
-        //     if (this == other)
-        //     {
-        //         Profiler.EndSample();
-        //         return 0;
-        //     }
-        //
-        //     if (!this && other)
-        //     {
-        //         Profiler.EndSample();
-        //         return -1;
-        //     }
-        //
-        //     if (this && !other)
-        //     {
-        //         Profiler.EndSample();
-        //         return 1;
-        //     }
-        //
-        //     Profiler.BeginSample("(CCR)[CompositeCanvasSource] CompareTo > depth");
-        //     var depth = graphic ? graphic.depth : -1;
-        //     var otherDepth = other.graphic ? other.graphic.depth : -1;
-        //     Profiler.EndSample();
-        //
-        //     if (depth != -1 && otherDepth != -1)
-        //     {
-        //         Profiler.EndSample();
-        //         return depth - otherDepth;
-        //     }
-        //
-        //     var compare = transform.CompareHierarchyIndex(other.transform, _renderer ? _renderer.transform : null);
-        //
-        //     Profiler.EndSample();
-        //     return compare;
-        // }
-
         Material IMaterialModifier.GetModifiedMaterial(Material baseMaterial)
         {
-            if (!isActiveAndEnabled || !graphic || !_renderer || !_renderer.isActiveAndEnabled)
+            if (!isActiveAndEnabled
+                || !graphic
+                || !_renderer || !_renderer.isActiveAndEnabled || _renderer.showSourceGraphics
+                || _isBaking)
             {
                 return baseMaterial;
             }
 
-            if (_isBaking)
-            {
-                var (_, _, graphicMat, _) = CompositeCanvasRenderer.Decompose(graphic);
-                graphicMat = graphicMat ? graphicMat : baseMaterial;
-                var isDefaultShader = graphicMat.shader == graphic.defaultMaterial.shader;
-                if (isDefaultShader)
-                {
-                    const ColorMode colorMode = ColorMode.Multiply;
-                    const BlendMode srcBlend = BlendMode.One;
-                    const BlendMode dstBlend = BlendMode.OneMinusSrcAlpha;
-                    var hash = CompositeCanvasRenderer.CreateHash(colorMode, srcBlend, dstBlend);
-                    MaterialRegistry.Get(hash, ref _material,
-                        () => CompositeCanvasRenderer.CreateMaterial(colorMode, srcBlend, dstBlend),
-                        CompositeCanvasRendererProjectSettings.cacheRendererMaterial);
-                    return _material;
-                }
-
-                MaterialRegistry.Release(ref _material);
-                return graphicMat;
-            }
-
-            MaterialRegistry.Release(ref _material);
-            return _renderer.showSourceGraphics ? baseMaterial : null;
+            return null;
         }
 
         void IMeshModifier.ModifyMesh(Mesh mesh)
@@ -222,19 +145,12 @@ namespace CompositeCanvas
         void IMeshModifier.ModifyMesh(VertexHelper verts)
         {
             if (!isActiveAndEnabled || !_renderer || !_renderer.isActiveAndEnabled || !graphic) return;
-
-            // Find graphic mesh.
-            if (CompositeCanvasRenderer.Decompose(graphic).graphicMesh) return;
+            if (!CompositeCanvasProcess.instance.IsModifyMeshSupported(graphic)) return;
 
             Profiler.BeginSample("(CCR)[CompositeCanvasSource] ModifyMesh");
-            if (!_mesh)
-            {
-                _mesh = s_MeshPool.Rent();
-            }
-
+            _mesh = _mesh ? _mesh : MeshExtensions.Rent();
             verts.FillMesh(_mesh);
             _mesh.RecalculateBounds();
-
             Profiler.EndSample();
             Logging.Log(this, " >>>> Graphic mesh is modified.");
         }
@@ -317,45 +233,53 @@ namespace CompositeCanvas
         {
             if (!IsInScreen()) return;
 
-            // Get the mesh, texture and material for rendering.
-            Profiler.BeginSample("(CCR)[CompositeCanvasSource] Bake > Decompose");
-            var (graphicMesh, graphicTex, graphicMat, colorId) = CompositeCanvasRenderer.Decompose(graphic);
-            graphicMesh = graphicMesh ? graphicMesh : _mesh;
-            Profiler.EndSample();
-
-            if (!graphicMesh) return;
-
-            Profiler.BeginSample("(CCR)[CompositeCanvasSource] Bake > Get Modified Material");
-            _isBaking = true;
-            graphicMat = graphicMat ? graphicMat : graphic.materialForRendering;
-            _isBaking = false;
-            Profiler.EndSample();
-
-            if (!graphicMat) return;
-
-            Profiler.BeginSample("(CCR)[CompositeCanvasSource] Bake > Mpb setup");
-            if (_mpb == null)
-            {
-                _mpb = s_MaterialPropertyBlockPool.Rent();
-            }
-
+            _mpb = _mpb ?? s_MaterialPropertyBlockPool.Rent();
             _mpb.Clear();
+            Material graphicMat = null;
+            Texture graphicTex = null;
 
-            if (graphicTex != null)
             {
-                _mpb.SetTexture(ShaderPropertyIds.mainTex, graphicTex);
+                Profiler.BeginSample("(CCR)[CompositeCanvasSource] Bake > Get Modified Material");
+                _isBaking = true;
+                graphicMat = graphic.materialForRendering;
+                _isBaking = false;
 
-                // Use _TextureSampleAdd for alpha only texture
-                if (GraphicsFormatUtility.IsAlphaOnlyFormat(graphicTex.graphicsFormat))
+                var isDefaultShader = graphicMat.shader == Graphic.defaultGraphicMaterial.shader;
+                if (isDefaultShader)
                 {
-                    _mpb.SetVector(ShaderPropertyIds.textureSampleAdd, new Vector4(1, 1, 1, 0));
+                    const ColorMode colorMode = ColorMode.Multiply;
+                    const BlendMode srcBlend = BlendMode.One;
+                    const BlendMode dstBlend = BlendMode.OneMinusSrcAlpha;
+                    var hash = CompositeCanvasRenderer.CreateHash(colorMode, srcBlend, dstBlend);
+                    MaterialRegistry.Get(hash, ref _material,
+                        () => CompositeCanvasRenderer.CreateMaterial(colorMode, srcBlend, dstBlend),
+                        CompositeCanvasRendererProjectSettings.cacheRendererMaterial);
+                    graphicMat = _material;
                 }
+                else
+                {
+                    MaterialRegistry.Release(ref _material);
+                }
+
+                Profiler.EndSample();
             }
 
-            var color = graphic.canvasRenderer.GetColor();
-            color.a *= graphic.canvasRenderer.GetInheritedAlpha();
-            _mpb.SetVector(colorId, color);
-            Profiler.EndSample();
+            {
+                Profiler.BeginSample("(CCR)[CompositeCanvasSource] Bake > Mpb setup");
+                graphicTex = CompositeCanvasProcess.instance.GetMainTexture(graphic);
+                if (graphicTex != null)
+                {
+                    _mpb.SetTexture(ShaderPropertyIds.mainTex, graphicTex);
+
+                    // Use _TextureSampleAdd for alpha only texture
+                    if (GraphicsFormatUtility.IsAlphaOnlyFormat(graphicTex.graphicsFormat))
+                    {
+                        _mpb.SetVector(ShaderPropertyIds.textureSampleAdd, new Vector4(1, 1, 1, 0));
+                    }
+                }
+
+                Profiler.EndSample();
+            }
 
             Profiler.BeginSample("(CCR)[CompositeCanvasSource] Bake > Calc Matrix");
             var matrix = _renderer.isRelativeSpace
@@ -364,8 +288,11 @@ namespace CompositeCanvas
             Profiler.EndSample();
 
             Profiler.BeginSample("(CCR)[CompositeCanvasSource] Bake > DrawMesh");
-            cb.DrawMesh(graphicMesh, matrix, graphicMat, 0, 0, _mpb);
-            Logging.Log(this, $"<color=orange> >>>> Mesh '{name}' will render.</color>");
+            if (CompositeCanvasProcess.instance.OnPreBake(graphic, ref _mesh, _mpb))
+            {
+                Logging.Log(this, $"<color=orange> >>>> Mesh '{name}' will render.</color>");
+                cb.DrawMesh(_mesh, matrix, graphicMat, 0, 0, _mpb);
+            }
 
             Profiler.EndSample();
         }

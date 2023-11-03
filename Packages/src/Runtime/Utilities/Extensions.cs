@@ -9,7 +9,6 @@ namespace CompositeCanvas
     {
         public static readonly int mainTex = Shader.PropertyToID("_MainTex");
         public static readonly int color = Shader.PropertyToID("_Color");
-        public static readonly int faceColor = Shader.PropertyToID("_FaceColor");
         public static readonly int textureSampleAdd = Shader.PropertyToID("_TextureSampleAdd");
         public static readonly int srcBlendMode = Shader.PropertyToID("_SrcBlendMode");
         public static readonly int dstBlendMode = Shader.PropertyToID("_DstBlendMode");
@@ -32,6 +31,84 @@ namespace CompositeCanvas
             var lastIndex = self.Count - 1;
             self[index] = self[lastIndex];
             self.RemoveAt(lastIndex);
+        }
+    }
+
+    internal static class MeshExtensions
+    {
+        internal static readonly ObjectPool<Mesh> s_MeshPool = new ObjectPool<Mesh>(
+            () =>
+            {
+                var mesh = new Mesh
+                {
+                    hideFlags = HideFlags.DontSave | HideFlags.NotEditable
+                };
+                mesh.MarkDynamic();
+                return mesh;
+            },
+            mesh => mesh,
+            mesh =>
+            {
+                if (mesh)
+                {
+                    mesh.Clear();
+                }
+            });
+
+        public static Mesh Rent()
+        {
+            return s_MeshPool.Rent();
+        }
+
+        public static void Return(ref Mesh mesh)
+        {
+            s_MeshPool.Return(ref mesh);
+        }
+
+        public static void CopyTo(this Mesh self, ref Mesh dst)
+        {
+            if (self == null) return;
+
+            dst = dst ? dst : Rent();
+
+            var vector2List = ListPool<Vector2>.Rent();
+            var vector3List = ListPool<Vector3>.Rent();
+            var vector4List = ListPool<Vector4>.Rent();
+            var color32List = ListPool<Color32>.Rent();
+            var intList = ListPool<int>.Rent();
+
+            self.GetVertices(vector3List);
+            dst.SetVertices(vector3List);
+
+            self.GetTriangles(intList, 0);
+            dst.SetTriangles(intList, 0);
+
+            self.GetNormals(vector3List);
+            dst.SetNormals(vector3List);
+
+            self.GetTangents(vector4List);
+            dst.SetTangents(vector4List);
+
+            self.GetColors(color32List);
+            dst.SetColors(color32List);
+
+            self.GetUVs(0, vector2List);
+            dst.SetUVs(0, vector2List);
+
+            self.GetUVs(1, vector2List);
+            dst.SetUVs(1, vector2List);
+
+            self.GetUVs(2, vector2List);
+            dst.SetUVs(2, vector2List);
+
+            self.GetUVs(3, vector2List);
+            dst.SetUVs(3, vector2List);
+
+            dst.RecalculateBounds();
+            ListPool<Vector2>.Return(ref vector2List);
+            ListPool<Vector3>.Return(ref vector3List);
+            ListPool<Vector4>.Return(ref vector4List);
+            ListPool<Color32>.Return(ref color32List);
         }
     }
 

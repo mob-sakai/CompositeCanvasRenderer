@@ -69,6 +69,7 @@ namespace CompositeCanvas
             Logging.Log(typeof(MaterialRegistry),
                 $"Get(#{s_List.Count}): {entry.hash.GetHashCode()}, {entry.customMat.shader}");
 
+            Release(ref material);
             material = entry.customMat;
             Profiler.EndSample();
         }

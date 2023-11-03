@@ -27,9 +27,9 @@ namespace CompositeCanvas
         private SerializedProperty _dstBlendMode;
         private SerializedProperty _extends;
         private SerializedProperty _foreground;
-        private SerializedProperty _orthographic;
 
         private Editor _materialEditor;
+        private SerializedProperty _orthographic;
         private SerializedProperty _showSourceGraphics;
         private SerializedProperty _srcBlendMode;
 

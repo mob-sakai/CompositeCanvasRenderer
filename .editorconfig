@@ -26,6 +26,7 @@ trim_trailing_whitespace = true
 insert_final_newline = true
 
 csharp_style_implicit_object_creation_when_type_is_apparent = false
+resharper_object_creation_when_type_evident = explicitly_typed
 
 # Keep
 csharp_keep_existing_attribute_arrangement = true
