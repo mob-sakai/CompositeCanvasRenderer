@@ -138,7 +138,7 @@ namespace CompositeCanvas
 
         public static bool IsVisible(this Vector3 self)
         {
-            return 0 < Mathf.Abs(self.x * self.y * self.z);
+            return 0 < Mathf.Abs(self.x * self.y);
         }
     }
 
