@@ -196,6 +196,15 @@ namespace CompositeCanvas
 
             return result;
         }
+
+        public static float GetParentGroupAlpha(this Graphic self)
+        {
+            var alpha = self.canvasRenderer.GetAlpha();
+            if (Mathf.Approximately(alpha, 0)) return 1;
+
+            var inheritedAlpha = self.canvasRenderer.GetInheritedAlpha();
+            return Mathf.Clamp01(inheritedAlpha / alpha);
+        }
     }
 
     /// <summary>

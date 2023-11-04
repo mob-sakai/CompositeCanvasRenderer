@@ -289,7 +289,7 @@ namespace CompositeCanvas
             Profiler.EndSample();
 
             Profiler.BeginSample("(CCR)[CompositeCanvasSource] Bake > DrawMesh");
-            if (CompositeCanvasProcess.instance.OnPreBake(graphic, ref _mesh, _mpb) && _mesh)
+            if (CompositeCanvasProcess.instance.OnPreBake(graphic, ref _mesh, _mpb, _renderer.alphaScale) && _mesh)
             {
                 Logging.Log(this, $"<color=orange> >>>> Mesh '{name}' will render.</color>");
                 cb.DrawMesh(_mesh, matrix, graphicMat, 0, 0, _mpb);

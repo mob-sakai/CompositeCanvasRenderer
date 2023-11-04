@@ -260,6 +260,15 @@ namespace CompositeCanvas
             }
         }
 
+        public float alphaScale
+        {
+            get
+            {
+                var alpha = this.GetParentGroupAlpha();
+                return Mathf.Approximately(alpha, 0) ? 0 : 1f / alpha;
+            }
+        }
+
         protected override void OnEnable()
         {
             Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] OnEnable > Base");

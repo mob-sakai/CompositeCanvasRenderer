@@ -36,10 +36,10 @@ namespace CompositeCanvas
             return true;
         }
 
-        public virtual bool OnPreBake(Graphic graphic, ref Mesh mesh, MaterialPropertyBlock mpb)
+        public virtual bool OnPreBake(Graphic graphic, ref Mesh mesh, MaterialPropertyBlock mpb, float alphaScale)
         {
             var crColor = graphic.canvasRenderer.GetColor();
-            crColor.a *= graphic.canvasRenderer.GetInheritedAlpha();
+            crColor.a *= graphic.canvasRenderer.GetInheritedAlpha() * alphaScale;
 
 #if TMP_ENABLE
             Mesh graphicMesh = null;
@@ -55,6 +55,9 @@ namespace CompositeCanvas
             if (graphicMesh)
             {
                 graphicMesh.CopyTo(ref mesh);
+
+                // Skip if the color is white.
+                if (0.995f < crColor.r * crColor.g * crColor.b * crColor.a) return true;
 
                 var colors = ListPool<Color32>.Rent();
                 mesh.GetColors(colors);
