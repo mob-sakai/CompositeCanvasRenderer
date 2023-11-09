@@ -110,6 +110,7 @@ namespace CompositeCanvas
             ListPool<Vector3>.Return(ref vector3List);
             ListPool<Vector4>.Return(ref vector4List);
             ListPool<Color32>.Return(ref color32List);
+            ListPool<int>.Return(ref intList);
         }
     }
 
