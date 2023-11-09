@@ -20,6 +20,12 @@ namespace CompositeCanvas
                 x => x != null,
                 x => x.Clear());
 
+        [SerializeField]
+        private bool m_IgnoreSelf;
+
+        [SerializeField]
+        private bool m_IgnoreChildren;
+
         private Action _checkRenderColor;
         private Color _color;
         private Graphic _graphic;
@@ -41,12 +47,30 @@ namespace CompositeCanvas
             }
         }
 
+        public bool ignored
+        {
+            get
+            {
+                if (m_IgnoreSelf || !_renderer) return true;
+
+                var rendererTr = _renderer.transform;
+                var tr = transform.parent;
+                while (tr && tr != rendererTr)
+                {
+                    if (tr.TryGetComponent<CompositeCanvasSource>(out var source) && source.m_IgnoreChildren)
+                    {
+                        return true;
+                    }
+
+                    tr = tr.parent;
+                }
+
+                return false;
+            }
+        }
+
         protected override void OnEnable()
         {
-            Profiler.BeginSample("(CCR)[CompositeCanvasSource] OnEnable > Set hideFlags");
-            hideFlags = CompositeCanvasRenderer.k_Temporary;
-            Profiler.EndSample();
-
             Profiler.BeginSample("(CCR)[CompositeCanvasSource] OnEnable > Register onBeforeCanvasRebuild");
             _checkRenderColor = _checkRenderColor ?? CheckRenderColor;
             UIExtraCallbacks.onBeforeCanvasRebuild += _checkRenderColor;
@@ -67,7 +91,7 @@ namespace CompositeCanvas
             UpdateRenderer();
 
             Profiler.BeginSample("(CCR)[CompositeCanvasSource] OnEnable > AddComponentOnChildren");
-            this.AddComponentOnChildren<CompositeCanvasSource>(CompositeCanvasRenderer.k_Temporary, false);
+            this.AddComponentOnChildren<CompositeCanvasSource>(HideFlags.DontSave, false);
             Profiler.EndSample();
         }
 
@@ -108,7 +132,7 @@ namespace CompositeCanvas
 
         private void OnTransformChildrenChanged()
         {
-            this.AddComponentOnChildren<CompositeCanvasSource>(CompositeCanvasRenderer.k_Temporary, false);
+            this.AddComponentOnChildren<CompositeCanvasSource>(HideFlags.DontSave, false);
         }
 
         protected override void OnTransformParentChanged()
@@ -120,8 +144,13 @@ namespace CompositeCanvas
 #if UNITY_EDITOR
         protected override void OnValidate()
         {
+            hideFlags = m_IgnoreSelf || m_IgnoreChildren ? HideFlags.None : HideFlags.DontSave;
             base.OnValidate();
             SetRendererDirty();
+            if (_graphic)
+            {
+                _graphic.SetMaterialDirty();
+            }
         }
 #endif
 
@@ -130,7 +159,7 @@ namespace CompositeCanvas
             if (!isActiveAndEnabled
                 || !graphic
                 || !_renderer || !_renderer.isActiveAndEnabled || _renderer.showSourceGraphics
-                || _isBaking)
+                || _isBaking || ignored)
             {
                 return baseMaterial;
             }

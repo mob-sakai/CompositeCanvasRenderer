@@ -11,8 +11,6 @@ namespace CompositeCanvas
     [RequireComponent(typeof(CanvasRenderer))]
     public class CompositeCanvasRenderer : MaskableGraphic
     {
-        internal const HideFlags k_Temporary = HideFlags.DontSave | HideFlags.NotEditable;
-
         private static readonly string[][] s_ColorModeKeywords =
         {
             Array.Empty<string>(),
@@ -285,7 +283,7 @@ namespace CompositeCanvas
             Profiler.EndSample();
 
             Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] OnEnable > Add source component to children");
-            this.AddComponentOnChildren<CompositeCanvasSource>(k_Temporary, false);
+            this.AddComponentOnChildren<CompositeCanvasSource>(HideFlags.DontSave, false);
             Profiler.EndSample();
 
             if (!showSourceGraphics)
@@ -333,7 +331,7 @@ namespace CompositeCanvas
 
         private void OnTransformChildrenChanged()
         {
-            this.AddComponentOnChildren<CompositeCanvasSource>(k_Temporary, false);
+            this.AddComponentOnChildren<CompositeCanvasSource>(HideFlags.DontSave, false);
         }
 
         protected override void UpdateMaterial()
@@ -660,6 +658,7 @@ namespace CompositeCanvas
                 for (var i = 0; i < sources.Count; i++)
                 {
                     if (!sources[i]) continue;
+                    if (sources[i].ignored) continue;
                     sources[i].Bake(_cb);
                 }
 
