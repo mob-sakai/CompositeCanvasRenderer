@@ -268,14 +268,24 @@ namespace CompositeCanvas
             Texture graphicTex = null;
 
             {
-                Profiler.BeginSample("(CCR)[CompositeCanvasSource] Bake > Get Modified Material");
+                Profiler.BeginSample("(CCR)[CompositeCanvasSource] Bake > Get Modified Material For Baking");
                 _isBaking = true;
                 graphicMat = graphic.materialForRendering;
                 _isBaking = false;
+                Profiler.EndSample();
+
+                // Skip baking when `ColorMask=0` (for masking)
+                if (graphicMat.HasProperty(ShaderPropertyIds.colorMask)
+                    && graphicMat.GetInt(ShaderPropertyIds.colorMask) == 0)
+                {
+                    return;
+                }
 
                 var isDefaultShader = graphicMat.shader == Graphic.defaultGraphicMaterial.shader;
                 if (isDefaultShader)
                 {
+                    // Use CCR Material instead of default material to blend with One-OneMinusSrcAlpha.
+                    Profiler.BeginSample("(CCR)[CompositeCanvasSource] Bake > Use CCR Material");
                     const ColorMode colorMode = ColorMode.Multiply;
                     const BlendMode srcBlend = BlendMode.One;
                     const BlendMode dstBlend = BlendMode.OneMinusSrcAlpha;
@@ -285,13 +295,12 @@ namespace CompositeCanvas
                         CompositeCanvasRendererProjectSettings.cacheRendererMaterial);
                     graphicMat = _material;
                     _mpb.SetFloat(ShaderPropertyIds.alphaMultiplier, 1);
+                    Profiler.EndSample();
                 }
                 else
                 {
                     MaterialRegistry.Release(ref _material);
                 }
-
-                Profiler.EndSample();
             }
 
             {
@@ -318,7 +327,8 @@ namespace CompositeCanvas
             Profiler.EndSample();
 
             Profiler.BeginSample("(CCR)[CompositeCanvasSource] Bake > DrawMesh");
-            if (CompositeCanvasProcess.instance.OnPreBake(_renderer, graphic, ref _mesh, _mpb, _renderer.alphaScale) && _mesh)
+            if (CompositeCanvasProcess.instance.OnPreBake(_renderer, graphic, ref _mesh, _mpb, _renderer.alphaScale) &&
+                _mesh)
             {
                 Logging.Log(this, $"<color=orange> >>>> Mesh '{name}' will render.</color>");
                 cb.DrawMesh(_mesh, matrix, graphicMat, 0, 0, _mpb);
