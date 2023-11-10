@@ -72,7 +72,6 @@ namespace CompositeCanvas
 
             dst = dst ? dst : Rent();
 
-            var vector2List = ListPool<Vector2>.Rent();
             var vector3List = ListPool<Vector3>.Rent();
             var vector4List = ListPool<Vector4>.Rent();
             var color32List = ListPool<Color32>.Rent();
@@ -93,20 +92,19 @@ namespace CompositeCanvas
             self.GetColors(color32List);
             dst.SetColors(color32List);
 
-            self.GetUVs(0, vector2List);
-            dst.SetUVs(0, vector2List);
+            self.GetUVs(0, vector4List);
+            dst.SetUVs(0, vector4List);
 
-            self.GetUVs(1, vector2List);
-            dst.SetUVs(1, vector2List);
+            self.GetUVs(1, vector4List);
+            dst.SetUVs(1, vector4List);
 
-            self.GetUVs(2, vector2List);
-            dst.SetUVs(2, vector2List);
+            self.GetUVs(2, vector4List);
+            dst.SetUVs(2, vector4List);
 
-            self.GetUVs(3, vector2List);
-            dst.SetUVs(3, vector2List);
+            self.GetUVs(3, vector4List);
+            dst.SetUVs(3, vector4List);
 
             dst.RecalculateBounds();
-            ListPool<Vector2>.Return(ref vector2List);
             ListPool<Vector3>.Return(ref vector3List);
             ListPool<Vector4>.Return(ref vector4List);
             ListPool<Color32>.Return(ref color32List);
