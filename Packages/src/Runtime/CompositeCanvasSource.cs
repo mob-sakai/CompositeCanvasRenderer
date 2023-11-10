@@ -31,10 +31,10 @@ namespace CompositeCanvas
         private Graphic _graphic;
         private bool _isBaking;
         private Material _material;
-        private Mesh _mesh;
+        internal Mesh _mesh;
         private MaterialPropertyBlock _mpb;
         private Matrix4x4 _prevTransformMatrix;
-        private CompositeCanvasRenderer _renderer;
+        internal CompositeCanvasRenderer _renderer;
         private UnityAction _setRendererDirty;
 
         public Graphic graphic
@@ -260,7 +260,7 @@ namespace CompositeCanvas
 
         internal void Bake(CommandBuffer cb)
         {
-            if (!IsInScreen()) return;
+            if (!_graphic || !IsInScreen()) return;
 
             _mpb = _mpb ?? s_MaterialPropertyBlockPool.Rent();
             _mpb.Clear();
@@ -318,7 +318,7 @@ namespace CompositeCanvas
             Profiler.EndSample();
 
             Profiler.BeginSample("(CCR)[CompositeCanvasSource] Bake > DrawMesh");
-            if (CompositeCanvasProcess.instance.OnPreBake(graphic, ref _mesh, _mpb, _renderer.alphaScale) && _mesh)
+            if (CompositeCanvasProcess.instance.OnPreBake(_renderer, graphic, ref _mesh, _mpb, _renderer.alphaScale) && _mesh)
             {
                 Logging.Log(this, $"<color=orange> >>>> Mesh '{name}' will render.</color>");
                 cb.DrawMesh(_mesh, matrix, graphicMat, 0, 0, _mpb);
@@ -335,10 +335,10 @@ namespace CompositeCanvas
         public bool IsInScreen()
         {
             // Cull if there is no graphic or the scale is too small.
-            if (!graphic || !transform.lossyScale.IsVisible()) return false;
+            if (!_graphic || !transform.lossyScale.IsVisible()) return false;
 
             return !CompositeCanvasRendererProjectSettings.enableCulling
-                   || graphic.IsInScreen();
+                   || _graphic.IsInScreen();
         }
     }
 }
