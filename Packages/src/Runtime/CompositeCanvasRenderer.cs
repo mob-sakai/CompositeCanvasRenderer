@@ -28,11 +28,8 @@ namespace CompositeCanvas
         private static readonly VertexHelper s_VertexHelper = new VertexHelper();
 
         [SerializeField]
-        [Header("Settings")]
+        [Header("Baking")]
         private DownSamplingRate m_DownSamplingRate = DownSamplingRate.x1;
-
-        [SerializeField]
-        private bool m_ShowSourceGraphics = true;
 
         [SerializeField]
         private bool m_Orthographic;
@@ -41,6 +38,9 @@ namespace CompositeCanvas
         private Vector2 m_Extends;
 
         [Header("Rendering")]
+        [SerializeField]
+        private bool m_ShowSourceGraphics = true;
+
         [SerializeField]
         private bool m_Foreground;
 

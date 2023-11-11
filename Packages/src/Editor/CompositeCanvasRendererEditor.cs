@@ -14,6 +14,7 @@ namespace CompositeCanvas
     {
         private static readonly GUIContent s_ContentNone = new GUIContent("None");
         private static readonly GUIContent s_ContentEffect = new GUIContent("Effect");
+        private static readonly GUIContent s_ContentAttachedEffect = new GUIContent("Attached Effect");
         private static readonly Dictionary<Type, GUIContent> s_EffectLabels = new Dictionary<Type, GUIContent>();
 
         private static readonly MethodInfo s_DrawSprite =
@@ -73,7 +74,6 @@ namespace CompositeCanvas
             EditorGUILayout.PropertyField(_extends);
             EditorGUILayout.PropertyField(_orthographic);
             ShowSourceGraphicsControlGUI();
-            DrawEffectDropdown();
 
             EditorGUILayout.PropertyField(_foreground);
             EditorGUILayout.PropertyField(m_Material);
@@ -92,6 +92,8 @@ namespace CompositeCanvas
             }
 
             serializedObject.ApplyModifiedProperties();
+
+            DrawEffectDropdown();
 
             if (_current.foreground)
             {
@@ -126,8 +128,11 @@ namespace CompositeCanvas
             var current = target as CompositeCanvasRenderer;
             if (!current) return;
 
+            EditorGUILayout.Space(10);
+            EditorGUILayout.LabelField(s_ContentEffect, EditorStyles.boldLabel);
+
             var rect = EditorGUILayout.GetControlRect(true, 16, EditorStyles.popup);
-            rect = EditorGUI.PrefixLabel(rect, s_ContentEffect);
+            rect = EditorGUI.PrefixLabel(rect, s_ContentAttachedEffect);
 
             var currentEffectType = current.GetComponent<CompositeCanvasEffect>()?.GetType();
             if (!GUI.Button(rect, GetEffectLabel(currentEffectType), EditorStyles.popup)) return;
