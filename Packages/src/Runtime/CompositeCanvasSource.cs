@@ -344,11 +344,36 @@ namespace CompositeCanvas
 
         public bool IsInScreen()
         {
-            // Cull if there is no graphic or the scale is too small.
-            if (!_graphic || !transform.lossyScale.IsVisible()) return false;
+            if (FrameCache.TryGet(this, nameof(IsInScreen), out bool result))
+            {
+                return result;
+            }
 
-            return !CompositeCanvasRendererProjectSettings.enableCulling
-                   || _graphic.IsInScreen();
+            // Cull if there is no graphic or the scale is too small.
+            if (!_renderer || !_graphic || !transform.lossyScale.IsVisible())
+            {
+                result = false;
+            }
+            else if (!_renderer.culling)
+            {
+                result = true;
+            }
+            else
+            {
+                var viewport = _renderer.rectTransform;
+                var bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(viewport, transform);
+                var viewportRect = viewport.rect;
+                var ex = _renderer.extents;
+                viewportRect.Set(viewportRect.xMin - ex.x / 2,
+                    viewportRect.yMin - ex.y / 2,
+                    viewportRect.width + ex.x,
+                    viewportRect.height + ex.y);
+                var rect = new Rect(bounds.min, bounds.size);
+                result = viewportRect.Overlaps(rect, true);
+            }
+
+            FrameCache.Set(this, nameof(IsInScreen), result);
+            return result;
         }
     }
 }

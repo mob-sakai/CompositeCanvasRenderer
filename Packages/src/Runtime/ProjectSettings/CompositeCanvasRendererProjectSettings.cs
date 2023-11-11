@@ -15,23 +15,12 @@ namespace CompositeCanvas
         private bool m_CacheRendererMaterial = true;
 
 #if UNITY_EDITOR
-        [Header("Editor")]
-        [SerializeField]
-        private bool m_EnableCullingInEditMode;
-
         [Header("Shader")]
         [SerializeField]
         private bool m_AutoIncludeShaders = true;
 #endif
 
         public static bool cacheRendererMaterial => instance.m_CacheRendererMaterial;
-
-        public static bool enableCulling =>
-#if UNITY_EDITOR
-            Application.isPlaying || instance.m_EnableCullingInEditMode;
-#else
-            true;
-#endif
 
         public static TransformSensitivity transformSensitivity
         {

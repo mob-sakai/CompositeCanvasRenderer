@@ -37,6 +37,9 @@ namespace CompositeCanvas
         [SerializeField]
         private Vector2 m_Extents;
 
+        [SerializeField]
+        private bool m_Culling;
+
         [Header("Rendering")]
         [SerializeField]
         private bool m_ShowSourceGraphics = true;
@@ -213,6 +216,17 @@ namespace CompositeCanvas
 
                 ListPool<Component>.Return(ref components);
                 return base.GetModifiedMaterial(currentMat);
+            }
+        }
+
+        public bool culling
+        {
+            get => m_Culling;
+            set
+            {
+                if (m_Culling == value) return;
+                m_Culling = value;
+                SetDirty();
             }
         }
 
