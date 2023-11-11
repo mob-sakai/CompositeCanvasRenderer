@@ -35,7 +35,7 @@ namespace CompositeCanvas
         private bool m_Orthographic;
 
         [SerializeField]
-        private Vector2 m_Extends;
+        private Vector2 m_Extents;
 
         [Header("Rendering")]
         [SerializeField]
@@ -155,20 +155,20 @@ namespace CompositeCanvas
             }
         }
 
-        public Vector2 extends
+        public Vector2 extents
         {
-            get => m_Extends;
+            get => m_Extents;
             set
             {
-                if (m_Extends == value) return;
-                m_Extends = value;
+                if (m_Extents == value) return;
+                m_Extents = value;
 
                 SetVerticesDirty();
                 SetDirty();
             }
         }
 
-        public Vector2 renderingSize => rectTransform.rect.size + m_Extends;
+        public Vector2 renderingSize => rectTransform.rect.size + m_Extents;
 
         public bool showSourceGraphics
         {
@@ -363,10 +363,10 @@ namespace CompositeCanvas
         public Rect GetRenderingRect()
         {
             var r = GetPixelAdjustedRect();
-            return new Rect(r.x - m_Extends.x / 2,
-                r.y - m_Extends.y / 2,
-                r.width + m_Extends.x,
-                r.height + m_Extends.y);
+            return new Rect(r.x - m_Extents.x / 2,
+                r.y - m_Extents.y / 2,
+                r.width + m_Extents.x,
+                r.height + m_Extents.y);
         }
 
         protected override void UpdateGeometry()
