@@ -230,24 +230,20 @@ namespace CompositeCanvas
             }
         }
 
-        public bool isRelativeSpace => m_Orthographic || (canvas && canvas.renderMode == RenderMode.WorldSpace);
+        public bool isRelativeSpace => !perspective || (canvas && canvas.renderMode == RenderMode.WorldSpace);
 
         public bool perspective
         {
             get
             {
-                if (m_Orthographic) return false;
+                if (!m_Orthographic
+                    && canvas && canvas.renderMode == RenderMode.ScreenSpaceCamera
+                    && canvas.worldCamera && !canvas.worldCamera.orthographic)
+                    return true;
+
                 if (FrameCache.TryGet(this, nameof(perspective), out bool isPerspective))
                 {
                     return isPerspective;
-                }
-
-                // Default: false.
-                if (!canvas || canvas.renderMode != RenderMode.ScreenSpaceCamera
-                            || !canvas.worldCamera || canvas.worldCamera.orthographic)
-                {
-                    FrameCache.Set(this, nameof(perspective), false);
-                    return false;
                 }
 
                 isPerspective = false;
