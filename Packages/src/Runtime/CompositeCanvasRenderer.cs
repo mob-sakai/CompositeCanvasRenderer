@@ -267,6 +267,18 @@ namespace CompositeCanvas
             }
         }
 
+        public bool orthographic
+        {
+            get => m_Orthographic;
+            set
+            {
+                if (m_Orthographic == value) return;
+                m_Orthographic = value;
+                SetVerticesDirty();
+                SetDirty();
+            }
+        }
+
         protected override void OnEnable()
         {
             Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] OnEnable > Base");
