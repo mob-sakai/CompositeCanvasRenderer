@@ -38,8 +38,6 @@ Shader "UI/CompositeCanvasRenderer"
         _ColorMask ("Color Mask", Float) = 15
 
         [Toggle(UNITY_UI_ALPHACLIP)] _UseUIAlphaClip ("Use Alpha Clip", Float) = 0
-        
-        _AlphaMultiplier ("Alpha Multiplier", Float) = 2
     }
 
     SubShader
@@ -121,7 +119,6 @@ Shader "UI/CompositeCanvasRenderer"
             float2 _MaskSpeed;
             sampler2D _DetailTex;
             float4 _DetailTex_ST;
-            half _AlphaMultiplier = 1;
 
             half4 applyColorEffect(half4 color, half4 factor)
             {
@@ -193,7 +190,7 @@ Shader "UI/CompositeCanvasRenderer"
                 #endif
 
                 color = applyColorEffect(color, IN.color);
-                color *= saturate(color.a * IN.color.a * _AlphaMultiplier);
+                color *= color.a * IN.color.a;
 
                 #ifdef ENABLE_MASK
                 const float2 maskUv = TRANSFORM_TEX(IN.texcoord.xy, _MaskTex);

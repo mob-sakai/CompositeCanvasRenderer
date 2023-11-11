@@ -18,7 +18,6 @@ namespace CompositeCanvas
         public static readonly int limit = Shader.PropertyToID("_Limit");
         public static readonly int power = Shader.PropertyToID("_Power");
         public static readonly int blur = Shader.PropertyToID("_Blur");
-        public static readonly int alphaMultiplier = Shader.PropertyToID("_AlphaMultiplier");
         public static readonly int tmpRt = Shader.PropertyToID("CompositeCanvasTmpRt");
         public static readonly uint compositeCanvas = (uint)Shader.PropertyToID("CompositeCanvas");
         public static readonly uint compositeCanvasBlur = (uint)Shader.PropertyToID("CompositeCanvas/Blur");
