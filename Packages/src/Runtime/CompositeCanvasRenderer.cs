@@ -40,6 +40,9 @@ namespace CompositeCanvas
         [SerializeField]
         private bool m_Culling;
 
+        [SerializeField]
+        private BakingTrigger m_BakingTrigger;
+
         [Header("Rendering")]
         [SerializeField]
         private bool m_ShowSourceGraphics = true;
@@ -142,7 +145,7 @@ namespace CompositeCanvas
             {
                 if (m_DownSamplingRate == value) return;
                 m_DownSamplingRate = value;
-                SetDirty();
+                SetDirty(true);
             }
         }
 
@@ -167,7 +170,7 @@ namespace CompositeCanvas
                 m_Extents = value;
 
                 SetVerticesDirty();
-                SetDirty();
+                SetDirty(true);
             }
         }
 
@@ -226,7 +229,7 @@ namespace CompositeCanvas
             {
                 if (m_Culling == value) return;
                 m_Culling = value;
-                SetDirty();
+                SetDirty(true);
             }
         }
 
@@ -239,7 +242,9 @@ namespace CompositeCanvas
                 if (!m_Orthographic
                     && canvas && canvas.renderMode == RenderMode.ScreenSpaceCamera
                     && canvas.worldCamera && !canvas.worldCamera.orthographic)
+                {
                     return true;
+                }
 
                 if (FrameCache.TryGet(this, nameof(perspective), out bool isPerspective))
                 {
@@ -285,7 +290,17 @@ namespace CompositeCanvas
                 if (m_Orthographic == value) return;
                 m_Orthographic = value;
                 SetVerticesDirty();
-                SetDirty();
+                SetDirty(true);
+            }
+        }
+
+        public BakingTrigger bakingTrigger
+        {
+            get => m_BakingTrigger;
+            set
+            {
+                if (Equals(m_BakingTrigger, value)) return;
+                m_BakingTrigger = value;
             }
         }
 
@@ -315,7 +330,11 @@ namespace CompositeCanvas
 
             SetSourcesVerticesDirty();
 
-            isDirty = true;
+            // Set dirty on enable.
+            if (m_BakingTrigger != BakingTrigger.Manually)
+            {
+                SetDirty(true);
+            }
         }
 
         protected override void OnDisable()
@@ -504,33 +523,36 @@ namespace CompositeCanvas
             return mat;
         }
 
-        public override void SetVerticesDirty()
-        {
-            base.SetVerticesDirty();
-            SetDirty();
-        }
-
-        public override void SetMaterialDirty()
-        {
-            base.SetMaterialDirty();
-            SetDirty();
-        }
-
-        public void SetDirty()
+        public void SetDirty(bool force = false)
         {
             if (isDirty || !isActiveAndEnabled) return;
+            if (!force && m_BakingTrigger != BakingTrigger.Automatic)
+            {
+                Logging.LogIf(!isDirty, this,
+                    $"<color=orange>! SetDirty {GetInstanceID()} is canceled due to non automatic mode).</color>");
+                return;
+            }
+
             Logging.LogIf(!isDirty, this, $"! SetDirty {GetInstanceID()}");
             isDirty = true;
-            if (perspective)
-            {
-                SetVerticesDirty();
-            }
         }
 
         private void CheckTransformChanged()
         {
             if (isDirty) return;
 
+            switch (m_BakingTrigger)
+            {
+                case BakingTrigger.Always:
+                    SetDirty(true);
+                    return;
+                case BakingTrigger.Manually:
+                case BakingTrigger.OnEnable:
+                    ; // Do nothing.
+                    return;
+            }
+
+            // If the transform of any source graphic has changed, set dirty.
             Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] CheckTransformChanged > Sources");
             var isPerspective = perspective;
             var baseTransform = isPerspective ? null : transform;
@@ -541,18 +563,20 @@ namespace CompositeCanvas
 
                 if (source.HasTransformChanged(baseTransform))
                 {
-                    SetDirty();
+                    SetDirty(true);
                 }
             }
 
             Profiler.EndSample();
 
+            // Set dirty when transform changed.
             if (isPerspective)
             {
                 Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] CheckTransformChanged > Perspective");
                 if (transform.HasChanged(null, ref _prevTransformMatrix))
                 {
                     SetDirty();
+                    SetVerticesDirty();
                 }
             }
             else
@@ -561,6 +585,7 @@ namespace CompositeCanvas
                 var m = Matrix4x4.Rotate(transform.localRotation) * Matrix4x4.Scale(transform.localScale);
                 if (_prevTransformMatrix != m)
                 {
+                    SetDirty();
                     SetVerticesDirty();
                 }
 
@@ -575,7 +600,7 @@ namespace CompositeCanvas
             if (!canvasSource || sources.Contains(canvasSource)) return;
 
             sources.Add(canvasSource);
-            isDirty = true;
+            SetDirty();
             Logging.Log(this, $"Register #{sources.Count}: {canvasSource} {canvasSource.GetInstanceID()}");
         }
 
@@ -584,7 +609,7 @@ namespace CompositeCanvas
             if (!sources.Contains(canvasSource)) return;
 
             sources.Remove(canvasSource);
-            isDirty = true;
+            SetDirty();
             Logging.Log(this, $"Unregister #{sources.Count}: {canvasSource} {canvasSource.GetInstanceID()}");
         }
 
@@ -611,8 +636,18 @@ namespace CompositeCanvas
 
             if (!isDirty) return;
             isDirty = false;
+            if (!canvas)
+            {
+                Logging.Log(this, "<color=orange> Baking is canceled due to not in canvas.</color>");
+                return;
+            }
 
-            if (!canvas || !IsInScreen()) return;
+            if (!IsInScreen())
+            {
+                Logging.Log(this,
+                    "<color=orange> Baking is canceled due to all source graphics are not in screen.</color>");
+                return;
+            }
 
             if (_cb == null)
             {
@@ -781,12 +816,10 @@ namespace CompositeCanvas
 #if UNITY_EDITOR
         protected override void OnValidate()
         {
-            base.OnValidate();
-
             blendType = blendType;
-            isDirty = true;
-
-            SetAllDirty();
+            SetDirty();
+            SetVerticesDirty();
+            SetMaterialDirty();
         }
 
         private void OnDrawGizmos()

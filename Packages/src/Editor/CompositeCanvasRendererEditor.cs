@@ -21,6 +21,7 @@ namespace CompositeCanvas
             Type.GetType("UnityEditor.UI.SpriteDrawUtility, UnityEditor.UI")
                 ?.GetMethod("DrawSprite", BindingFlags.NonPublic | BindingFlags.Static);
 
+        private SerializedProperty _bakingTrigger;
         private SerializedProperty _blendType;
         private SerializedProperty _colorMode;
         private SerializedProperty _culling;
@@ -29,7 +30,6 @@ namespace CompositeCanvas
         private SerializedProperty _dstBlendMode;
         private SerializedProperty _extents;
         private SerializedProperty _foreground;
-
         private Editor _materialEditor;
         private SerializedProperty _orthographic;
         private SerializedProperty _showSourceGraphics;
@@ -45,6 +45,7 @@ namespace CompositeCanvas
             _foreground = serializedObject.FindProperty("m_Foreground");
             _extents = serializedObject.FindProperty("m_Extents");
             _culling = serializedObject.FindProperty("m_Culling");
+            _bakingTrigger = serializedObject.FindProperty("m_BakingTrigger");
             _orthographic = serializedObject.FindProperty("m_Orthographic");
             _colorMode = serializedObject.FindProperty("m_ColorMode");
             _blendType = serializedObject.FindProperty("m_BlendType");
@@ -76,6 +77,7 @@ namespace CompositeCanvas
             EditorGUILayout.PropertyField(_extents);
             EditorGUILayout.PropertyField(_orthographic);
             EditorGUILayout.PropertyField(_culling);
+            EditorGUILayout.PropertyField(_bakingTrigger);
             ShowSourceGraphicsControlGUI();
 
             EditorGUILayout.PropertyField(_foreground);

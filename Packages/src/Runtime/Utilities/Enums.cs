@@ -16,6 +16,14 @@ namespace CompositeCanvas
         x8 = 8
     }
 
+    public enum BakingTrigger
+    {
+        Automatic,
+        Manually,
+        Always,
+        OnEnable
+    }
+
     public enum BlendType
     {
         Custom,
