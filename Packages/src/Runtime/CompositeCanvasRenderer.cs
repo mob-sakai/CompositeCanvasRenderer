@@ -876,22 +876,10 @@ namespace CompositeCanvas
             // Apply baked effect.
             {
                 Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] Bake > Apply Baked Effect");
-                var list = ListPool<CompositeCanvasEffect>.Rent();
-                GetComponents(list);
-
-                if (0 < list.Count)
+                if (TryGetComponent<CompositeCanvasEffect>(out var effect) && effect.isActiveAndEnabled)
                 {
-                    for (var i = 0; i < list.Count; i++)
-                    {
-                        var effect = list[i];
-                        if (effect.isActiveAndEnabled)
-                        {
-                            effect.ApplyBakedEffect(_cb);
-                        }
-                    }
+                    effect.ApplyBakedEffect(_cb);
                 }
-
-                ListPool<CompositeCanvasEffect>.Return(ref list);
                 Profiler.EndSample();
             }
 
