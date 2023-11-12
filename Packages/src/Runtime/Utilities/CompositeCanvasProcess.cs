@@ -72,11 +72,8 @@ namespace CompositeCanvas
             Graphic graphic,
             ref Mesh mesh,
             MaterialPropertyBlock mpb,
-            float alphaScale)
+            Color color)
         {
-            var crColor = graphic.canvasRenderer.GetColor();
-            crColor.a *= graphic.canvasRenderer.GetInheritedAlpha() * alphaScale;
-
 #if TMP_ENABLE
             Mesh graphicMesh = null;
             if (graphic is TextMeshProUGUI textMeshProUGUI)
@@ -95,17 +92,17 @@ namespace CompositeCanvas
                 for (var i = 0; i < colors.Count; i++)
                 {
                     var c = colors[i];
-                    c.r = (byte)(c.r * crColor.r);
-                    c.g = (byte)(c.g * crColor.g);
-                    c.b = (byte)(c.b * crColor.b);
-                    c.a = (byte)(c.a * crColor.a);
+                    c.r = (byte)(c.r * color.r);
+                    c.g = (byte)(c.g * color.g);
+                    c.b = (byte)(c.b * color.b);
+                    c.a = (byte)(c.a * color.a);
                     colors[i] = c;
                 }
 
                 mesh.SetColors(colors);
                 ListPool<Color32>.Return(ref colors);
 
-                if (renderer.isRelativeSpace)
+                if (!renderer.perspectiveBaking)
                 {
                     var xScale = 1f / graphic.canvas.rootCanvas.transform.lossyScale.x;
                     var uv2s = ListPool<Vector2>.Rent();
@@ -125,7 +122,7 @@ namespace CompositeCanvas
             }
 #endif
 
-            mpb.SetColor(ShaderPropertyIds.color, crColor);
+            mpb.SetColor(ShaderPropertyIds.color, color);
             return true;
         }
     }

@@ -42,7 +42,7 @@ namespace CompositeCanvas.Demos
                     canvasRenderer.SetAlpha(m_CompositeCanvasRenderer.isDirty ? 1 : 0);
                     break;
                 case Mode.Perspective:
-                    canvasRenderer.SetAlpha(m_CompositeCanvasRenderer.perspective ? 1 : 0);
+                    canvasRenderer.SetAlpha(m_CompositeCanvasRenderer.perspectiveBaking ? 1 : 0);
                     break;
             }
         }

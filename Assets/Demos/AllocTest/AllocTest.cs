@@ -45,7 +45,7 @@ public class AllocTest : MonoBehaviour
 
             foreach (var r in _renderers)
             {
-                r.SetDirty();
+                r.SetDirty(false);
             }
         }
 

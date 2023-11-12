@@ -331,7 +331,7 @@ namespace CompositeCanvas
         {
             if (_renderer)
             {
-                _renderer.SetDirty();
+                _renderer.SetDirty(false);
             }
         }
 
@@ -397,14 +397,17 @@ namespace CompositeCanvas
             }
 
             Profiler.BeginSample("(CCR)[CompositeCanvasSource] Bake > Calc Matrix");
-            var matrix = _renderer.isRelativeSpace
-                ? _renderer.transform.worldToLocalMatrix * transform.localToWorldMatrix
-                : transform.localToWorldMatrix;
+            var matrix = _renderer.perspectiveBaking
+                ? transform.localToWorldMatrix
+                : _renderer.transform.worldToLocalMatrix * transform.localToWorldMatrix;
             Profiler.EndSample();
 
             Profiler.BeginSample("(CCR)[CompositeCanvasSource] Bake > DrawMesh");
-            if (CompositeCanvasProcess.instance.OnPreBake(_renderer, graphic, ref _mesh, _mpb, _renderer.alphaScale) &&
-                _mesh)
+            var alpha = _renderer.GetParentGroupAlpha();
+            var alphaScale = Mathf.Approximately(alpha, 0) ? 0 : 1f / alpha;
+            var crColor = graphic.canvasRenderer.GetColor();
+            crColor.a *= graphic.canvasRenderer.GetInheritedAlpha() * alphaScale;
+            if (CompositeCanvasProcess.instance.OnPreBake(_renderer, graphic, ref _mesh, _mpb, crColor) && _mesh)
             {
                 Logging.Log(this, $"<color=orange> >>>> Mesh '{name}' will render.</color>");
                 cb.DrawMesh(_mesh, matrix, graphicMat, 0, 0, _mpb);

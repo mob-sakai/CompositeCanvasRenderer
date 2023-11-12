@@ -199,7 +199,7 @@ namespace CompositeCanvas
             {
                 if (m_DownSamplingRate == value) return;
                 m_DownSamplingRate = value;
-                SetDirty(true);
+                SetDirty();
             }
         }
 
@@ -230,7 +230,7 @@ namespace CompositeCanvas
                 m_Extents = value;
 
                 SetVerticesDirty();
-                SetDirty(true);
+                SetDirty();
             }
         }
 
@@ -305,13 +305,14 @@ namespace CompositeCanvas
             {
                 if (m_Culling == value) return;
                 m_Culling = value;
-                SetDirty(true);
+                SetDirty();
             }
         }
 
-        public bool isRelativeSpace => !perspective || (canvas && canvas.renderMode == RenderMode.WorldSpace);
-
-        public bool perspective
+        /// <summary>
+        /// Use perspective space to bake.
+        /// </summary>
+        public bool perspectiveBaking
         {
             get
             {
@@ -323,7 +324,14 @@ namespace CompositeCanvas
                     return true;
                 }
 
-                if (FrameCache.TryGet(this, nameof(perspective), out bool isPerspective))
+                // In world space, perspective mode is not supported.
+                if (canvas && canvas.renderMode == RenderMode.WorldSpace)
+                {
+                    return false;
+                }
+
+                // Use cache if possible.
+                if (FrameCache.TryGet(this, nameof(perspectiveBaking), out bool isPerspective))
                 {
                     return isPerspective;
                 }
@@ -346,17 +354,8 @@ namespace CompositeCanvas
                     }
                 }
 
-                FrameCache.Set(this, nameof(perspective), isPerspective);
+                FrameCache.Set(this, nameof(perspectiveBaking), isPerspective);
                 return isPerspective;
-            }
-        }
-
-        public float alphaScale
-        {
-            get
-            {
-                var alpha = this.GetParentGroupAlpha();
-                return Mathf.Approximately(alpha, 0) ? 0 : 1f / alpha;
             }
         }
 
@@ -371,7 +370,7 @@ namespace CompositeCanvas
                 if (m_Orthographic == value) return;
                 m_Orthographic = value;
                 SetVerticesDirty();
-                SetDirty(true);
+                SetDirty();
             }
         }
 
@@ -428,7 +427,7 @@ namespace CompositeCanvas
             // Set dirty on enable.
             if (m_BakingTrigger != BakingTrigger.Manually)
             {
-                SetDirty(true);
+                SetDirty();
             }
         }
 
@@ -564,7 +563,8 @@ namespace CompositeCanvas
             ListPool<Component>.Return(ref components);
             Profiler.EndSample();
 
-            if (!isRelativeSpace)
+            // In perspective mode, modify the mesh to be rendered in perspective.
+            if (perspectiveBaking)
             {
                 Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] UpdateGeometry > Modify for perspective");
                 // Relative L2W matrix from rootCanvas to this.
@@ -651,7 +651,10 @@ namespace CompositeCanvas
             return mat;
         }
 
-        public void SetDirty(bool force = false)
+        /// <summary>
+        /// Mark the baked buffer as dirty and needing re-bake.
+        /// </summary>
+        public void SetDirty(bool force = true)
         {
             if (isDirty || !isActiveAndEnabled) return;
             if (!force && m_BakingTrigger != BakingTrigger.Automatic)
@@ -676,7 +679,7 @@ namespace CompositeCanvas
             {
                 case BakingTrigger.Always:
                     // Always set dirty.
-                    SetDirty(true);
+                    SetDirty();
                     return;
                 case BakingTrigger.Manually:
                 case BakingTrigger.OnEnable:
@@ -686,7 +689,7 @@ namespace CompositeCanvas
 
             // If the transform of any source graphic has changed, set dirty.
             Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] CheckTransformChanged > Sources");
-            var isPerspective = perspective;
+            var isPerspective = perspectiveBaking;
             var baseTransform = isPerspective ? null : transform;
             for (var i = 0; i < sources.Count; i++)
             {
@@ -695,7 +698,7 @@ namespace CompositeCanvas
 
                 if (source.HasTransformChanged(baseTransform))
                 {
-                    SetDirty(true);
+                    SetDirty();
                 }
             }
 
@@ -707,7 +710,7 @@ namespace CompositeCanvas
                 Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] CheckTransformChanged > Perspective");
                 if (transform.HasChanged(null, ref _prevTransformMatrix))
                 {
-                    SetDirty();
+                    SetDirty(false);
                     SetVerticesDirty();
                 }
             }
@@ -717,7 +720,7 @@ namespace CompositeCanvas
                 var m = Matrix4x4.Rotate(transform.localRotation) * Matrix4x4.Scale(transform.localScale);
                 if (_prevTransformMatrix != m)
                 {
-                    SetDirty();
+                    SetDirty(false);
                     SetVerticesDirty();
                 }
 
@@ -735,7 +738,7 @@ namespace CompositeCanvas
             if (!canvasSource || sources.Contains(canvasSource)) return;
 
             sources.Add(canvasSource);
-            SetDirty();
+            SetDirty(false);
             Logging.Log(this, $"Register #{sources.Count}: {canvasSource} {canvasSource.GetInstanceID()}");
         }
 
@@ -747,7 +750,7 @@ namespace CompositeCanvas
             if (!sources.Contains(canvasSource)) return;
 
             sources.Remove(canvasSource);
-            SetDirty();
+            SetDirty(false);
             Logging.Log(this, $"Unregister #{sources.Count}: {canvasSource} {canvasSource.GetInstanceID()}");
         }
 
@@ -824,19 +827,8 @@ namespace CompositeCanvas
                 var relative = rootRt.worldToLocalMatrix * transform.localToWorldMatrix;
                 var pivot = rectTransform.pivot * 2 - Vector2.one;
 
-                // In world space, orthographic vp will be used.
-                if (isRelativeSpace)
-                {
-                    //var biasScale = (Vector3.one * 2).GetScaled(relative.lossyScale.Inverse());
-                    var viewMatrix = Matrix4x4.identity;
-                    var projectionMatrix = Matrix4x4.TRS(
-                        new Vector3(pivot.x, pivot.y, 0), //.GetScaled(biasScale),
-                        Quaternion.identity,
-                        new Vector3(2 / size.x, 2 / size.y, -2 / 10000f));
-                    _cb.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
-                }
-                // In default: use camera's vp.
-                else
+                // Perspective mode.
+                if (perspectiveBaking)
                 {
                     GetViewProjectionMatrix(rootCanvas, out var viewMatrix, out var projectionMatrix);
 
@@ -848,6 +840,16 @@ namespace CompositeCanvas
                     projectionMatrix = Matrix4x4.Translate(t) * Matrix4x4.Scale(s) * projectionMatrix;
                     projectionMatrix.m22 = m22;
                     projectionMatrix.m23 = m23;
+                    _cb.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
+                }
+                // Orthographic mode.
+                else
+                {
+                    var viewMatrix = Matrix4x4.identity;
+                    var projectionMatrix = Matrix4x4.TRS(
+                        new Vector3(pivot.x, pivot.y, 0),
+                        Quaternion.identity,
+                        new Vector3(2 / size.x, 2 / size.y, -2 / 10000f));
                     _cb.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
                 }
 
@@ -980,7 +982,7 @@ namespace CompositeCanvas
         protected override void OnValidate()
         {
             blendType = blendType;
-            SetDirty();
+            SetDirty(false);
             SetVerticesDirty();
             SetMaterialDirty();
         }

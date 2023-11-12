@@ -50,7 +50,7 @@ namespace CompositeCanvas
         {
             if (!compositeCanvasRenderer) return;
 
-            compositeCanvasRenderer.SetDirty();
+            compositeCanvasRenderer.SetDirty(false);
         }
 
         public void SetRendererVerticesDirty()
