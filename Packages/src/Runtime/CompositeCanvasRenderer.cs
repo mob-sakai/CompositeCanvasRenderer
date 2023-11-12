@@ -8,6 +8,9 @@ using UnityEngine.UI;
 
 namespace CompositeCanvas
 {
+    /// <summary>
+    /// CompositeCanvasRenderer bakes multiple source graphics into a bake-buffer (RenderTexture) and renders it.
+    /// </summary>
     [RequireComponent(typeof(CanvasRenderer))]
     public class CompositeCanvasRenderer : MaskableGraphic
     {
@@ -29,37 +32,57 @@ namespace CompositeCanvas
 
         [SerializeField]
         [Header("Baking")]
+        [Tooltip("Down sampling rate for baking.\n" +
+                 "The higher this value, the lower the resolution of the bake, but the performance will improve.")]
         private DownSamplingRate m_DownSamplingRate = DownSamplingRate.x1;
 
         [SerializeField]
+        [Tooltip("Use orthographic space to bake if possible.")]
         private bool m_Orthographic;
 
         [SerializeField]
+        [Tooltip("The value to expand the baking range.")]
         private Vector2 m_Extents;
 
         [SerializeField]
+        [Tooltip("Ignore source graphics outside the baking region.")]
         private bool m_Culling;
 
         [SerializeField]
+        [Tooltip("Baking trigger mode.\n" +
+                 "Automatic: Baking is performed automatically when the transform of the source graphic changes.\n" +
+                 "Manually: Baking is performed manually by calling SetDirty().\n" +
+                 "Always: Baking is performed every frame.\n" +
+                 "OnEnable: Baking is performed once when enabled.")]
         private BakingTrigger m_BakingTrigger;
 
         [Header("Rendering")]
         [SerializeField]
+        [Tooltip("Show the source graphics.")]
         private bool m_ShowSourceGraphics = true;
 
         [SerializeField]
+        [Tooltip("Whether to render in front of the source graphics.")]
         private bool m_Foreground;
 
         [SerializeField]
+        [Tooltip("Color mode for rendering.\n" +
+                 "This is used when material is not set.")]
         private ColorMode m_ColorMode = ColorMode.Multiply;
 
         [SerializeField]
+        [Tooltip("Blend type for rendering.\n" +
+                 "This is used when material is not set.")]
         private BlendType m_BlendType = BlendType.AlphaBlend;
 
         [SerializeField]
+        [Tooltip("Source blend type for rendering.\n" +
+                 "This is used when material is not set and blend type is custom.")]
         private BlendMode m_SrcBlendMode = BlendMode.One;
 
         [SerializeField]
+        [Tooltip("Destination blend type for rendering.\n" +
+                 "This is used when material is not set and blend type is custom.")]
         private BlendMode m_DstBlendMode = BlendMode.OneMinusSrcAlpha;
 
         private Action _bake;
@@ -70,12 +93,24 @@ namespace CompositeCanvas
         private Matrix4x4 _prevTransformMatrix;
         private Material _renderingMaterial;
         private List<CompositeCanvasSource> _sources;
+
+        /// <summary>
+        /// The number of times baked.
+        /// </summary>
         public static ulong bakedCount { get; set; }
 
-        public List<CompositeCanvasSource> sources => _sources ?? (_sources = ListPool<CompositeCanvasSource>.Rent());
+        private List<CompositeCanvasSource> sources => _sources ?? (_sources = ListPool<CompositeCanvasSource>.Rent());
 
+        /// <summary>
+        /// Whether to bake in the current frame.
+        /// If the value of this property is true, bake after canvas update.
+        /// </summary>
         public bool isDirty { get; private set; }
 
+        /// <summary>
+        /// Color mode for rendering.
+        /// This is used when material is not set.
+        /// </summary>
         public ColorMode colorMode
         {
             get => m_ColorMode;
@@ -87,6 +122,10 @@ namespace CompositeCanvas
             }
         }
 
+        /// <summary>
+        /// Blend type for rendering.
+        /// This is used when material is not set.
+        /// </summary>
         public BlendType blendType
         {
             get => m_BlendType;
@@ -114,6 +153,10 @@ namespace CompositeCanvas
             }
         }
 
+        /// <summary>
+        /// Source blend type for rendering.
+        /// This is used when material is not set and blend type is custom.
+        /// </summary>
         public BlendMode srcBlendMode
         {
             get => m_SrcBlendMode;
@@ -125,6 +168,10 @@ namespace CompositeCanvas
             }
         }
 
+        /// <summary>
+        /// Destination blend type for rendering.
+        /// This is used when material is not set and blend type is custom.
+        /// </summary>
         public BlendMode dstBlendMode
         {
             get => m_DstBlendMode;
@@ -136,8 +183,15 @@ namespace CompositeCanvas
             }
         }
 
+        /// <summary>
+        /// Current bake buffer.
+        /// </summary>
         public RenderTexture currentBakeBuffer => _bakeBuffer;
 
+        /// <summary>
+        /// Down sampling rate for baking.
+        /// The higher this value, the lower the resolution of the bake, but the performance will improve.
+        /// </summary>
         public DownSamplingRate downSamplingRate
         {
             get => m_DownSamplingRate;
@@ -149,6 +203,9 @@ namespace CompositeCanvas
             }
         }
 
+        /// <summary>
+        /// Whether to render in front of the source graphics.
+        /// </summary>
         public bool foreground
         {
             get => m_Foreground;
@@ -161,6 +218,9 @@ namespace CompositeCanvas
             }
         }
 
+        /// <summary>
+        /// The value to expand the baking range.
+        /// </summary>
         public Vector2 extents
         {
             get => m_Extents;
@@ -174,8 +234,14 @@ namespace CompositeCanvas
             }
         }
 
+        /// <summary>
+        /// Rendering size.
+        /// </summary>
         public Vector2 renderingSize => rectTransform.rect.size + m_Extents;
 
+        /// <summary>
+        /// Show the source graphics.
+        /// </summary>
         public bool showSourceGraphics
         {
             get => m_ShowSourceGraphics;
@@ -188,6 +254,10 @@ namespace CompositeCanvas
             }
         }
 
+        /// <summary>
+        /// This is the texture used to render this graphic.
+        /// This is the same as the bake buffer.
+        /// </summary>
         public override Texture mainTexture
         {
             get
@@ -204,6 +274,9 @@ namespace CompositeCanvas
             }
         }
 
+        /// <summary>
+        /// The material that will be sent for Rendering (Read only).
+        /// </summary>
         public override Material materialForRendering
         {
             get
@@ -222,6 +295,9 @@ namespace CompositeCanvas
             }
         }
 
+        /// <summary>
+        /// Ignore source graphics outside the baking region.
+        /// </summary>
         public bool culling
         {
             get => m_Culling;
@@ -239,6 +315,7 @@ namespace CompositeCanvas
         {
             get
             {
+                // Perspective mode.
                 if (!m_Orthographic
                     && canvas && canvas.renderMode == RenderMode.ScreenSpaceCamera
                     && canvas.worldCamera && !canvas.worldCamera.orthographic)
@@ -251,6 +328,7 @@ namespace CompositeCanvas
                     return isPerspective;
                 }
 
+                // Any source graphic is perspective, renderer is perspective mode.
                 isPerspective = false;
                 var w2L = transform.worldToLocalMatrix;
                 for (var i = 0; i < sources.Count; i++)
@@ -282,6 +360,9 @@ namespace CompositeCanvas
             }
         }
 
+        /// <summary>
+        /// Use orthographic space to bake if possible.
+        /// </summary>
         public bool orthographic
         {
             get => m_Orthographic;
@@ -294,6 +375,17 @@ namespace CompositeCanvas
             }
         }
 
+        /// <summary>
+        /// Baking trigger mode.
+        /// <para />
+        /// Automatic: Baking is performed automatically when the transform of the source graphic changes.
+        /// <para />
+        /// Manually: Baking is performed manually by calling SetDirty().
+        /// <para />
+        /// Always: Baking is performed every frame.
+        /// <para />
+        /// OnEnable: Baking is performed once when enabled.
+        /// </summary>
         public BakingTrigger bakingTrigger
         {
             get => m_BakingTrigger;
@@ -304,6 +396,9 @@ namespace CompositeCanvas
             }
         }
 
+        /// <summary>
+        /// This function is called when the object becomes enabled and active.
+        /// </summary>
         protected override void OnEnable()
         {
             Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] OnEnable > Base");
@@ -337,6 +432,9 @@ namespace CompositeCanvas
             }
         }
 
+        /// <summary>
+        /// This function is called when the behaviour becomes disabled.
+        /// </summary>
         protected override void OnDisable()
         {
             UIExtraCallbacks.onBeforeCanvasRebuild -= _checkTransformChanged;
@@ -357,6 +455,9 @@ namespace CompositeCanvas
             }
         }
 
+        /// <summary>
+        /// Destroying the attached Behaviour will result in the game or Scene receiving OnDestroy.
+        /// </summary>
         protected override void OnDestroy()
         {
             ListPool<CompositeCanvasSource>.Return(ref _sources);
@@ -370,11 +471,17 @@ namespace CompositeCanvas
             base.OnDestroy();
         }
 
+        /// <summary>
+        /// This function is called when the list of children of the transform of the GameObject has changed.
+        /// </summary>
         private void OnTransformChildrenChanged()
         {
             this.AddComponentOnChildren<CompositeCanvasSource>(HideFlags.DontSave, false);
         }
 
+        /// <summary>
+        /// Call to update the Material of the graphic onto the CanvasRenderer.
+        /// </summary>
         protected override void UpdateMaterial()
         {
             if (!IsActive())
@@ -401,6 +508,10 @@ namespace CompositeCanvas
             }
         }
 
+        /// <summary>
+        /// Get the rendering rect.
+        /// </summary>
+        /// <returns></returns>
         public Rect GetRenderingRect()
         {
             var r = GetPixelAdjustedRect();
@@ -410,6 +521,9 @@ namespace CompositeCanvas
                 r.height + m_Extents.y);
         }
 
+        /// <summary>
+        /// Call to update the geometry of the Graphic onto the CanvasRenderer.
+        /// </summary>
         protected override void UpdateGeometry()
         {
             Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] UpdateGeometry");
@@ -473,6 +587,11 @@ namespace CompositeCanvas
             Profiler.EndSample();
         }
 
+        /// <summary>
+        /// Perform material modification in this function.
+        /// </summary>
+        /// <param name="baseMaterial">The material that is to be modified</param>
+        /// <returns>The modified material.</returns>
         public override Material GetModifiedMaterial(Material baseMaterial)
         {
             if (!isActiveAndEnabled || baseMaterial.shader != defaultMaterial.shader)
@@ -492,6 +611,9 @@ namespace CompositeCanvas
             return _renderingMaterial;
         }
 
+        /// <summary>
+        /// Create a hash.
+        /// </summary>
         public static Hash128 CreateHash(ColorMode colorMode, BlendMode srcBlendMode, BlendMode dstBlendMode)
         {
             return new Hash128(
@@ -502,11 +624,17 @@ namespace CompositeCanvas
             );
         }
 
+        /// <summary>
+        /// Create a material.
+        /// </summary>
         private Material CreateMaterial()
         {
             return CreateMaterial(colorMode, srcBlendMode, dstBlendMode);
         }
 
+        /// <summary>
+        /// Create a material.
+        /// </summary>
         public static Material CreateMaterial(ColorMode colorMode, BlendMode srcBlendMode, BlendMode dstBlendMode)
         {
             Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] CreateMaterial");
@@ -537,6 +665,9 @@ namespace CompositeCanvas
             isDirty = true;
         }
 
+        /// <summary>
+        /// If bakingTrigger is Automatic, call SetDirty when the transform of yourself or the source graphic is changed.
+        /// </summary>
         private void CheckTransformChanged()
         {
             if (isDirty) return;
@@ -544,6 +675,7 @@ namespace CompositeCanvas
             switch (m_BakingTrigger)
             {
                 case BakingTrigger.Always:
+                    // Always set dirty.
                     SetDirty(true);
                     return;
                 case BakingTrigger.Manually:
@@ -595,6 +727,9 @@ namespace CompositeCanvas
             Profiler.EndSample();
         }
 
+        /// <summary>
+        /// Register the source graphic.
+        /// </summary>
         internal void Register(CompositeCanvasSource canvasSource)
         {
             if (!canvasSource || sources.Contains(canvasSource)) return;
@@ -604,6 +739,9 @@ namespace CompositeCanvas
             Logging.Log(this, $"Register #{sources.Count}: {canvasSource} {canvasSource.GetInstanceID()}");
         }
 
+        /// <summary>
+        /// Unregister the source graphic.
+        /// </summary>
         internal void Unregister(CompositeCanvasSource canvasSource)
         {
             if (!sources.Contains(canvasSource)) return;
@@ -613,6 +751,9 @@ namespace CompositeCanvas
             Logging.Log(this, $"Unregister #{sources.Count}: {canvasSource} {canvasSource.GetInstanceID()}");
         }
 
+        /// <summary>
+        /// Returns whether this graphic is in the scene.
+        /// </summary>
         private bool IsInScreen()
         {
             if (!transform.lossyScale.IsVisible()) return false;
@@ -629,6 +770,9 @@ namespace CompositeCanvas
             return false;
         }
 
+        /// <summary>
+        /// Render the bake buffer using the source graphic.
+        /// </summary>
         private void Bake()
         {
             if (FrameCache.TryGet(this, nameof(Bake), out bool _)) return;
@@ -649,6 +793,7 @@ namespace CompositeCanvas
                 return;
             }
 
+            // Get CommandBuffer.
             if (_cb == null)
             {
                 Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] Bake > Rent cb");
@@ -657,6 +802,7 @@ namespace CompositeCanvas
                 Profiler.EndSample();
             }
 
+            // Init CommandBuffer.
             {
                 Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] Bake > Init command buffer");
                 _cb.Clear();
@@ -665,6 +811,7 @@ namespace CompositeCanvas
                 Profiler.EndSample();
             }
 
+            // Setup VP matrix.
             {
                 Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] Bake > Setup VP matrix");
                 var size = (Vector3)renderingSize;
@@ -672,6 +819,7 @@ namespace CompositeCanvas
                 var rootCanvas = canvas.rootCanvas;
                 var rootRt = rootCanvas.transform as RectTransform;
                 var rootSize = (Vector3)rootRt.rect.size;
+
                 // L2W matrix from rootCanvas to this.
                 var relative = rootRt.worldToLocalMatrix * transform.localToWorldMatrix;
                 var pivot = rectTransform.pivot * 2 - Vector2.one;
@@ -706,6 +854,7 @@ namespace CompositeCanvas
                 Profiler.EndSample();
             }
 
+            // Sort and bake sources.
             {
                 Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] Bake > Sort sources");
                 sources.Sort((l, r) => CompositeCanvasSource.Compare(l, r));
@@ -722,6 +871,7 @@ namespace CompositeCanvas
                 Profiler.EndSample();
             }
 
+            // Apply baked effect.
             {
                 Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] Bake > Apply Baked Effect");
                 var list = ListPool<CompositeCanvasEffect>.Rent();
@@ -743,6 +893,7 @@ namespace CompositeCanvas
                 Profiler.EndSample();
             }
 
+            // Execute command buffer.
             {
                 Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] Bake > Execute command buffer");
                 Graphics.ExecuteCommandBuffer(_cb);
@@ -760,6 +911,9 @@ namespace CompositeCanvas
             bakedCount++;
         }
 
+        /// <summary>
+        /// Get VP matrix for canvas.
+        /// </summary>
         private void GetViewProjectionMatrix(Canvas canvas, out Matrix4x4 vMatrix, out Matrix4x4 pMatrix)
         {
             // Get view and projection matrices.
@@ -787,6 +941,9 @@ namespace CompositeCanvas
             Profiler.EndSample();
         }
 
+        /// <summary>
+        /// Mark the materials of source graphics as dirty and needing rebuilt.
+        /// </summary>
         public void SetSourcesMaterialDirty()
         {
             Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] SetSourcesMaterialDirty");
@@ -800,6 +957,9 @@ namespace CompositeCanvas
             Profiler.EndSample();
         }
 
+        /// <summary>
+        /// Mark the vertices of source graphics as dirty and needing rebuilt.
+        /// </summary>
         public void SetSourcesVerticesDirty()
         {
             Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] SetSourcesVerticesDirty");
@@ -814,6 +974,9 @@ namespace CompositeCanvas
         }
 
 #if UNITY_EDITOR
+        /// <summary>
+        /// Editor-only function that Unity calls when the script is loaded or a value changes in the Inspector.
+        /// </summary>
         protected override void OnValidate()
         {
             blendType = blendType;
@@ -822,6 +985,9 @@ namespace CompositeCanvas
             SetMaterialDirty();
         }
 
+        /// <summary>
+        /// Implement OnDrawGizmos if you want to draw gizmos that are also pickable and always drawn.
+        /// </summary>
         private void OnDrawGizmos()
         {
             if (!isActiveAndEnabled || !canvas) return;

@@ -105,6 +105,9 @@ namespace CompositeCanvas
                                       || !Mathf.Approximately(multiplier, 1)
                                       || !Mathf.Approximately(limit, 1);
 
+        /// <summary>
+        /// This function is called when the behaviour becomes disabled.
+        /// </summary>
         protected override void OnDisable()
         {
             MaterialRegistry.Release(ref _material);

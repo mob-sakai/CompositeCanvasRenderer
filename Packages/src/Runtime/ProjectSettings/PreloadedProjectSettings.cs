@@ -138,6 +138,9 @@ namespace CompositeCanvas
         public static T instance => s_Instance ? s_Instance : s_Instance = CreateInstance<T>();
 #endif
 
+        /// <summary>
+        /// This function is called when the object becomes enabled and active.
+        /// </summary>
         protected virtual void OnEnable()
         {
 #if UNITY_EDITOR
@@ -155,6 +158,9 @@ namespace CompositeCanvas
             s_Instance = this as T;
         }
 
+        /// <summary>
+        /// This function is called when the behaviour becomes disabled.
+        /// </summary>
         protected virtual void OnDisable()
         {
 #if UNITY_EDITOR

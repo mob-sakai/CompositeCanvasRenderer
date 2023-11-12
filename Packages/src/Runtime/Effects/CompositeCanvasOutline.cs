@@ -28,6 +28,10 @@ namespace CompositeCanvas
             }
         }
 
+        /// <summary>
+        /// Call used to modify mesh.
+        /// Place any custom mesh processing in this function.
+        /// </summary>
         public override void ModifyMesh(VertexHelper vh)
         {
             if (!isActiveAndEnabled) return;

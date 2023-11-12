@@ -43,6 +43,9 @@ namespace CompositeCanvas
         }
 
 #if UNITY_EDITOR
+        /// <summary>
+        /// Reset to default values.
+        /// </summary>
         private void Reset()
         {
             ReloadShaders(false);

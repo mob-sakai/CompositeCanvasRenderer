@@ -52,6 +52,9 @@ namespace CompositeCanvas
             }
         }
 
+        /// <summary>
+        /// Reset to default values.
+        /// </summary>
         public override void Reset()
         {
             if (!compositeCanvasRenderer) return;
@@ -62,23 +65,35 @@ namespace CompositeCanvas
             compositeCanvasRenderer.color = new Color(1, 1, 1, 1f);
         }
 
+        /// <summary>
+        /// This function is called when the object becomes enabled and active.
+        /// </summary>
         protected override void OnEnable()
         {
             SetRendererDirty();
             SetRendererVerticesDirty();
         }
 
+        /// <summary>
+        /// This function is called when the behaviour becomes disabled.
+        /// </summary>
         protected override void OnDisable()
         {
             SetRendererDirty();
             SetRendererVerticesDirty();
         }
 
+        /// <summary>
+        /// Destroying the attached Behaviour will result in the game or Scene receiving OnDestroy.
+        /// </summary>
         private void OnDestroy()
         {
             ListPool<(float time, Color color)>.Return(ref _gradientCache);
         }
 
+        /// <summary>
+        /// Editor-only function that Unity calls when the script is loaded or a value changes in the Inspector.
+        /// </summary>
         protected override void OnValidate()
         {
             SetRendererDirty();
@@ -88,10 +103,18 @@ namespace CompositeCanvas
             base.OnValidate();
         }
 
+        /// <summary>
+        /// Call used to modify mesh.
+        /// Place any custom mesh processing in this function.
+        /// </summary>
         public void ModifyMesh(Mesh mesh)
         {
         }
 
+        /// <summary>
+        /// Call used to modify mesh.
+        /// Place any custom mesh processing in this function.
+        /// </summary>
         public virtual void ModifyMesh(VertexHelper vh)
         {
             if (!isActiveAndEnabled) return;

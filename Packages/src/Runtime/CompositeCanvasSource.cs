@@ -9,6 +9,9 @@ using UnityEngine.UI;
 
 namespace CompositeCanvas
 {
+    /// <summary>
+    /// The source graphic for bake-buffer of the CompositeCanvasRenderer.
+    /// </summary>
     [ExecuteAlways]
     [DisallowMultipleComponent]
     [AddComponentMenu("")]
@@ -20,9 +23,11 @@ namespace CompositeCanvas
                 x => x != null,
                 x => x.Clear());
 
+        [Tooltip("This source graphic will be ignored when baking")]
         [SerializeField]
         private bool m_IgnoreSelf;
 
+        [Tooltip("Child source graphics will be ignored when baking")]
         [SerializeField]
         private bool m_IgnoreChildren;
 
@@ -37,6 +42,9 @@ namespace CompositeCanvas
         internal CompositeCanvasRenderer _renderer;
         private UnityAction _setRendererDirty;
 
+        /// <summary>
+        /// The graphic associated with the source.
+        /// </summary>
         public Graphic graphic
         {
             get
@@ -47,6 +55,39 @@ namespace CompositeCanvas
             }
         }
 
+        /// <summary>
+        /// Gets whether this source graphic is ignored when baking.
+        /// </summary>
+        public bool ignoreSelf
+        {
+            get => m_IgnoreSelf;
+            set
+            {
+                if (m_IgnoreSelf == value) return;
+                m_IgnoreSelf = value;
+                hideFlags = m_IgnoreSelf || m_IgnoreChildren ? HideFlags.None : HideFlags.DontSave;
+                SetRendererDirty();
+            }
+        }
+
+        /// <summary>
+        /// Gets whether the child source graphics are ignored when baking.
+        /// </summary>
+        public bool ignoreChildren
+        {
+            get => m_IgnoreChildren;
+            set
+            {
+                if (m_IgnoreChildren == value) return;
+                m_IgnoreChildren = value;
+                hideFlags = m_IgnoreSelf || m_IgnoreChildren ? HideFlags.None : HideFlags.DontSave;
+                SetRendererDirty();
+            }
+        }
+
+        /// <summary>
+        /// Gets whether this source graphic is ignored when baking.
+        /// </summary>
         public bool ignored
         {
             get
@@ -69,6 +110,9 @@ namespace CompositeCanvas
             }
         }
 
+        /// <summary>
+        /// This function is called when the object becomes enabled and active.
+        /// </summary>
         protected override void OnEnable()
         {
             Profiler.BeginSample("(CCR)[CompositeCanvasSource] OnEnable > Register onBeforeCanvasRebuild");
@@ -95,6 +139,9 @@ namespace CompositeCanvas
             Profiler.EndSample();
         }
 
+        /// <summary>
+        /// This function is called when the behaviour becomes disabled.
+        /// </summary>
         protected override void OnDisable()
         {
             UIExtraCallbacks.onBeforeCanvasRebuild -= _checkRenderColor;
@@ -114,6 +161,9 @@ namespace CompositeCanvas
             }
         }
 
+        /// <summary>
+        /// Destroying the attached Behaviour will result in the game or Scene receiving OnDestroy.
+        /// </summary>
         protected override void OnDestroy()
         {
             _graphic = null;
@@ -125,16 +175,25 @@ namespace CompositeCanvas
             _setRendererDirty = null;
         }
 
+        /// <summary>
+        /// This callback is called if an associated RectTransform has its dimensions changed.
+        /// </summary>
         protected override void OnRectTransformDimensionsChange()
         {
             SetRendererDirty();
         }
 
+        /// <summary>
+        /// This function is called when the list of children of the transform of the GameObject has changed.
+        /// </summary>
         private void OnTransformChildrenChanged()
         {
             this.AddComponentOnChildren<CompositeCanvasSource>(HideFlags.DontSave, false);
         }
 
+        /// <summary>
+        /// This function is called when a direct or indirect parent of the transform of the GameObject has changed.
+        /// </summary>
         protected override void OnTransformParentChanged()
         {
             UpdateRenderer();
@@ -142,6 +201,9 @@ namespace CompositeCanvas
         }
 
 #if UNITY_EDITOR
+        /// <summary>
+        /// Editor-only function that Unity calls when the script is loaded or a value changes in the Inspector.
+        /// </summary>
         protected override void OnValidate()
         {
             hideFlags = m_IgnoreSelf || m_IgnoreChildren ? HideFlags.None : HideFlags.DontSave;
@@ -154,6 +216,11 @@ namespace CompositeCanvas
         }
 #endif
 
+        /// <summary>
+        /// Perform material modification in this function.
+        /// </summary>
+        /// <param name="baseMaterial">The material that is to be modified</param>
+        /// <returns>The modified material.</returns>
         Material IMaterialModifier.GetModifiedMaterial(Material baseMaterial)
         {
             if (!isActiveAndEnabled
@@ -167,10 +234,18 @@ namespace CompositeCanvas
             return null;
         }
 
+        /// <summary>
+        /// Call used to modify mesh.
+        /// Place any custom mesh processing in this function.
+        /// </summary>
         void IMeshModifier.ModifyMesh(Mesh mesh)
         {
         }
 
+        /// <summary>
+        /// Call used to modify mesh.
+        /// Place any custom mesh processing in this function.
+        /// </summary>
         void IMeshModifier.ModifyMesh(VertexHelper verts)
         {
             if (!isActiveAndEnabled || !_renderer || !_renderer.isActiveAndEnabled || !graphic) return;
@@ -202,6 +277,9 @@ namespace CompositeCanvas
             return compare;
         }
 
+        /// <summary>
+        /// Check if the render color has changed.
+        /// </summary>
         private void CheckRenderColor()
         {
             if (!graphic) return;
@@ -224,7 +302,6 @@ namespace CompositeCanvas
         private void UpdateRenderer(CompositeCanvasRenderer newRenderer)
         {
             Profiler.BeginSample("(CCR)[CompositeCanvasSource] UpdateRenderer");
-
 
             // Ignore if the renderer is the same GameObject.
             if (newRenderer && newRenderer.transform == transform)

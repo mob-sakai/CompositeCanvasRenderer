@@ -22,6 +22,9 @@ namespace CompositeCanvas
             }
         }
 
+        /// <summary>
+        /// Reset to default values.
+        /// </summary>
         public override void Reset()
         {
             if (!compositeCanvasRenderer) return;
