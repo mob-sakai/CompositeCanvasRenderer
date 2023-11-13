@@ -31,11 +31,10 @@ namespace CompositeCanvas
         [SerializeField]
         private bool m_IgnoreChildren;
 
+        private Material _bakingMaterial;
         private Action _checkRenderColor;
         private Color _color;
         private Graphic _graphic;
-        private bool _isBaking;
-        private Material _material;
         internal Mesh _mesh;
         private MaterialPropertyBlock _mpb;
         private Matrix4x4 _prevTransformMatrix;
@@ -146,10 +145,10 @@ namespace CompositeCanvas
         {
             UIExtraCallbacks.onBeforeCanvasRebuild -= _checkRenderColor;
 
-            MaterialRegistry.Release(ref _material);
             MeshExtensions.Return(ref _mesh);
             s_MaterialPropertyBlockPool.Return(ref _mpb);
             UpdateRenderer(null);
+            _bakingMaterial = null;
 
             if (graphic)
             {
@@ -167,7 +166,7 @@ namespace CompositeCanvas
         protected override void OnDestroy()
         {
             _graphic = null;
-            _material = null;
+            _bakingMaterial = null;
             _mesh = null;
             _mpb = null;
             _renderer = null;
@@ -223,10 +222,11 @@ namespace CompositeCanvas
         /// <returns>The modified material.</returns>
         Material IMaterialModifier.GetModifiedMaterial(Material baseMaterial)
         {
+            _bakingMaterial = baseMaterial;
             if (!isActiveAndEnabled
                 || !graphic
                 || !_renderer || !_renderer.isActiveAndEnabled || _renderer.showSourceGraphics
-                || _isBaking || ignored)
+                || ignored)
             {
                 return baseMaterial;
             }
@@ -335,66 +335,32 @@ namespace CompositeCanvas
             }
         }
 
-        internal void Bake(CommandBuffer cb)
+        internal void Bake(CommandBuffer cb, bool usePopMaterial)
         {
-            if (!_graphic || !IsInScreen()) return;
+            if (!_graphic || !_graphic.canvasRenderer || !IsInScreen()) return;
+            var cr = _graphic.canvasRenderer;
+            if (usePopMaterial && cr.popMaterialCount == 0) return;
 
             _mpb = _mpb ?? s_MaterialPropertyBlockPool.Rent();
             _mpb.Clear();
-            Material graphicMat = null;
-            Texture graphicTex = null;
+            var graphicMat = usePopMaterial
+                ? cr.GetPopMaterial(0)
+                : _bakingMaterial;
 
+            Profiler.BeginSample("(CCR)[CompositeCanvasSource] Bake > Mpb setup");
+            var graphicTex = CompositeCanvasProcess.instance.GetMainTexture(graphic);
+            if (graphicTex != null)
             {
-                Profiler.BeginSample("(CCR)[CompositeCanvasSource] Bake > Get Modified Material For Baking");
-                _isBaking = true;
-                graphicMat = graphic.materialForRendering;
-                _isBaking = false;
-                Profiler.EndSample();
+                _mpb.SetTexture(ShaderPropertyIds.mainTex, graphicTex);
 
-                // Skip baking when `ColorMask=0` (for masking)
-                if (graphicMat.HasProperty(ShaderPropertyIds.colorMask)
-                    && graphicMat.GetInt(ShaderPropertyIds.colorMask) == 0)
+                // Use _TextureSampleAdd for alpha only texture
+                if (GraphicsFormatUtility.IsAlphaOnlyFormat(graphicTex.graphicsFormat))
                 {
-                    return;
-                }
-
-                var isDefaultShader = graphicMat.shader == Graphic.defaultGraphicMaterial.shader;
-                if (isDefaultShader)
-                {
-                    // Use CCR Material instead of default material to blend with One-OneMinusSrcAlpha.
-                    Profiler.BeginSample("(CCR)[CompositeCanvasSource] Bake > Use CCR Material");
-                    const ColorMode colorMode = ColorMode.Multiply;
-                    const BlendMode srcBlend = BlendMode.One;
-                    const BlendMode dstBlend = BlendMode.OneMinusSrcAlpha;
-                    var hash = CompositeCanvasRenderer.CreateHash(colorMode, srcBlend, dstBlend);
-                    MaterialRegistry.Get(hash, ref _material,
-                        () => CompositeCanvasRenderer.CreateMaterial(colorMode, srcBlend, dstBlend),
-                        CompositeCanvasRendererProjectSettings.cacheRendererMaterial);
-                    graphicMat = _material;
-                    Profiler.EndSample();
-                }
-                else
-                {
-                    MaterialRegistry.Release(ref _material);
+                    _mpb.SetVector(ShaderPropertyIds.textureSampleAdd, new Vector4(1, 1, 1, 0));
                 }
             }
 
-            {
-                Profiler.BeginSample("(CCR)[CompositeCanvasSource] Bake > Mpb setup");
-                graphicTex = CompositeCanvasProcess.instance.GetMainTexture(graphic);
-                if (graphicTex != null)
-                {
-                    _mpb.SetTexture(ShaderPropertyIds.mainTex, graphicTex);
-
-                    // Use _TextureSampleAdd for alpha only texture
-                    if (GraphicsFormatUtility.IsAlphaOnlyFormat(graphicTex.graphicsFormat))
-                    {
-                        _mpb.SetVector(ShaderPropertyIds.textureSampleAdd, new Vector4(1, 1, 1, 0));
-                    }
-                }
-
-                Profiler.EndSample();
-            }
+            Profiler.EndSample();
 
             Profiler.BeginSample("(CCR)[CompositeCanvasSource] Bake > Calc Matrix");
             var matrix = _renderer.perspectiveBaking

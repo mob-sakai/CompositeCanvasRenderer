@@ -1,5 +1,6 @@
 ﻿using UnityEditor;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering;
 using UnityEngine.Profiling;
 
 namespace CompositeCanvas
@@ -9,36 +10,46 @@ namespace CompositeCanvas
     /// </summary>
     public static class TemporaryRenderTexture
     {
+        private static readonly GraphicsFormat s_GraphicsFormat = GraphicsFormatUtility.GetGraphicsFormat(
+            RenderTextureFormat.ARGB32,
+            RenderTextureReadWrite.Default);
+
+        private static readonly GraphicsFormat s_StencilFormat = GraphicsFormatUtility.GetDepthStencilFormat(0, 8);
+
         public static int activeCount
         {
             get;
             private set;
         }
 
-        public static RenderTexture Get(int downSamplingRate, ref RenderTexture buffer)
+        public static RenderTexture Get(int downSamplingRate, ref RenderTexture buffer, bool useStencil)
         {
-            return Get(GetScreenSize(), downSamplingRate, ref buffer);
+            return Get(GetScreenSize(), downSamplingRate, ref buffer, useStencil);
         }
 
-        public static RenderTexture Get(Vector2 size, int downSamplingRate, ref RenderTexture buffer)
+        public static RenderTexture Get(Vector2 size, int downSamplingRate, ref RenderTexture buffer, bool useStencil)
         {
             var preferSize = GetPreferSize(new Vector2Int(
                 Mathf.Max(8, Mathf.RoundToInt(size.x)),
                 Mathf.Max(8, Mathf.RoundToInt(size.y))), downSamplingRate);
 
             Profiler.BeginSample("(CCR)[TemporaryRT] Get");
-            if (buffer && (buffer.width != preferSize.x || buffer.height != preferSize.y))
+            if (buffer && (buffer.width != preferSize.x
+                           || buffer.height != preferSize.y
+                           || useStencil != (buffer.depthStencilFormat != GraphicsFormat.None)))
             {
                 Release(ref buffer);
             }
 
             if (!buffer)
             {
-                buffer = RenderTexture.GetTemporary(preferSize.x, preferSize.y, 0, RenderTextureFormat.ARGB32,
-                    RenderTextureReadWrite.Default, 1, RenderTextureMemoryless.Depth);
-                buffer.useMipMap = false;
-                buffer.autoGenerateMips = false;
-                buffer.filterMode = FilterMode.Bilinear;
+                var rtd = new RenderTextureDescriptor(
+                    preferSize.x,
+                    preferSize.y,
+                    s_GraphicsFormat,
+                    useStencil ? s_StencilFormat : GraphicsFormat.None,
+                    -1);
+                buffer = RenderTexture.GetTemporary(rtd);
                 activeCount++;
                 Logging.Log(typeof(TemporaryRenderTexture), $"Generate (#{activeCount}): {buffer.name}");
             }

@@ -34,6 +34,7 @@ namespace CompositeCanvas
         private SerializedProperty _orthographic;
         private SerializedProperty _showSourceGraphics;
         private SerializedProperty _srcBlendMode;
+        private SerializedProperty _useStencil;
 
         protected override void OnEnable()
         {
@@ -45,6 +46,7 @@ namespace CompositeCanvas
             _foreground = serializedObject.FindProperty("m_Foreground");
             _extents = serializedObject.FindProperty("m_Extents");
             _culling = serializedObject.FindProperty("m_Culling");
+            _useStencil = serializedObject.FindProperty("m_UseStencil");
             _bakingTrigger = serializedObject.FindProperty("m_BakingTrigger");
             _orthographic = serializedObject.FindProperty("m_Orthographic");
             _colorMode = serializedObject.FindProperty("m_ColorMode");
@@ -77,6 +79,7 @@ namespace CompositeCanvas
             EditorGUILayout.PropertyField(_extents);
             EditorGUILayout.PropertyField(_orthographic);
             EditorGUILayout.PropertyField(_culling);
+            EditorGUILayout.PropertyField(_useStencil);
             EditorGUILayout.PropertyField(_bakingTrigger);
             ShowSourceGraphicsControlGUI();
 

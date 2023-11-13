@@ -49,6 +49,10 @@ namespace CompositeCanvas
         private bool m_Culling;
 
         [SerializeField]
+        [Tooltip("Use stencil to mask for baking.")]
+        private bool m_UseStencil;
+
+        [SerializeField]
         [Tooltip("Baking trigger mode.\n" +
                  "Automatic: Baking is performed automatically when the transform of the source graphic changes.\n" +
                  "Manually: Baking is performed manually by calling SetDirty().\n" +
@@ -266,7 +270,7 @@ namespace CompositeCanvas
                 {
                     var size = renderingSize * canvas.scaleFactor;
                     var rate = (int)downSamplingRate;
-                    return TemporaryRenderTexture.Get(size, rate, ref _bakeBuffer);
+                    return TemporaryRenderTexture.Get(size, rate, ref _bakeBuffer, useStencil);
                 }
 
                 TemporaryRenderTexture.Release(ref _bakeBuffer);
@@ -305,6 +309,20 @@ namespace CompositeCanvas
             {
                 if (m_Culling == value) return;
                 m_Culling = value;
+                SetDirty();
+            }
+        }
+
+        /// <summary>
+        /// Use stencil to mask for baking.
+        /// </summary>
+        public bool useStencil
+        {
+            get => m_UseStencil;
+            set
+            {
+                if (m_UseStencil == value) return;
+                m_UseStencil = value;
                 SetDirty();
             }
         }
@@ -810,7 +828,7 @@ namespace CompositeCanvas
                 Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] Bake > Init command buffer");
                 _cb.Clear();
                 _cb.SetRenderTarget(mainTexture);
-                _cb.ClearRenderTarget(true, true, new Color(0, 0, 0, 0));
+                _cb.ClearRenderTarget(RTClearFlags.All, Color.clear, 1f, 0);
                 Profiler.EndSample();
             }
 
@@ -858,18 +876,8 @@ namespace CompositeCanvas
 
             // Sort and bake sources.
             {
-                Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] Bake > Sort sources");
-                sources.Sort((l, r) => CompositeCanvasSource.Compare(l, r));
-                Profiler.EndSample();
-
                 Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] Bake > Bake sources");
-                for (var i = 0; i < sources.Count; i++)
-                {
-                    if (!sources[i]) continue;
-                    if (sources[i].ignored) continue;
-                    sources[i].Bake(_cb);
-                }
-
+                Bake(transform, _cb, true, useStencil);
                 Profiler.EndSample();
             }
 
@@ -880,6 +888,7 @@ namespace CompositeCanvas
                 {
                     effect.ApplyBakedEffect(_cb);
                 }
+
                 Profiler.EndSample();
             }
 
@@ -899,6 +908,36 @@ namespace CompositeCanvas
 #endif
             canvasRenderer.SetTexture(_bakeBuffer);
             bakedCount++;
+        }
+
+        private static void Bake(Transform tr, CommandBuffer cb, bool isRoot, bool useStencil)
+        {
+            if (!tr || !tr.gameObject.activeInHierarchy) return;
+
+            tr.TryGetComponent<CompositeCanvasSource>(out var source);
+            var isActive = source && source.isActiveAndEnabled;
+            var canRendering = !isRoot && isActive && !source.ignoreSelf;
+            var canRenderingChildren = isRoot || (isActive && !source.ignoreChildren);
+            if (canRendering)
+            {
+                // Bake for material
+                source.Bake(cb, false);
+            }
+
+            if (canRenderingChildren)
+            {
+                var childCount = tr.childCount;
+                for (var i = 0; i < childCount; i++)
+                {
+                    Bake(tr.GetChild(i), cb, false, useStencil);
+                }
+            }
+
+            if (canRendering && useStencil)
+            {
+                // Bake for pop material (to restore stencil)
+                source.Bake(cb, true);
+            }
         }
 
         /// <summary>
