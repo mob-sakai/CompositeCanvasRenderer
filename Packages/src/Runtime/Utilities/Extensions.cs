@@ -11,8 +11,8 @@ namespace CompositeCanvas
         public static readonly int color = Shader.PropertyToID("_Color");
         public static readonly int colorMask = Shader.PropertyToID("_ColorMask");
         public static readonly int textureSampleAdd = Shader.PropertyToID("_TextureSampleAdd");
-        public static readonly int srcBlendMode = Shader.PropertyToID("_SrcBlendMode");
-        public static readonly int dstBlendMode = Shader.PropertyToID("_DstBlendMode");
+        public static readonly int srcBlendMode = Shader.PropertyToID("_SrcBlend");
+        public static readonly int dstBlendMode = Shader.PropertyToID("_DstBlend");
         public static readonly int innerCutoff = Shader.PropertyToID("_InnerCutoff");
         public static readonly int multiplier = Shader.PropertyToID("_Multiplier");
         public static readonly int limit = Shader.PropertyToID("_Limit");

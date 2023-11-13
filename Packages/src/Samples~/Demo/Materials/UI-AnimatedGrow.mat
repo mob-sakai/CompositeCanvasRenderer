@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: UI-AnimatedGrow
   m_Shader: {fileID: 4800000, guid: b0bf655e949c44179be80f397d04532d, type: 3}
-  m_ShaderKeywords: COLOR_MODE_MULTIPRY ENABLE_UV_ANIMATION
+  m_ShaderKeywords: ENABLE_UV_ANIMATION
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -75,8 +75,7 @@ Material:
     - _Cutoff: 0.5
     - _DETAIL: 0
     - _DetailNormalMapScale: 1
-    - _DstBlend: 0
-    - _DstBlendMode: 1
+    - _DstBlend: 1
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
@@ -89,7 +88,6 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _SrcBlendMode: 1
     - _Stencil: 0
     - _StencilComp: 8
     - _StencilOp: 0

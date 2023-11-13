@@ -25,8 +25,8 @@ Shader "UI/CompositeCanvasRenderer"
         [KeywordEnum(Multipry, Additive, Subtract, Fill)] Color_Mode ("Color Mode", Int) = 0  
 
         [Header(Blend Mode)]
-        [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlendMode ("Src Blend Mode", Int) = 1
-        [Enum(UnityEngine.Rendering.BlendMode)] _DstBlendMode ("Dst Blend Mode", Int) = 10
+        [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("Src Blend Mode", Int) = 1
+        [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend ("Dst Blend Mode", Int) = 10
         
         [Header(Stencil)]
         _StencilComp ("Stencil Comparison", Float) = 8
@@ -64,7 +64,7 @@ Shader "UI/CompositeCanvasRenderer"
         Lighting Off
         ZWrite Off
         ZTest [unity_GUIZTestMode]
-        Blend [_SrcBlendMode] [_DstBlendMode]
+        Blend [_SrcBlend] [_DstBlend]
         ColorMask [_ColorMask]
 
         Pass
