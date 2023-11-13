@@ -828,7 +828,7 @@ namespace CompositeCanvas
                 Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] Bake > Init command buffer");
                 _cb.Clear();
                 _cb.SetRenderTarget(mainTexture);
-                _cb.ClearRenderTarget(RTClearFlags.All, Color.clear, 1f, 0);
+                _cb.ClearRenderTarget(true, true, Color.clear, 1f);
                 Profiler.EndSample();
             }
 

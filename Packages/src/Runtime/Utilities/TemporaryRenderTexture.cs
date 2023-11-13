@@ -14,7 +14,9 @@ namespace CompositeCanvas
             RenderTextureFormat.ARGB32,
             RenderTextureReadWrite.Default);
 
+#if UNITY_2021_3_OR_NEWER
         private static readonly GraphicsFormat s_StencilFormat = GraphicsFormatUtility.GetDepthStencilFormat(0, 8);
+#endif
 
         public static int activeCount
         {
@@ -36,7 +38,12 @@ namespace CompositeCanvas
             Profiler.BeginSample("(CCR)[TemporaryRT] Get");
             if (buffer && (buffer.width != preferSize.x
                            || buffer.height != preferSize.y
-                           || useStencil != (buffer.depthStencilFormat != GraphicsFormat.None)))
+#if UNITY_2021_3_OR_NEWER
+                           || useStencil != (buffer.depthStencilFormat != GraphicsFormat.None))
+#else
+                           || useStencil != (0 < buffer.depth))
+#endif
+               )
             {
                 Release(ref buffer);
             }
@@ -47,8 +54,13 @@ namespace CompositeCanvas
                     preferSize.x,
                     preferSize.y,
                     s_GraphicsFormat,
-                    useStencil ? s_StencilFormat : GraphicsFormat.None,
-                    -1);
+                    0);
+                rtd.mipCount = -1;
+#if UNITY_2021_3_OR_NEWER
+                rtd.depthStencilFormat = useStencil ? s_StencilFormat : GraphicsFormat.None;
+#else
+                rtd.depthBufferBits = useStencil ? 24 : 0;
+#endif
                 buffer = RenderTexture.GetTemporary(rtd);
                 activeCount++;
                 Logging.Log(typeof(TemporaryRenderTexture), $"Generate (#{activeCount}): {buffer.name}");

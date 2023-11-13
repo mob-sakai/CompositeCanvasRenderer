@@ -346,6 +346,7 @@ namespace CompositeCanvas
             var graphicMat = usePopMaterial
                 ? cr.GetPopMaterial(0)
                 : _bakingMaterial;
+            if (!graphicMat) return;
 
             Profiler.BeginSample("(CCR)[CompositeCanvasSource] Bake > Mpb setup");
             var graphicTex = CompositeCanvasProcess.instance.GetMainTexture(graphic);
