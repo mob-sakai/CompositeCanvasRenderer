@@ -43,29 +43,29 @@ Let's enjoy a wide range of effects that were previously challenging to achieve 
 * **Post-Bake Effects**: After baking, you can apply various effects to the bake buffer using a command buffer, allowing for additional visual enhancements or post-processing.
 
 * **Built-in Effects**: Several effects are available out of the box!  
-<img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/43cde946-7feb-42bc-9e58-1da69477b103" width=650/>
+  <img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/43cde946-7feb-42bc-9e58-1da69477b103" width=650/>
 
 * **Custom Material Support**: You can use custom materials for rendering the bake-buffer.  
-<img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/cdd0f457-e808-4b1a-bc5b-76464cb5ee4a" width=500/>
+  <img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/cdd0f457-e808-4b1a-bc5b-76464cb5ee4a" width=500/>
 
 * **Foreground/Background Rendering**: Supports both foreground and background rendering.  
-<img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/99da8004-c35a-4b5a-9f11-297810a7d6d2" width=300/>
+  <img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/99da8004-c35a-4b5a-9f11-297810a7d6d2" width=300/>
 
 * **Color and Blend Mode**: Allows you to change color modes and blend modes.  
-<img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/25f6bdaf-672f-450c-a74c-c46a3ca01faf" width=450/>
+  <img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/25f6bdaf-672f-450c-a74c-c46a3ca01faf" width=450/>
 
 * **Quality and Performance Control**: You can fine-tune quality and performance using the `Down Sampling Rate` parameter.  
-<img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/963286de-a075-4397-9b8f-669f5ad4cbd0" width=450/>
+  <img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/963286de-a075-4397-9b8f-669f5ad4cbd0" width=450/>
 
 * **Perspective/Orthographic Rendering**: Supports both perspective and orthographic rendering. In orthographic rendering (where relative `position.z` and relative `rotation.xy` are 0), baking is less frequent.  
-<img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/a0148c6f-7869-4071-a86d-c4bc4c8806b1" width=400/>
+  <img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/a0148c6f-7869-4071-a86d-c4bc4c8806b1" width=400/>
 
 * **TextMeshPro Compatibility**: Works seamlessly with TextMeshPro. `<font>` and `<sprite>` tags are supported, and it may also be compatible with other custom UI classes.  
-<img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/ed6a78bb-e339-404e-a2ce-e686bbceceaf" width=500/>
+  <img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/ed6a78bb-e339-404e-a2ce-e686bbceceaf" width=500/>
 
 * **Editor Support**: Enjoy a convenient editing experience with the ability to preview the bake buffer in the inspector and visualize the baking region in the scene view. You can also customize the behavior from the project settings.  
-<img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/8369b4e2-4463-4469-af1c-e7ac81959d03" height=300/>
-<img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/c614e39d-f3f4-4178-a870-6198a71fbf01" height=300/>
+  <img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/8369b4e2-4463-4469-af1c-e7ac81959d03" width=300/>
+  <img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/c614e39d-f3f4-4178-a870-6198a71fbf01" width=250/>
 
 <br><br>
 
@@ -120,7 +120,7 @@ To update the package, change suffix `#{version}` to the target version.
 1. Open `Package Manager` window.
 2. In the package list, select `Composite Canvas Renderer` package.
 3. Click `Samples > Demo > Import` button.  
-<img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/94a5f04e-6e15-4c21-a73e-5f47f946f465" height=250/>
+  <img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/94a5f04e-6e15-4c21-a73e-5f47f946f465" height=250/>
 1. The demo assets will be imported into `Assets/Samples/Composite Canvas Renderer/{version}/Demo`.
 2. Open `CompositeCanvasRenderer_Demo` scene.
 3. Play the scene to see the demo in action.
@@ -131,13 +131,13 @@ To update the package, change suffix `#{version}` to the target version.
 
 1. Create a GameObject with the `CompositeCanvasRenderer` component.
 2. Add UI elements such as Image, RawImage, Text, TextMeshProUGUI, etc., to the GameObject.  
-<img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/571dd4ed-2ab7-49fd-be88-d176728fdcb8" width=300/>
+  <img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/571dd4ed-2ab7-49fd-be88-d176728fdcb8" width=300/>
 3. The baking area is determined by the `RectTransform.size` and the `Expands` option. In the scene view, the baking area is displayed as a magenta rectangle.  
-<img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/c614e39d-f3f4-4178-a870-6198a71fbf01" width=300/>
+  <img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/c614e39d-f3f4-4178-a870-6198a71fbf01" width=300/>
 4. Adjust the `CompositeCanvasRenderer` settings in the inspector.  
-<img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/8369b4e2-4463-4469-af1c-e7ac81959d03" width=400/>
+  <img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/8369b4e2-4463-4469-af1c-e7ac81959d03" width=400/>
 1. Select an effect in the inspector and fine-tune its settings.  
-<img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/569d59ac-8bf5-421f-baaa-8487967f15a1" width=400/>
+  <img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/569d59ac-8bf5-421f-baaa-8487967f15a1" width=400/>
 1. Enjoy the results!
 
 <br><br>
@@ -175,7 +175,6 @@ Your support allows me to dedicate more time to development. 😊
 ## License
 
 * MIT
-* © UTJ/UCL
 
 ## Author
 
