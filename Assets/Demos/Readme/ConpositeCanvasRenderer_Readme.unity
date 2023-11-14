@@ -1318,7 +1318,7 @@ MonoBehaviour:
   m_Multiplier: 1
   m_Limit: 1
   m_EffectDistance: {x: 5, y: -5}
-  m_OutlinePattern: 0
+  m_OutlinePattern: 2
   m_InnerCutoff: 0.8
 --- !u!1 &1109673776 stripped
 GameObject:
