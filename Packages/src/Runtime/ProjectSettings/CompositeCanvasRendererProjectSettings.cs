@@ -12,11 +12,31 @@ namespace CompositeCanvas.ProjectSettings
         [SerializeField]
         private TransformSensitivity m_TransformSensitivity = TransformSensitivity.Medium;
 
+        [SerializeField]
+        private bool m_EnableCullingInPlayMode = true;
+
+        [SerializeField]
+        private bool m_EnableCullingInEditMode = true;
+
 #if UNITY_EDITOR
         [Header("Shader")]
         [SerializeField]
         private bool m_AutoIncludeShaders = true;
 #endif
+
+        public static bool enableCulling
+        {
+            get
+            {
+#if UNITY_EDITOR
+                if (!Application.isPlaying)
+                {
+                    return instance.m_EnableCullingInEditMode;
+                }
+#endif
+                return instance.m_EnableCullingInPlayMode;
+            }
+        }
 
         public static TransformSensitivity transformSensitivity
         {

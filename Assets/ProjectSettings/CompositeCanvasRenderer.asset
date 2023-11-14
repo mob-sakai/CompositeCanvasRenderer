@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b894cfc7d9884b4d9a048119fbfde1e, type: 3}
   m_Name: CompositeCanvasRenderer
   m_EditorClassIdentifier: 
-  m_DownSamplingRate: 1
   m_TransformSensitivity: 1
-  m_EnableCullingInEditor: 0
+  m_EnableCullingInPlayMode: 1
+  m_EnableCullingInEditMode: 1
   m_AutoIncludeShaders: 1

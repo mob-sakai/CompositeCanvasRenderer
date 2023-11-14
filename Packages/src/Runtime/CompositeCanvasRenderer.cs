@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using CompositeCanvas.Effects;
 using CompositeCanvas.Enums;
+using CompositeCanvas.ProjectSettings;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -289,7 +290,7 @@ namespace CompositeCanvas
         /// </summary>
         public bool culling
         {
-            get => m_Culling;
+            get => CompositeCanvasRendererProjectSettings.enableCulling && m_Culling;
             set
             {
                 if (m_Culling == value) return;
@@ -766,6 +767,7 @@ namespace CompositeCanvas
         private bool IsAnySourceInRenderer()
         {
             if (!transform.lossyScale.IsVisible()) return false;
+            if (!culling) return true;
 
             for (var i = 0; i < sources.Count; i++)
             {
@@ -781,6 +783,8 @@ namespace CompositeCanvas
 
         private bool IsInCanvasViewport()
         {
+            if (!culling) return true;
+
             if (FrameCache.TryGet(this, nameof(IsInCanvasViewport), out bool result))
             {
                 return result;
