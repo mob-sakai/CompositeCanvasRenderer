@@ -122,7 +122,13 @@ namespace CompositeCanvas
             var w = rt.width;
             var h = rt.height;
             var result = new RenderTargetIdentifier(rt);
+
+            var scale = w / compositeCanvasRenderer.renderingSize.x;
+            var blurValue = blur * scale;
             Profiler.EndSample();
+
+            // Skip if blur value is zero.
+            if (blurValue <= 0 && !useCutoffPass) return;
 
             // Get blur material
             Profiler.BeginSample("(CCR)[CompositeCanvasBlur] ApplyBakedEffect > Get blur material (lambda)");
@@ -133,9 +139,6 @@ namespace CompositeCanvas
                     hideFlags = HideFlags.DontSave | HideFlags.NotEditable
                 });
             Profiler.EndSample();
-
-            var scale = w / compositeCanvasRenderer.renderingSize.x;
-            var blurValue = blur * scale;
             if (0 < blurValue)
             {
                 Profiler.BeginSample("(CCR)[CompositeCanvasBlur] ApplyBakedEffect > Construct blur effect for cb");
