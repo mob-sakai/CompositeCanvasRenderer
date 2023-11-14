@@ -621,9 +621,7 @@ namespace CompositeCanvas
             Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] GetModifiedMaterial > Get material");
             var hash = CreateHash(colorMode, srcBlendMode, dstBlendMode);
             _createMaterial = _createMaterial ?? CreateMaterial;
-            MaterialRegistry.Get(hash, ref _renderingMaterial,
-                _createMaterial,
-                CompositeCanvasRendererProjectSettings.cacheRendererMaterial);
+            MaterialRegistry.Get(hash, ref _renderingMaterial, _createMaterial);
             Profiler.EndSample();
 
             return _renderingMaterial;

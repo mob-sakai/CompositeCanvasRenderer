@@ -131,7 +131,7 @@ namespace CompositeCanvas
                 () => new Material(Shader.Find("Hidden/UI/CompositeCanvasRenderer/Blur"))
                 {
                     hideFlags = HideFlags.DontSave | HideFlags.NotEditable
-                }, CompositeCanvasRendererProjectSettings.cacheRendererMaterial);
+                });
             Profiler.EndSample();
 
             var scale = w / compositeCanvasRenderer.renderingSize.x;

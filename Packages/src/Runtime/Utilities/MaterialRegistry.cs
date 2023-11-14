@@ -33,7 +33,7 @@ namespace CompositeCanvas
         /// <summary>
         /// Adds or retrieves a cached material based on the hash.
         /// </summary>
-        public static void Get(Hash128 hash, ref Material material, Func<Material> onCreate, bool globalCache = false)
+        public static void Get(Hash128 hash, ref Material material, Func<Material> onCreate)
         {
             // Find existing entry.
             Profiler.BeginSample("(CCR)[MaterialRegistry] Get > Find existing entry");
@@ -64,7 +64,7 @@ namespace CompositeCanvas
             var entry = s_MatEntryPool.Rent();
             entry.customMat = onCreate();
             entry.hash = hash;
-            entry.count = globalCache ? 2 : 1;
+            entry.count = 1;
             s_List.Add(entry);
             Logging.Log(typeof(MaterialRegistry),
                 $"Get(#{s_List.Count}): {entry.hash.GetHashCode()}, {entry.customMat.shader}");

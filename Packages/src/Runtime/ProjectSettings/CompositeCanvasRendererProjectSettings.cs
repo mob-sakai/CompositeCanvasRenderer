@@ -11,16 +11,11 @@ namespace CompositeCanvas
         [SerializeField]
         private TransformSensitivity m_TransformSensitivity = TransformSensitivity.Medium;
 
-        [SerializeField]
-        private bool m_CacheRendererMaterial = true;
-
 #if UNITY_EDITOR
         [Header("Shader")]
         [SerializeField]
         private bool m_AutoIncludeShaders = true;
 #endif
-
-        public static bool cacheRendererMaterial => instance.m_CacheRendererMaterial;
 
         public static TransformSensitivity transformSensitivity
         {

@@ -257,24 +257,8 @@ namespace CompositeCanvas
             _mesh.RecalculateBounds();
             Profiler.EndSample();
             Logging.Log(this, " >>>> Graphic mesh is modified.");
-        }
 
-        public static int Compare(CompositeCanvasSource l, CompositeCanvasSource r)
-        {
-            if (l == r) return 0;
-            if ((!l || !l._graphic) && (r && r._graphic)) return -1;
-            if (l && l._graphic && (!r || !r._graphic)) return 1;
-
-            Profiler.BeginSample("(CCR)[CompositeCanvasSource] Compare > depth");
-            var lDepth = l._graphic ? l._graphic.depth : -1;
-            var rDepth = r._graphic ? r._graphic.depth : -1;
-            Profiler.EndSample();
-            if (lDepth != -1 && rDepth != -1) return lDepth - rDepth;
-
-            Profiler.BeginSample("(CCR)[CompositeCanvasSource] Compare > CompareHierarchyIndex");
-            var compare = l.transform.CompareHierarchyIndex(r.transform, l._renderer ? l._renderer.transform : null);
-            Profiler.EndSample();
-            return compare;
+            SetRendererDirty();
         }
 
         /// <summary>
@@ -337,7 +321,7 @@ namespace CompositeCanvas
 
         internal void Bake(CommandBuffer cb, bool usePopMaterial)
         {
-            if (!_graphic || !_graphic.canvasRenderer || !IsInScreen()) return;
+            if (!_graphic || !_graphic.isActiveAndEnabled || !_graphic.canvasRenderer || !IsInScreen()) return;
             var cr = _graphic.canvasRenderer;
             if (usePopMaterial && cr.popMaterialCount == 0) return;
 
