@@ -1,38 +1,17 @@
 html,
 body {
-  font-family: 'Roboto', sans-serif;
+    font-family: 'Roboto', sans-serif;
 }
 
-.collapsible {
-    cursor: pointer;
+.navbar-brand > img {
+    height: fit-content;
 }
 
-.collapsible div {
-  padding: 0 18px;
-  display: block;
-  overflow: hidden;
+.toc a,
+a.xref {
+    font-weight: 500;
 }
 
-.collapsible.closed div {
-    display: none;
-}
-.initial {
-    display: block !important;
-}
-.collapsible.closed h5::before {
-    content: "+ ";
-    font-size: 1.2em;
-}
-.collapsible h5::before {
-    content: "- ";
-    font-size: 1.2em;
-}
-.collapsible.closed::after {
-    content: " ... ";
-    font-size: 1.5em;
-}
-
-.show-bottom .level0.initial:after {
-    content: "\A        ? ..." !important;
-    white-space: pre;
+.container {
+    width: 95%;
 }

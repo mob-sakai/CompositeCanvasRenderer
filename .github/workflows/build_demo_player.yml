@@ -3,6 +3,7 @@
 name: 🎮 Build Demo Player
 
 env:
+  unityVersion: 2022.3.10f1
   targetPlatform: WebGL
 
 on:
@@ -20,14 +21,6 @@ jobs:
     permissions:
       contents: read
     steps:
-      - name: ⚙️ Setup Unity version
-        id: setup
-        run: |
-          TARGET_VERSION=`npx unity-changeset list --versions --latest-patch --lts | head -n 1`
-          echo "unityVersion=${TARGET_VERSION}" >> $GITHUB_OUTPUT
-          echo "Target Unity Version: ${TARGET_VERSION}" >> $GITHUB_STEP_SUMMARY
-          echo "Target Unity Version: ${TARGET_VERSION}"
-
       - name: 🚚 Checkout
         uses: actions/checkout@v4
 
@@ -35,10 +28,10 @@ jobs:
         uses: actions/cache@v3
         with:
           path: Library
-          key: Library-${{ steps.setup.outputs.unityVersion }}-${{ env.targetPlatform }}-${{ github.sha }}
+          key: Library-${{ env.unityVersion }}-${{ env.targetPlatform }}-${{ github.sha }}
           restore-keys: |
-            Library-${{ steps.setup.outputs.unityVersion }}-${{ env.targetPlatform }}-
-            Library-${{ steps.setup.outputs.unityVersion }}-
+            Library-${{ env.unityVersion }}-${{ env.targetPlatform }}-
+            Library-${{ env.unityVersion }}-
             Library-
 
       - name: 🛠️ Build Demo Player
@@ -47,8 +40,7 @@ jobs:
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
-          customImage: mobsakai/unity3d:${{ steps.setup.outputs.unityVersion }}-webgl
-          # unityVersion: ${{ steps.setup.outputs.unityVersion }}
+          unityVersion: ${{ env.unityVersion }}
           targetPlatform: WebGL
           allowDirtyBuild: true
 

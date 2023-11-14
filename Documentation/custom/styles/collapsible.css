@@ -1,0 +1,37 @@
+.collapsible {
+    cursor: pointer;
+}
+
+.collapsible div {
+    padding: 0 18px;
+    display: block;
+    overflow: hidden;
+}
+
+.collapsible.closed div {
+    display: none;
+}
+
+.initial {
+    display: block !important;
+}
+
+.collapsible.closed h5::before {
+    content: "+ ";
+    font-size: 1.2em;
+}
+
+.collapsible h5::before {
+    content: "- ";
+    font-size: 1.2em;
+}
+
+.collapsible.closed::after {
+    content: " ... ";
+    font-size: 1.5em;
+}
+
+.show-bottom .level0.initial:after {
+    content: "\A        ..." !important;
+    white-space: pre;
+}

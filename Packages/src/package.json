@@ -3,11 +3,15 @@
   "displayName": "Composite Canvas Renderer",
   "description": "",
   "version": "1.0.0-preview.1",
-  "unity": "2019.1",
+  "unity": "2019.4",
   "license": "MIT",
+  "documentationUrl": "https://mob-sakai.github.io/CompositeCanvasRenderer",
+  "licensesUrl": "https://mob-sakai.github.io/CompositeCanvasRenderer/license/LICENSE.html",
+  "changelogUrl": "https://mob-sakai.github.io/CompositeCanvasRenderer/changelog/CHANGELOG.html",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mob-sakai/CompositeCanvasRenderer.git"
+    "url": "https://github.com/mob-sakai/CompositeCanvasRenderer.git",
+    "directory": "Packages/src"
   },
   "author": {
     "name": "mob-sakai",

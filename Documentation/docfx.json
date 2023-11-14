@@ -3,7 +3,6 @@
     {
       "dest": "src/api",
       "memberLayout": "separatePages",
-      "globalNamespaceId": "Global",
       "allowCompilationErrors": true,
       "filter": "filterConfig.yml",
       "src": [
@@ -33,19 +32,13 @@
       }
     ],
     "resource": [
-      {
-        "files": [
-          "resources/**/*"
-        ]
-      }
+      "metadata.json",
+      "resources/**/*"
     ],
     "template": [
       "default",
       "custom"
     ],
-    "sitemap": {
-      "baseUrl": "https://mob-sakai.github.io/CompositeCanvasRenderer"
-    },
     "xref": [
       "https://docs.unity3d.com/Packages/com.unity.ugui@1.0/xrefmap.yml",
       "https://normanderwan.github.io/UnityXrefMaps/xrefmap.yml"

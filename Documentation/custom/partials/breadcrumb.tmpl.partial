@@ -1,0 +1,20 @@
+{{!Licensed to the .NET Foundation under one or more agreements. The .NET Foundation licenses this file to you under the MIT license.}}
+
+<div class="subnav navbar navbar-default hide-when-search">
+  <div class="container">
+    <div id="version-select">
+      <div class="component-select">
+        <div id="component-select-current-display" class="component-select__current">
+        {{_appTitle}}
+        </div>
+        <ul id="version-select-ul" class="component-select__options-container">
+        </ul>
+      </div>
+    </div>
+    <div id="breadcrumb">
+      <ul class="breadcrumb">
+        <li>{{_tocTitle}}</li>
+      </ul>
+    </div>
+  </div>
+</div>

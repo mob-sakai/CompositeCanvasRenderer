@@ -3,6 +3,7 @@
 name: 🔍 Build Code Coverage
 
 env:
+  unityVersion: 2022.3.10f1
   targetPlatform: StandaloneLinux64
 
 on:
@@ -21,15 +22,6 @@ jobs:
       contents: read
       checks: write
     steps:
-      - name: ⚙️ Setup Unity version
-        id: setup
-        run: |
-          echo "Find LTS Unity version..."
-          LTS_VERSION=`npx unity-changeset list --versions --latest-patch --lts | head -n 1`
-          echo "unityVersion=${LTS_VERSION}" >> $GITHUB_OUTPUT
-          echo "Target Unity Version: ${LTS_VERSION}" >> $GITHUB_STEP_SUMMARY
-          echo "Target Unity Version: ${LTS_VERSION}"
-
       - name: 🚚 Checkout
         uses: actions/checkout@v4
 
@@ -37,20 +29,19 @@ jobs:
         uses: actions/cache@v3
         with:
           path: Library
-          key: Library-${{ steps.setup.outputs.unityVersion }}-${{ env.targetPlatform }}-${{ github.sha }}
+          key: Library-${{ env.unityVersion }}-${{ env.targetPlatform }}-${{ github.sha }}
           restore-keys: |
-            Library-${{ steps.setup.outputs.unityVersion }}-${{ env.targetPlatform }}-
-            Library-${{ steps.setup.outputs.unityVersion }}-
+            Library-${{ env.unityVersion }}-${{ env.targetPlatform }}-
+            Library-${{ env.unityVersion }}-
             Library-
 
       - name: 🧪 Run Tests
-        uses: game-ci/unity-test-runner@v3
+        uses: game-ci/unity-test-runner@v4
         timeout-minutes: 30
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
-          customImage: mobsakai/unity3d:${{ steps.setup.outputs.unityVersion }}
-          # unityVersion: ${{ steps.setup.outputs.unityVersion }}
+          unityVersion: ${{ env.unityVersion }}
           customParameters: -nographics
           githubToken: ${{ github.token }}
           coverageOptions: "dontClear;generateHtmlReport;generateBadgeReport;pathFilters:+**/Packages/src/**;assemblyFilters:+<packages>"

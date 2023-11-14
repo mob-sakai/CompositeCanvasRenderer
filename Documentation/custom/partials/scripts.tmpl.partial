@@ -1,0 +1,9 @@
+{{!Licensed to the .NET Foundation under one or more agreements. The .NET Foundation licenses this file to you under the MIT license.}}
+
+<script type="text/javascript" src="{{_rel}}styles/docfx.vendor.min.js"></script>
+<script type="text/javascript" src="{{_rel}}styles/docfx.js"></script>
+<script type="text/javascript" src="{{_rel}}styles/main.js"></script>
+<script type="text/javascript" src="{{_rel}}styles/collapsible.js"></script>
+<script type="text/javascript" src="{{_rel}}styles/version-selector.js"></script>
+<link rel="stylesheet" href="{{_rel}}styles/collapsible.css">
+<link rel="stylesheet" href="{{_rel}}styles/version-selector.css">

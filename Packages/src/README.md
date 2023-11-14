@@ -6,13 +6,14 @@ CompositeCanvasRenderer
 [![](https://img.shields.io/github/release-date/mob-sakai/CompositeCanvasRenderer.svg)](https://github.com/mob-sakai/CompositeCanvasRenderer/releases)  
 ![](https://img.shields.io/badge/Unity-2019.4+-57b9d3.svg?style=flat&logo=unity)
 [![](https://img.shields.io/github/license/mob-sakai/CompositeCanvasRenderer.svg)](https://github.com/mob-sakai/CompositeCanvasRenderer/blob/main/LICENSE.txt)
+[![](https://mob-sakai.github.io/DocFxForUnity/CodeCoverage/badge_linecoverage.svg)](https://mob-sakai.github.io/TestPkgDev/CodeCoverage/)  
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-orange.svg)](http://makeapullrequest.com)
 [![](https://img.shields.io/github/watchers/mob-sakai/CompositeCanvasRenderer.svg?style=social&label=Watch)](https://github.com/mob-sakai/CompositeCanvasRenderer/subscription)
 [![](https://img.shields.io/twitter/follow/mob_sakai.svg?label=Follow&style=social)](https://twitter.com/intent/follow?screen_name=mob_sakai)
 
-<< [Description](#Description) | [WebGL Demo](#demo) | [Installation](#installation) | [Usage](#usage) | [Development Note](#development-note) | [Contributing](#contributing) >>
+<< [📝 Description](#-description) | [📘 Documentation](#-documentation) | [🎮 Demo](#-demo) | [⚙ Installation](#-installation) | [🚀 Usage](#-usage) | [🛠 Development Note](#-development-note) | [🤝 Contributing](#-contributing) >>
 
-## Description
+## 📝 Description
 
 CompositeCanvasRenderer bakes multiple source graphics into a bake-buffer (RenderTexture) and renders it.
 
@@ -69,13 +70,23 @@ Let's enjoy a wide range of effects that were previously challenging to achieve 
 
 <br><br>
 
-## Demo
+## 📄 Documentation
 
-[WebGL Demo](http://mob-sakai.github.io/CompositeCanvasRenderer/Build/)
+Check out the detailed documentation to learn more about the project and its features.
+
+[Documentation](http://mob-sakai.github.io/CompositeCanvasRenderer/)
 
 <br><br>
 
-## Installation
+## 🎮 Demo
+
+[WebGL Demo](http://mob-sakai.github.io/CompositeCanvasRenderer/Demo/)
+
+![]()
+
+<br><br>
+
+## ⚙ Installation
 
 _This package requires **Unity 2019.4 or later**._
 
@@ -127,7 +138,7 @@ To update the package, change suffix `#{version}` to the target version.
 
 <br><br>
 
-## Usage
+## 🚀 Usage
 
 1. Create a GameObject with the `CompositeCanvasRenderer` component.
 2. Add UI elements such as Image, RawImage, Text, TextMeshProUGUI, etc., to the GameObject.  
@@ -142,11 +153,11 @@ To update the package, change suffix `#{version}` to the target version.
 
 <br><br>
 
-## Development Note
+## 🛠 Development Note
 
 <br><br>
 
-## Contributing
+## 🤝 Contributing
 
 ### Issues
 

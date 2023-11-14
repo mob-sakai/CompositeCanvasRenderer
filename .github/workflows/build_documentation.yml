@@ -3,6 +3,7 @@
 name: 📘 Build Documentation
 
 env:
+  unityVersion: 2022.3.10f1
   targetPlatform: StandaloneLinux64
 
 on:
@@ -14,53 +15,79 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    name: 📘 Build Documentation
+  setup:
+    name: 📘 Setup Metadata
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
       - name: 🚚 Checkout
         uses: actions/checkout@v4
 
-      - name: ⚙️ Setup Unity version
+      - name: ⚙️Setup matrix
+        id: matrix
+        run: echo "matrix=$(jq -c . < ./Documentation/metadata.json)" | tee $GITHUB_OUTPUT
+  
+  build:
+    name: 📘 Build Documentation
+    needs: setup
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
+    steps:
+      - name: 🚚 Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.ref }}
+
+      - name: ⚙️ Setup
         id: setup
         run: |
-          TARGET_VERSION=`npx unity-changeset list --versions --latest-patch --lts | head -n 1`
-          echo "unityVersion=${TARGET_VERSION}" >> $GITHUB_OUTPUT
-          echo "Target Unity Version: ${TARGET_VERSION}" | tee -a $GITHUB_STEP_SUMMARY
-
           # install docfx
           dotnet tool install -g docfx
 
-          # install Cofee.DocFxForUnity
+          # install DocFxForUnity
           npx openupm-cli add 'com.coffee.docfx-for-unity@https://github.com/mob-sakai/TestPkgDev.git?path=Packages/src#develop'
 
       - name: 📥 Cache Library
         uses: actions/cache@v3
         with:
           path: Library
-          key: Library-${{ steps.setup.outputs.unityVersion }}-${{ env.targetPlatform }}-${{ github.sha }}
+          key: Library-${{ env.unityVersion }}-${{ env.targetPlatform }}-${{ github.sha }}
           restore-keys: |
-            Library-${{ steps.setup.outputs.unityVersion }}-${{ env.targetPlatform }}-
-            Library-${{ steps.setup.outputs.unityVersion }}-
+            Library-${{ env.unityVersion }}-${{ env.targetPlatform }}-
+            Library-${{ env.unityVersion }}-
             Library-
 
-      - name: 🛠️ Run UnityEditor To Setup '*.csproj'
+      - name: 🛠️ Run UnityEditor To Setup CsProj
         uses: game-ci/unity-builder@v3
-        timeout-minutes: 30
         continue-on-error: true # NOTE: Disabling the check for the "Build results" output? https://github.com/game-ci/unity-builder/issues/563
+        timeout-minutes: 30
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
-          customImage: mobsakai/unity3d:${{ steps.setup.outputs.unityVersion }}
-          # unityVersion: ${{ steps.setup.outputs.unityVersion }}
+          unityVersion: ${{ env.unityVersion }}
           targetPlatform: ${{ env.targetPlatform }}
           allowDirtyBuild: true
-          buildMethod: Coffee.DocFxForUnity.SetupCsProj
+          buildMethod: DocFxForUnity.SetupCsProj
 
       - name: 📘 Build docfx
-        run: docfx Documentation/docfx.json
+        run: |
+          echo "==== Update Configuration ===="
+          jq " \
+          .build.sitemap.baseUrl = \"${{ matrix.url }}\" | \
+          .build.globalMetadata._appTitle = \"${{ matrix.appTitle }}\" | \
+          .build.dest = \"${{ matrix.dest }}\" \
+          " Documentation/docfx.json > Documentation/__docfx.json
+          
+          cat Documentation/__docfx.json
+          
+          echo "==== Build ===="
+          docfx Documentation/__docfx.json
 
       - name: 📦 Upload Documentation
         uses: actions/upload-artifact@v3
