@@ -22,7 +22,7 @@ Shader "UI/CompositeCanvasRenderer"
         _MaskSpeed("Mask Speed", Vector) = (0,0,0,0)
 
         [Header(Color Mode)]
-        [KeywordEnum(Multipry, Additive, Subtract, Fill)] Color_Mode ("Color Mode", Int) = 0  
+        [KeywordEnum(Multipry, Additive, Subtract, Fill)] Color_Mode ("Color Mode", Int) = 0
 
         [Header(Blend Mode)]
         [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("Src Blend Mode", Int) = 1
@@ -120,19 +120,19 @@ Shader "UI/CompositeCanvasRenderer"
             sampler2D _DetailTex;
             float4 _DetailTex_ST;
 
-            half4 applyColorEffect(half4 color, half4 factor)
+            half4 applyColor(half4 color, half4 factor)
             {
 	            #if COLOR_MODE_FILL
-                color.rgb = factor.rgb;
+                color.rgb = factor.rgb * color.a;
 	            #elif COLOR_MODE_ADDITIVE
-	            color.rgb += factor.rgb;
+	            color.rgb += factor.rgb * color.a;
 	            #elif COLOR_MODE_SUBTRACT
-	            color.rgb -= factor.rgb;
+	            color.rgb -= factor.rgb * color.a;
                 #else
                 color.rgb *= factor.rgb;
 	            #endif
 
-	            return color;
+	            return color *= factor.a;
             }
         
             float invLerp(const float from, const float to, const float value)
@@ -189,15 +189,12 @@ Shader "UI/CompositeCanvasRenderer"
                 clip (color.a - 0.001);
                 #endif
 
-                color = applyColorEffect(color, IN.color);
-                color *= color.a * IN.color.a;
-
                 #ifdef ENABLE_MASK
                 const float2 maskUv = TRANSFORM_TEX(IN.texcoord.xy, _MaskTex);
                 color *= tex2D(_MaskTex, maskUv + _Time.y * _MaskSpeed).a;
                 #endif
 
-                return color;
+                return applyColor(color, IN.color);
             }
         ENDCG
         }

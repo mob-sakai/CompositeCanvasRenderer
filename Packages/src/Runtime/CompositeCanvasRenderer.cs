@@ -662,6 +662,7 @@ namespace CompositeCanvas
                 shaderKeywords = s_ColorModeKeywords[(int)colorMode]
             };
 
+            mat.SetInt(ShaderPropertyIds.colorMode, (int)colorMode);
             mat.SetInt(ShaderPropertyIds.srcBlendMode, (int)srcBlendMode);
             mat.SetInt(ShaderPropertyIds.dstBlendMode, (int)dstBlendMode);
             Profiler.EndSample();
