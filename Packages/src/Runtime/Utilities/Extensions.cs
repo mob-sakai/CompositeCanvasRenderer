@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using CompositeCanvas.ProjectSettings;
 using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.UI;
@@ -66,11 +67,9 @@ namespace CompositeCanvas
             s_MeshPool.Return(ref mesh);
         }
 
-        public static void CopyTo(this Mesh self, ref Mesh dst)
+        public static void CopyTo(this Mesh self, Mesh dst)
         {
-            if (self == null) return;
-
-            dst = dst ? dst : Rent();
+            if (self == null || dst) return;
 
             var vector3List = ListPool<Vector3>.Rent();
             var vector4List = ListPool<Vector4>.Rent();
@@ -112,7 +111,7 @@ namespace CompositeCanvas
         }
     }
 
-    public static class Vector3Extensions
+    internal static class Vector3Extensions
     {
         public static Vector3 Inverse(this Vector3 self)
         {

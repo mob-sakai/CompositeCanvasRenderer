@@ -8,7 +8,7 @@ namespace CompositeCanvas
     /// <summary>
     /// Provides additional callbacks related to canvas and UI system.
     /// </summary>
-    public static class UIExtraCallbacks
+    internal static class UIExtraCallbacks
     {
         private static bool s_IsInitializedAfterCanvasRebuild;
         private static readonly FastAction s_AfterCanvasRebuildAction = new FastAction();

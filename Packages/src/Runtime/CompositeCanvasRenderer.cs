@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using CompositeCanvas.Effects;
+using CompositeCanvas.Enums;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -37,8 +39,11 @@ namespace CompositeCanvas
         private DownSamplingRate m_DownSamplingRate = DownSamplingRate.x1;
 
         [SerializeField]
-        [Tooltip("Use orthographic space to bake if possible.")]
-        private bool m_Orthographic;
+        [Tooltip("View type to bake.\n" +
+                 "Automatic: Use orthographic space to bake if possible.\n" +
+                 "Orthographic: Use orthographic space to bake.\n" +
+                 "Perspective: Use perspective space to bake.\n")]
+        private ViewType m_ViewType = ViewType.Automatic;
 
         [SerializeField]
         [Tooltip("The value to expand the baking range.")]
@@ -46,11 +51,11 @@ namespace CompositeCanvas
 
         [SerializeField]
         [Tooltip("Ignore source graphics outside the baking region.")]
-        private bool m_Culling;
+        private bool m_Culling = true;
 
         [SerializeField]
         [Tooltip("Use stencil to mask for baking.")]
-        private bool m_UseStencil;
+        private bool m_UseStencil = true;
 
         [SerializeField]
         [Tooltip("Baking trigger mode.\n" +
@@ -99,9 +104,9 @@ namespace CompositeCanvas
         private List<CompositeCanvasSource> _sources;
 
         /// <summary>
-        /// The number of times baked.
+        /// Event that is fired after baking.
         /// </summary>
-        public static ulong bakedCount { get; set; }
+        public static event Action<CompositeCanvasRenderer> onBaked;
 
         private List<CompositeCanvasSource> sources => _sources ?? (_sources = ListPool<CompositeCanvasSource>.Rent());
 
@@ -314,18 +319,16 @@ namespace CompositeCanvas
         {
             get
             {
-                // Perspective mode.
-                if (!m_Orthographic
-                    && canvas && canvas.renderMode == RenderMode.ScreenSpaceCamera
-                    && canvas.worldCamera && !canvas.worldCamera.orthographic)
-                {
-                    return true;
-                }
-
-                // In world space, perspective mode is not supported.
-                if (canvas && canvas.renderMode == RenderMode.WorldSpace)
+                if (viewType == ViewType.Orthographic
+                    || !canvas || canvas.renderMode != RenderMode.ScreenSpaceCamera
+                    || (canvas.worldCamera && canvas.worldCamera.orthographic))
                 {
                     return false;
+                }
+
+                if (viewType == ViewType.Perspective)
+                {
+                    return true;
                 }
 
                 // Use cache if possible.
@@ -358,16 +361,21 @@ namespace CompositeCanvas
         }
 
         /// <summary>
-        /// Use orthographic space to bake if possible.
+        /// View type to bake.
+        /// <para />
+        /// Automatic: Use orthographic space to bake if possible.
+        /// <para />
+        /// Orthographic: Use orthographic space to bake.
+        /// <para />
+        /// Perspective: Use perspective space to bake.
         /// </summary>
-        public bool orthographic
+        public ViewType viewType
         {
-            get => m_Orthographic;
+            get => m_ViewType;
             set
             {
-                if (m_Orthographic == value) return;
-                m_Orthographic = value;
-                SetVerticesDirty();
+                if (m_ViewType == value) return;
+                m_ViewType = value;
                 SetDirty();
             }
         }
@@ -392,6 +400,8 @@ namespace CompositeCanvas
                 m_BakingTrigger = value;
             }
         }
+
+        internal CommandBuffer cb => _cb ?? (_cb = s_CommandBufferPool.Rent());
 
         /// <summary>
         /// This function is called when the object becomes enabled and active.
@@ -684,6 +694,8 @@ namespace CompositeCanvas
                     return;
             }
 
+            if (!IsInCanvasViewport()) return;
+
             // If the transform of any source graphic has changed, set dirty.
             Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] CheckTransformChanged > Sources");
             var isPerspective = perspectiveBaking;
@@ -751,10 +763,7 @@ namespace CompositeCanvas
             Logging.Log(this, $"Unregister #{sources.Count}: {canvasSource} {canvasSource.GetInstanceID()}");
         }
 
-        /// <summary>
-        /// Returns whether this graphic is in the scene.
-        /// </summary>
-        private bool IsInScreen()
+        private bool IsAnySourceInRenderer()
         {
             if (!transform.lossyScale.IsVisible()) return false;
 
@@ -768,6 +777,33 @@ namespace CompositeCanvas
             }
 
             return false;
+        }
+
+        private bool IsInCanvasViewport()
+        {
+            if (FrameCache.TryGet(this, nameof(IsInCanvasViewport), out bool result))
+            {
+                return result;
+            }
+
+            // Cull if there is no graphic or the scale is too small.
+            if (!transform.lossyScale.IsVisible())
+            {
+                result = false;
+            }
+            else
+            {
+                var viewport = canvas.rootCanvas.transform as RectTransform;
+                var bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(viewport, transform);
+                var viewportRect = viewport.rect;
+                var ex = extents;
+                var rect = new Rect(bounds.min, bounds.size);
+                rect.Set(rect.xMin - ex.x / 2, rect.yMin - ex.y / 2, rect.width + ex.x, rect.height + ex.y);
+                result = viewportRect.Overlaps(rect, true);
+            }
+
+            FrameCache.Set(this, nameof(IsInCanvasViewport), result);
+            return result;
         }
 
         /// <summary>
@@ -786,7 +822,7 @@ namespace CompositeCanvas
                 return;
             }
 
-            if (!IsInScreen())
+            if (!IsAnySourceInRenderer())
             {
                 Logging.Log(this,
                     "<color=orange> Baking is canceled due to all source graphics are not in screen.</color>");
@@ -853,17 +889,17 @@ namespace CompositeCanvas
                 Profiler.EndSample();
             }
 
-            // Sort and bake sources.
+            // Bake sources.
             {
                 Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] Bake > Bake sources");
-                Bake(transform, _cb, true, useStencil);
+                Bake(transform, true, useStencil);
                 Profiler.EndSample();
             }
 
             // Apply baked effect.
             {
                 Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] Bake > Apply Baked Effect");
-                if (TryGetComponent<CompositeCanvasEffect>(out var effect) && effect.isActiveAndEnabled)
+                if (TryGetComponent<CompositeCanvasEffectBase>(out var effect) && effect.isActiveAndEnabled)
                 {
                     effect.ApplyBakedEffect(_cb);
                 }
@@ -886,21 +922,20 @@ namespace CompositeCanvas
             }
 #endif
             canvasRenderer.SetTexture(_bakeBuffer);
-            bakedCount++;
+            onBaked?.Invoke(this);
         }
 
-        private static void Bake(Transform tr, CommandBuffer cb, bool isRoot, bool useStencil)
+        private static void Bake(Transform tr, bool isRoot, bool useStencil)
         {
             if (!tr || !tr.gameObject.activeInHierarchy) return;
 
             tr.TryGetComponent<CompositeCanvasSource>(out var source);
             var isActive = source && source.isActiveAndEnabled;
-            var canRendering = !isRoot && isActive && !source.ignoreSelf;
+            var canRendering = !isRoot && isActive && !source.ignoreSelf && source.IsInScreen();
             var canRenderingChildren = isRoot || (isActive && !source.ignoreChildren);
             if (canRendering)
             {
-                // Bake for material
-                source.Bake(cb, false);
+                CompositeCanvasProcess.instance.Bake(source.renderer, source, false);
             }
 
             if (canRenderingChildren)
@@ -908,14 +943,13 @@ namespace CompositeCanvas
                 var childCount = tr.childCount;
                 for (var i = 0; i < childCount; i++)
                 {
-                    Bake(tr.GetChild(i), cb, false, useStencil);
+                    Bake(tr.GetChild(i), false, useStencil);
                 }
             }
 
             if (canRendering && useStencil)
             {
-                // Bake for pop material (to restore stencil)
-                source.Bake(cb, true);
+                CompositeCanvasProcess.instance.Bake(source.renderer, source, true);
             }
         }
 
@@ -928,7 +962,7 @@ namespace CompositeCanvas
             Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] GetViewProjectionMatrix");
             var rootCanvas = canvas.rootCanvas;
             var cam = rootCanvas.worldCamera;
-            if (!m_Orthographic && rootCanvas && rootCanvas.renderMode != RenderMode.ScreenSpaceOverlay && cam)
+            if (perspectiveBaking)
             {
                 vMatrix = cam.worldToCameraMatrix;
                 pMatrix = GL.GetGPUProjectionMatrix(cam.projectionMatrix, false);

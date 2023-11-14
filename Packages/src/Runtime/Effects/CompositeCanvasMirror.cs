@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
+using CompositeCanvas.Enums;
 using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.UI;
 
-namespace CompositeCanvas
+namespace CompositeCanvas.Effects
 {
     public class CompositeCanvasMirror : CompositeCanvasBlur, IMeshModifier
     {

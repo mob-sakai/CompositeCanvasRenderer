@@ -9,7 +9,7 @@ namespace CompositeCanvas
     /// <summary>
     /// Provides functionality to manage materials.
     /// </summary>
-    public static class MaterialRegistry
+    internal static class MaterialRegistry
     {
         private static readonly ObjectPool<MatEntry> s_MatEntryPool =
             new ObjectPool<MatEntry>(() => new MatEntry(), _ => true, ent => ent.Release());

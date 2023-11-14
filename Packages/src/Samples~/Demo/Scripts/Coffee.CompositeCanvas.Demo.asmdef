@@ -1,7 +1,7 @@
 {
-    "name": "Coffee.CompositeCanvas",
+    "name": "Coffee.CompositeCanvas.Demo",
     "references": [
-        "Unity.TextMeshPro"
+        "Coffee.CompositeCanvas"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -10,12 +10,6 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [
-        {
-            "name": "com.unity.textmeshpro",
-            "expression": "1.0.0",
-            "define": "TMP_ENABLE"
-        }
-    ],
+    "versionDefines": [],
     "noEngineReferences": false
 }

@@ -33,7 +33,7 @@ MonoBehaviour:
       m_Path: 
   - m_Format: Baked:{0} Material:{1} RT:{2}
     m_Arg0:
-      m_Path: CompositeCanvas.CompositeCanvasRenderer, Coffee.CompositeCanvas;bakedCount
+      m_Path: CompositeCanvas.Demos.CompositeCanvasRenderer_Demo_Signal, Coffee.CompositeCanvas.Demo;bakedCount
     m_Arg1:
       m_Path: CompositeCanvas.MaterialRegistry, Coffee.CompositeCanvas;activeMaterialCount
     m_Arg2:

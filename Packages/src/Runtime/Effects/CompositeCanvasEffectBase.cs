@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace CompositeCanvas
+namespace CompositeCanvas.Effects
 {
     [ExecuteAlways]
     [RequireComponent(typeof(CompositeCanvasRenderer))]
     [DisallowMultipleComponent]
-    public abstract class CompositeCanvasEffect : MonoBehaviour
+    public abstract class CompositeCanvasEffectBase : MonoBehaviour
     {
         private CompositeCanvasRenderer _compositeCanvasRenderer;
 

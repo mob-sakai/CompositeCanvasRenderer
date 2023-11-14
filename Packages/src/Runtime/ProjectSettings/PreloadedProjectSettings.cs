@@ -9,7 +9,7 @@ using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 #endif
 
-namespace CompositeCanvas
+namespace CompositeCanvas.ProjectSettings
 {
     public abstract class PreloadedProjectSettings : ScriptableObject
     {

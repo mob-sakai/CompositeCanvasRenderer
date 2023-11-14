@@ -1,18 +1,11 @@
-﻿using UnityEngine;
+﻿using CompositeCanvas.Enums;
+using UnityEngine;
 using UnityEngine.UI;
 
-namespace CompositeCanvas
+namespace CompositeCanvas.Effects
 {
     public class CompositeCanvasOutline : CompositeCanvasShadow
     {
-        public enum OutlinePattern
-        {
-            x0,
-            x1,
-            x4,
-            x8
-        }
-
         [SerializeField]
         private OutlinePattern m_OutlinePattern = OutlinePattern.x4;
 

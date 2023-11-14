@@ -1,8 +1,9 @@
 ﻿using System.Linq;
+using CompositeCanvas.Enums;
 using UnityEditor;
 using UnityEngine;
 
-namespace CompositeCanvas
+namespace CompositeCanvas.ProjectSettings
 {
     public class CompositeCanvasRendererProjectSettings
         : PreloadedProjectSettings<CompositeCanvasRendererProjectSettings>

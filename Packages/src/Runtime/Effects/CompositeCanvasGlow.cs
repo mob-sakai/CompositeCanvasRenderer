@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using CompositeCanvas.Enums;
+using UnityEngine;
 
-namespace CompositeCanvas
+namespace CompositeCanvas.Effects
 {
     public class CompositeCanvasGlow : CompositeCanvasOutline
     {

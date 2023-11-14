@@ -1,4 +1,7 @@
 using System;
+using CompositeCanvas.Effects;
+using CompositeCanvas.Enums;
+using CompositeCanvas.ProjectSettings;
 using UnityEngine;
 using UnityEngine.UI;
 

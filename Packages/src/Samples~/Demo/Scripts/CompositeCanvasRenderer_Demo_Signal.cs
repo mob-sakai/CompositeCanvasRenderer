@@ -15,6 +15,14 @@ namespace CompositeCanvas.Demos
         [SerializeField] private Mode m_Mode;
 
         private Action _checkDirty;
+        public static int bakedCount { get; private set; }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void InitializeOnLoad()
+        {
+            bakedCount = 0;
+            CompositeCanvasRenderer.onBaked += _ => bakedCount++;
+        }
 
         protected override void OnEnable()
         {

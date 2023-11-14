@@ -2,9 +2,7 @@
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
-using UnityEngine.Experimental.Rendering;
 using UnityEngine.Profiling;
-using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 namespace CompositeCanvas
@@ -35,11 +33,15 @@ namespace CompositeCanvas
         private Action _checkRenderColor;
         private Color _color;
         private Graphic _graphic;
-        internal Mesh _mesh;
+        private Mesh _mesh;
         private MaterialPropertyBlock _mpb;
         private Matrix4x4 _prevTransformMatrix;
-        internal CompositeCanvasRenderer _renderer;
         private UnityAction _setRendererDirty;
+
+        /// <summary>
+        /// The renderer associated with the source.
+        /// </summary>
+        public new CompositeCanvasRenderer renderer { get; private set; }
 
         /// <summary>
         /// The graphic associated with the source.
@@ -91,9 +93,9 @@ namespace CompositeCanvas
         {
             get
             {
-                if (m_IgnoreSelf || !_renderer) return true;
+                if (m_IgnoreSelf || !renderer) return true;
 
-                var rendererTr = _renderer.transform;
+                var rendererTr = renderer.transform;
                 var tr = transform.parent;
                 while (tr && tr != rendererTr)
                 {
@@ -108,6 +110,16 @@ namespace CompositeCanvas
                 return false;
             }
         }
+
+        /// <summary>
+        /// The Mesh to bake.
+        /// </summary>
+        public Mesh mesh => _mesh ? _mesh : _mesh = MeshExtensions.Rent();
+
+        /// <summary>
+        /// The MaterialPropertyBlock to bake.
+        /// </summary>
+        public MaterialPropertyBlock mpb => _mpb ?? (_mpb = s_MaterialPropertyBlockPool.Rent());
 
         /// <summary>
         /// This function is called when the object becomes enabled and active.
@@ -169,7 +181,7 @@ namespace CompositeCanvas
             _bakingMaterial = null;
             _mesh = null;
             _mpb = null;
-            _renderer = null;
+            renderer = null;
             _checkRenderColor = null;
             _setRendererDirty = null;
         }
@@ -224,8 +236,8 @@ namespace CompositeCanvas
         {
             _bakingMaterial = baseMaterial;
             if (!isActiveAndEnabled
-                || !graphic
-                || !_renderer || !_renderer.isActiveAndEnabled || _renderer.showSourceGraphics
+                || !renderer || !renderer.isActiveAndEnabled || renderer.showSourceGraphics
+                || !graphic || !graphic.isActiveAndEnabled
                 || ignored)
             {
                 return baseMaterial;
@@ -240,6 +252,19 @@ namespace CompositeCanvas
         /// </summary>
         void IMeshModifier.ModifyMesh(Mesh mesh)
         {
+            if (!isActiveAndEnabled
+                || !renderer || !renderer.isActiveAndEnabled
+                || !graphic || !graphic.isActiveAndEnabled)
+            {
+                return;
+            }
+
+            Profiler.BeginSample("(CCR)[CompositeCanvasSource] ModifyMesh");
+            mesh.CopyTo(mesh);
+            Profiler.EndSample();
+            Logging.Log(this, " >>>> Graphic mesh is modified.");
+
+            SetRendererDirty();
         }
 
         /// <summary>
@@ -248,8 +273,12 @@ namespace CompositeCanvas
         /// </summary>
         void IMeshModifier.ModifyMesh(VertexHelper verts)
         {
-            if (!isActiveAndEnabled || !_renderer || !_renderer.isActiveAndEnabled || !graphic) return;
-            if (!CompositeCanvasProcess.instance.IsModifyMeshSupported(graphic)) return;
+            if (!isActiveAndEnabled
+                || !renderer || !renderer.isActiveAndEnabled
+                || !graphic || !graphic.isActiveAndEnabled)
+            {
+                return;
+            }
 
             Profiler.BeginSample("(CCR)[CompositeCanvasSource] ModifyMesh");
             _mesh = _mesh ? _mesh : MeshExtensions.Rent();
@@ -294,11 +323,11 @@ namespace CompositeCanvas
             }
 
             // Update the renderer.
-            if (newRenderer != _renderer)
+            if (newRenderer != renderer)
             {
-                if (_renderer)
+                if (renderer)
                 {
-                    _renderer.Unregister(this);
+                    renderer.Unregister(this);
                 }
 
                 if (newRenderer)
@@ -307,64 +336,16 @@ namespace CompositeCanvas
                 }
             }
 
-            _renderer = newRenderer;
+            renderer = newRenderer;
             Profiler.EndSample();
         }
 
         private void SetRendererDirty()
         {
-            if (_renderer)
+            if (renderer)
             {
-                _renderer.SetDirty(false);
+                renderer.SetDirty(false);
             }
-        }
-
-        internal void Bake(CommandBuffer cb, bool usePopMaterial)
-        {
-            if (!_graphic || !_graphic.isActiveAndEnabled || !_graphic.canvasRenderer || !IsInScreen()) return;
-            var cr = _graphic.canvasRenderer;
-            if (usePopMaterial && cr.popMaterialCount == 0) return;
-
-            _mpb = _mpb ?? s_MaterialPropertyBlockPool.Rent();
-            _mpb.Clear();
-            var graphicMat = usePopMaterial
-                ? cr.GetPopMaterial(0)
-                : _bakingMaterial;
-            if (!graphicMat) return;
-
-            Profiler.BeginSample("(CCR)[CompositeCanvasSource] Bake > Mpb setup");
-            var graphicTex = CompositeCanvasProcess.instance.GetMainTexture(graphic);
-            if (graphicTex != null)
-            {
-                _mpb.SetTexture(ShaderPropertyIds.mainTex, graphicTex);
-
-                // Use _TextureSampleAdd for alpha only texture
-                if (GraphicsFormatUtility.IsAlphaOnlyFormat(graphicTex.graphicsFormat))
-                {
-                    _mpb.SetVector(ShaderPropertyIds.textureSampleAdd, new Vector4(1, 1, 1, 0));
-                }
-            }
-
-            Profiler.EndSample();
-
-            Profiler.BeginSample("(CCR)[CompositeCanvasSource] Bake > Calc Matrix");
-            var matrix = _renderer.perspectiveBaking
-                ? transform.localToWorldMatrix
-                : _renderer.transform.worldToLocalMatrix * transform.localToWorldMatrix;
-            Profiler.EndSample();
-
-            Profiler.BeginSample("(CCR)[CompositeCanvasSource] Bake > DrawMesh");
-            var alpha = _renderer.GetParentGroupAlpha();
-            var alphaScale = Mathf.Approximately(alpha, 0) ? 0 : 1f / alpha;
-            var crColor = graphic.canvasRenderer.GetColor();
-            crColor.a *= graphic.canvasRenderer.GetInheritedAlpha() * alphaScale;
-            if (CompositeCanvasProcess.instance.OnPreBake(_renderer, graphic, ref _mesh, _mpb, crColor) && _mesh)
-            {
-                Logging.Log(this, $"<color=orange> >>>> Mesh '{name}' will render.</color>");
-                cb.DrawMesh(_mesh, matrix, graphicMat, 0, 0, _mpb);
-            }
-
-            Profiler.EndSample();
         }
 
         internal bool HasTransformChanged(Transform baseTransform)
@@ -380,20 +361,20 @@ namespace CompositeCanvas
             }
 
             // Cull if there is no graphic or the scale is too small.
-            if (!_renderer || !_graphic || !transform.lossyScale.IsVisible())
+            if (!renderer || !_graphic || !transform.lossyScale.IsVisible())
             {
                 result = false;
             }
-            else if (!_renderer.culling)
+            else if (!renderer.culling)
             {
                 result = true;
             }
             else
             {
-                var viewport = _renderer.rectTransform;
+                var viewport = renderer.rectTransform;
                 var bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(viewport, transform);
                 var viewportRect = viewport.rect;
-                var ex = _renderer.extents;
+                var ex = renderer.extents;
                 viewportRect.Set(viewportRect.xMin - ex.x / 2,
                     viewportRect.yMin - ex.y / 2,
                     viewportRect.width + ex.x,
@@ -404,6 +385,11 @@ namespace CompositeCanvas
 
             FrameCache.Set(this, nameof(IsInScreen), result);
             return result;
+        }
+
+        internal Material GetBakingMaterial(bool usePopMaterial)
+        {
+            return usePopMaterial ? _graphic.canvasRenderer.GetPopMaterial(0) : _bakingMaterial;
         }
     }
 }

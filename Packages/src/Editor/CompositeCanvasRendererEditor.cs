@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using CompositeCanvas.Effects;
+using CompositeCanvas.Enums;
 using UnityEditor;
 using UnityEditor.UI;
 using UnityEngine;
@@ -31,7 +33,7 @@ namespace CompositeCanvas
         private SerializedProperty _extents;
         private SerializedProperty _foreground;
         private Editor _materialEditor;
-        private SerializedProperty _orthographic;
+        private SerializedProperty _viewType;
         private SerializedProperty _showSourceGraphics;
         private SerializedProperty _srcBlendMode;
         private SerializedProperty _useStencil;
@@ -48,7 +50,7 @@ namespace CompositeCanvas
             _culling = serializedObject.FindProperty("m_Culling");
             _useStencil = serializedObject.FindProperty("m_UseStencil");
             _bakingTrigger = serializedObject.FindProperty("m_BakingTrigger");
-            _orthographic = serializedObject.FindProperty("m_Orthographic");
+            _viewType = serializedObject.FindProperty("m_ViewType");
             _colorMode = serializedObject.FindProperty("m_ColorMode");
             _blendType = serializedObject.FindProperty("m_BlendType");
             _srcBlendMode = serializedObject.FindProperty("m_SrcBlendMode");
@@ -75,14 +77,16 @@ namespace CompositeCanvas
             RaycastControlsGUI();
             MaskableControlsGUI();
 
+            // Baking Settings
             EditorGUILayout.PropertyField(_downSamplingRate);
             EditorGUILayout.PropertyField(_extents);
-            EditorGUILayout.PropertyField(_orthographic);
+            EditorGUILayout.PropertyField(_bakingTrigger);
+            EditorGUILayout.PropertyField(_viewType);
             EditorGUILayout.PropertyField(_culling);
             EditorGUILayout.PropertyField(_useStencil);
-            EditorGUILayout.PropertyField(_bakingTrigger);
-            ShowSourceGraphicsControlGUI();
 
+            // Rendering Settings
+            ShowSourceGraphicsControlGUI();
             EditorGUILayout.PropertyField(_foreground);
             EditorGUILayout.PropertyField(m_Material);
 
@@ -101,6 +105,7 @@ namespace CompositeCanvas
 
             serializedObject.ApplyModifiedProperties();
 
+            // Effect Settings
             DrawEffectDropdown();
 
             if (_current.foreground)
@@ -142,13 +147,13 @@ namespace CompositeCanvas
             var rect = EditorGUILayout.GetControlRect(true, 16, EditorStyles.popup);
             rect = EditorGUI.PrefixLabel(rect, s_ContentAttachedEffect);
 
-            var currentEffectType = current.GetComponent<CompositeCanvasEffect>()?.GetType();
+            var currentEffectType = current.GetComponent<CompositeCanvasEffectBase>()?.GetType();
             if (!GUI.Button(rect, GetEffectLabel(currentEffectType), EditorStyles.popup)) return;
 
             var menu = new GenericMenu();
             menu.AddItem(s_ContentNone, currentEffectType == null, DrawEffectDropdown, null);
 
-            foreach (var type in TypeCache.GetTypesDerivedFrom<CompositeCanvasEffect>())
+            foreach (var type in TypeCache.GetTypesDerivedFrom<CompositeCanvasEffectBase>())
             {
                 menu.AddItem(GetEffectLabel(type), type == currentEffectType, DrawEffectDropdown, type);
             }
@@ -161,11 +166,11 @@ namespace CompositeCanvas
             var type = typeObject as Type;
             foreach (var renderer in targets.OfType<CompositeCanvasRenderer>())
             {
-                var effect = renderer.GetComponent<CompositeCanvasEffect>();
+                var effect = renderer.GetComponent<CompositeCanvasEffectBase>();
                 if (effect)
                 {
                     ConvertTo(effect, type);
-                    renderer.GetComponent<CompositeCanvasEffect>()?.Reset();
+                    renderer.GetComponent<CompositeCanvasEffectBase>()?.Reset();
                 }
                 else if (type != null)
                 {

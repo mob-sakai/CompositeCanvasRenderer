@@ -2,9 +2,9 @@
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 
-namespace CompositeCanvas
+namespace CompositeCanvas.Effects
 {
-    public class CompositeCanvasBlur : CompositeCanvasEffect
+    public class CompositeCanvasBlur : CompositeCanvasEffectBase
     {
         [Header("Blur Settings")]
         [Range(0, 1)]

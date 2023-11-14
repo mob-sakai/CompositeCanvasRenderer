@@ -1,5 +1,7 @@
 using System;
 using System.Linq;
+using CompositeCanvas.Effects;
+using CompositeCanvas.Enums;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
@@ -45,7 +47,7 @@ namespace CompositeCanvas.Demos
                     break;
                 case EnumType.OutlinePattern:
                     var outline = m_CompositeCanvasRenderer.GetComponent<CompositeCanvasOutline>();
-                    _dropdown.AddOptions(Enum.GetNames(typeof(CompositeCanvasOutline.OutlinePattern)).ToList());
+                    _dropdown.AddOptions(Enum.GetNames(typeof(OutlinePattern)).ToList());
                     _dropdown.SetValueWithoutNotify((int)outline.outlinePattern);
                     break;
             }
@@ -80,7 +82,7 @@ namespace CompositeCanvas.Demos
                     break;
                 case EnumType.OutlinePattern:
                     var outline = m_CompositeCanvasRenderer.GetComponent<CompositeCanvasOutline>();
-                    outline.outlinePattern = (CompositeCanvasOutline.OutlinePattern)value;
+                    outline.outlinePattern = (OutlinePattern)value;
                     break;
             }
         }

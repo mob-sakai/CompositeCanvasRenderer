@@ -1,8 +1,9 @@
-﻿using UnityEngine;
+﻿using CompositeCanvas.Enums;
+using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.UI;
 
-namespace CompositeCanvas
+namespace CompositeCanvas.Effects
 {
     public class CompositeCanvasShadow : CompositeCanvasBlur, IMeshModifier
     {

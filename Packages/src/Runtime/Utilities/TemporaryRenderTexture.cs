@@ -8,7 +8,7 @@ namespace CompositeCanvas
     /// <summary>
     /// Utility class for managing temporary render textures.
     /// </summary>
-    public static class TemporaryRenderTexture
+    internal static class TemporaryRenderTexture
     {
         private static readonly GraphicsFormat s_GraphicsFormat = GraphicsFormatUtility.GetGraphicsFormat(
             RenderTextureFormat.ARGB32,
@@ -41,7 +41,7 @@ namespace CompositeCanvas
 #if UNITY_2021_3_OR_NEWER
                            || useStencil != (buffer.depthStencilFormat != GraphicsFormat.None))
 #else
-                           || useStencil != (0 < buffer.depth))
+                           || useStencil != 0 < buffer.depth)
 #endif
                )
             {

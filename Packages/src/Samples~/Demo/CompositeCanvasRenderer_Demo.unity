@@ -1526,7 +1526,7 @@ MonoBehaviour:
   m_Power: 1
   m_Multiplier: 1
   m_Limit: 1
-  m_Offset: 0
+  m_Offset: 35
   m_Gradient:
     serializedVersion: 2
     key0: {r: 1, g: 1, b: 1, a: 1}
@@ -20551,7 +20551,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 0 (Othographic)
+  m_Text: 0
 --- !u!222 &602381204
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -21864,7 +21864,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Animation (Perspective)
+  m_Text: Animation
 --- !u!222 &628017289
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -41514,7 +41514,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 30 (Perspective)
+  m_Text: 30
 --- !u!222 &1189421057
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -69941,8 +69941,8 @@ MonoBehaviour:
   m_FillRect: {fileID: 746488156}
   m_HandleRect: {fileID: 496879181}
   m_Direction: 0
-  m_MinValue: -25
-  m_MaxValue: 25
+  m_MinValue: -50
+  m_MaxValue: 50
   m_WholeNumbers: 0
   m_Value: 0
   m_OnValueChanged:
