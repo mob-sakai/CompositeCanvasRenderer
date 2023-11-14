@@ -278,26 +278,6 @@ namespace CompositeCanvas
             }
         }
 
-        /// <summary>
-        /// The material that will be sent for Rendering (Read only).
-        /// </summary>
-        public override Material materialForRendering
-        {
-            get
-            {
-                var components = ListPool<Component>.Rent();
-                GetComponents(typeof(IMaterialModifier), components);
-
-                var currentMat = material;
-                for (var i = 0; i < components.Count; i++)
-                {
-                    currentMat = (components[i] as IMaterialModifier)?.GetModifiedMaterial(currentMat);
-                }
-
-                ListPool<Component>.Return(ref components);
-                return base.GetModifiedMaterial(currentMat);
-            }
-        }
 
         /// <summary>
         /// Ignore source graphics outside the baking region.
