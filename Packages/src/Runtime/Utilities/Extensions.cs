@@ -69,12 +69,14 @@ namespace CompositeCanvas
 
         public static void CopyTo(this Mesh self, Mesh dst)
         {
-            if (self == null || dst) return;
+            if (!self || !dst) return;
 
             var vector3List = ListPool<Vector3>.Rent();
             var vector4List = ListPool<Vector4>.Rent();
             var color32List = ListPool<Color32>.Rent();
             var intList = ListPool<int>.Rent();
+
+            dst.Clear(false);
 
             self.GetVertices(vector3List);
             dst.SetVertices(vector3List);

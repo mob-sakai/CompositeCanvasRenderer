@@ -260,7 +260,8 @@ namespace CompositeCanvas
             }
 
             Profiler.BeginSample("(CCR)[CompositeCanvasSource] ModifyMesh");
-            mesh.CopyTo(mesh);
+            _mesh = _mesh ? _mesh : MeshExtensions.Rent();
+            mesh.CopyTo(_mesh);
             Profiler.EndSample();
             Logging.Log(this, " >>>> Graphic mesh is modified.");
 
