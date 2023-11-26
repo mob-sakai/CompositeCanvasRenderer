@@ -33,10 +33,10 @@ namespace CompositeCanvas
         private SerializedProperty _extents;
         private SerializedProperty _foreground;
         private Editor _materialEditor;
-        private SerializedProperty _viewType;
         private SerializedProperty _showSourceGraphics;
         private SerializedProperty _srcBlendMode;
         private SerializedProperty _useStencil;
+        private SerializedProperty _viewType;
 
         protected override void OnEnable()
         {
