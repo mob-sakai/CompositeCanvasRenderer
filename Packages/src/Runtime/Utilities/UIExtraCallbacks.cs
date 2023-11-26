@@ -26,11 +26,7 @@ namespace CompositeCanvas
         /// </summary>
         public static event Action onLateAfterCanvasRebuild
         {
-            add
-            {
-                InitializeAfterCanvasRebuild();
-                s_LateAfterCanvasRebuildAction.Add(value);
-            }
+            add => s_LateAfterCanvasRebuildAction.Add(value);
             remove => s_LateAfterCanvasRebuildAction.Remove(value);
         }
 
@@ -48,11 +44,7 @@ namespace CompositeCanvas
         /// </summary>
         public static event Action onAfterCanvasRebuild
         {
-            add
-            {
-                InitializeAfterCanvasRebuild();
-                s_AfterCanvasRebuildAction.Add(value);
-            }
+            add => s_AfterCanvasRebuildAction.Add(value);
             remove => s_AfterCanvasRebuildAction.Remove(value);
         }
 
@@ -85,6 +77,7 @@ namespace CompositeCanvas
         private static void OnBeforeCanvasRebuild()
         {
             s_BeforeCanvasRebuildAction.Invoke();
+            InitializeAfterCanvasRebuild();
         }
 
         /// <summary>
