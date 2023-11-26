@@ -1037,18 +1037,31 @@ namespace CompositeCanvas
         private void OnDrawGizmos()
         {
             if (!isActiveAndEnabled || !canvas) return;
-            var rootCanvas = canvas.rootCanvas.transform;
-            var relative = rootCanvas.worldToLocalMatrix * transform.localToWorldMatrix;
-            var pos = relative.MultiplyPoint3x4(Vector3.zero);
-            pos.z = 0;
 
-            var pivot = rectTransform.pivot - new Vector2(0.5f, 0.5f);
-            var size = ((Vector3)renderingSize).GetScaled(relative.lossyScale);
-            var center = pos - size.GetScaled(pivot);
+            Vector3 center, size;
+            if (perspectiveBaking)
+            {
+                var rootCanvas = canvas.rootCanvas.transform;
+                var relative = rootCanvas.worldToLocalMatrix * transform.localToWorldMatrix;
+                var pos = relative.MultiplyPoint3x4(Vector3.zero);
+                pos.z = 0;
+
+                var pivot = rectTransform.pivot - new Vector2(0.5f, 0.5f);
+                size = ((Vector3)renderingSize).GetScaled(relative.lossyScale);
+                center = pos - size.GetScaled(pivot);
+                Gizmos.matrix = rootCanvas.localToWorldMatrix;
+            }
+            else
+            {
+                var pivot = rectTransform.pivot - new Vector2(0.5f, 0.5f);
+                size = renderingSize;
+                center = -size.GetScaled(pivot);
+                Gizmos.matrix = transform.localToWorldMatrix;
+            }
+
             Gizmos.color = new Color(1, 0, 1, 0.5f);
-            Gizmos.matrix = rootCanvas.localToWorldMatrix;
             Gizmos.DrawWireCube(center, size);
-            Gizmos.DrawWireCube(center, size.GetScaled(Vector3.one * 0.995f));
+            Gizmos.DrawWireCube(center, size * 0.995f);
         }
 #endif
     }
