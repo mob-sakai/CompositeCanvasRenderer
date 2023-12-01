@@ -40,6 +40,10 @@ namespace CompositeCanvas
         private DownSamplingRate m_DownSamplingRate = DownSamplingRate.x1;
 
         [SerializeField]
+        [Tooltip("Use upscaled bake-buffer.")]
+        private bool m_UpscalingBuffer = true;
+
+        [SerializeField]
         [Tooltip("View type to bake.\n" +
                  "Automatic: Use orthographic space to bake if possible.\n" +
                  "Orthographic: Use orthographic space to bake.\n" +
@@ -199,6 +203,20 @@ namespace CompositeCanvas
         public RenderTexture currentBakeBuffer => _bakeBuffer;
 
         /// <summary>
+        /// Use upscaled bake-buffer.
+        /// </summary>
+        public bool upscalingBuffer
+        {
+            get => m_UpscalingBuffer;
+            set
+            {
+                if (m_UpscalingBuffer == value) return;
+                m_UpscalingBuffer = value;
+                SetDirty();
+            }
+        }
+
+        /// <summary>
         /// Down sampling rate for baking.
         /// The higher this value, the lower the resolution of the bake, but the performance will improve.
         /// </summary>
@@ -274,7 +292,12 @@ namespace CompositeCanvas
             {
                 if (isActiveAndEnabled && rectTransform && canvas)
                 {
-                    var size = renderingSize * canvas.scaleFactor;
+                    var size = renderingSize;
+                    if (upscalingBuffer)
+                    {
+                        size *= canvas.scaleFactor;
+                    }
+
                     var rate = (int)downSamplingRate;
                     return TemporaryRenderTexture.Get(size, rate, ref _bakeBuffer, useStencil);
                 }
