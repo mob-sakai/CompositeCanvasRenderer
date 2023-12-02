@@ -34,14 +34,15 @@ namespace CompositeCanvas
         private static readonly VertexHelper s_VertexHelper = new VertexHelper();
 
         [SerializeField]
-        [Header("Baking")]
+        [Header("Buffer")]
         [Tooltip("Down sampling rate for baking.\n" +
                  "The higher this value, the lower the resolution of the bake, but the performance will improve.")]
         private DownSamplingRate m_DownSamplingRate = DownSamplingRate.x1;
 
         [SerializeField]
-        [Tooltip("Use upscaled bake-buffer.")]
-        private bool m_UpscalingBuffer = true;
+        [Tooltip("Use canvas scaler to calculate bake-buffer size.\n" +
+                 "If false, the bake-buffer is the same size as the rendering size.")]
+        private bool m_UseCanvasScaler = true;
 
         [SerializeField]
         [Tooltip("View type to bake.\n" +
@@ -63,6 +64,7 @@ namespace CompositeCanvas
         private bool m_UseStencil = true;
 
         [SerializeField]
+        [Header("Baking")]
         [Tooltip("Baking trigger mode.\n" +
                  "Automatic: Baking is performed automatically when the transform of the source graphic changes.\n" +
                  "Manually: Baking is performed manually by calling SetDirty().\n" +
@@ -205,13 +207,13 @@ namespace CompositeCanvas
         /// <summary>
         /// Use upscaled bake-buffer.
         /// </summary>
-        public bool upscalingBuffer
+        public bool useCanvasScaler
         {
-            get => m_UpscalingBuffer;
+            get => m_UseCanvasScaler;
             set
             {
-                if (m_UpscalingBuffer == value) return;
-                m_UpscalingBuffer = value;
+                if (m_UseCanvasScaler == value) return;
+                m_UseCanvasScaler = value;
                 SetDirty();
             }
         }
@@ -293,7 +295,7 @@ namespace CompositeCanvas
                 if (isActiveAndEnabled && rectTransform && canvas)
                 {
                     var size = renderingSize;
-                    if (upscalingBuffer)
+                    if (useCanvasScaler)
                     {
                         size *= canvas.scaleFactor;
                     }

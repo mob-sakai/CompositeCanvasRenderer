@@ -35,7 +35,7 @@ namespace CompositeCanvas
         private Editor _materialEditor;
         private SerializedProperty _showSourceGraphics;
         private SerializedProperty _srcBlendMode;
-        private SerializedProperty _upscalingBuffer;
+        private SerializedProperty _useCanvasScaler;
         private SerializedProperty _useStencil;
         private SerializedProperty _viewType;
 
@@ -46,7 +46,7 @@ namespace CompositeCanvas
 
             _showSourceGraphics = serializedObject.FindProperty("m_ShowSourceGraphics");
             _downSamplingRate = serializedObject.FindProperty("m_DownSamplingRate");
-            _upscalingBuffer = serializedObject.FindProperty("m_UpscalingBuffer");
+            _useCanvasScaler = serializedObject.FindProperty("m_UseCanvasScaler");
             _foreground = serializedObject.FindProperty("m_Foreground");
             _extents = serializedObject.FindProperty("m_Extents");
             _culling = serializedObject.FindProperty("m_Culling");
@@ -79,14 +79,16 @@ namespace CompositeCanvas
             RaycastControlsGUI();
             MaskableControlsGUI();
 
-            // Baking Settings
+            // Buffer Settings
             EditorGUILayout.PropertyField(_downSamplingRate);
-            EditorGUILayout.PropertyField(_upscalingBuffer);
+            EditorGUILayout.PropertyField(_useCanvasScaler);
             EditorGUILayout.PropertyField(_extents);
+            EditorGUILayout.PropertyField(_useStencil);
+
+            // Baking Settings
             EditorGUILayout.PropertyField(_bakingTrigger);
             EditorGUILayout.PropertyField(_viewType);
             EditorGUILayout.PropertyField(_culling);
-            EditorGUILayout.PropertyField(_useStencil);
 
             // Rendering Settings
             ShowSourceGraphicsControlGUI();
