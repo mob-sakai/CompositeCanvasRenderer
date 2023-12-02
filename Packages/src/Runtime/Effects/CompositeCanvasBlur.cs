@@ -110,7 +110,7 @@ namespace CompositeCanvas.Effects
         /// </summary>
         protected override void OnDisable()
         {
-            MaterialRegistry.Release(ref _material);
+            MaterialRepository.Release(ref _material);
             base.OnDisable();
         }
 
@@ -133,7 +133,7 @@ namespace CompositeCanvas.Effects
             // Get blur material
             Profiler.BeginSample("(CCR)[CompositeCanvasBlur] ApplyBakedEffect > Get blur material (lambda)");
             var hash = new Hash128(ShaderPropertyIds.compositeCanvasBlur, 0, 0, 0);
-            MaterialRegistry.Get(hash, ref _material,
+            MaterialRepository.Get(hash, ref _material,
                 () => new Material(Shader.Find("Hidden/UI/CompositeCanvasRenderer/Blur"))
                 {
                     hideFlags = HideFlags.DontSave | HideFlags.NotEditable

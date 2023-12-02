@@ -8,8 +8,11 @@ namespace CompositeCanvas
     /// <summary>
     /// Utility class for managing temporary render textures.
     /// </summary>
-    internal static class TemporaryRenderTexture
+    internal static class RenderTextureRepository
     {
+        private static readonly ObjectRepository<RenderTexture> s_Repository =
+            new ObjectRepository<RenderTexture>(nameof(RenderTextureRepository), RenderTexture.ReleaseTemporary);
+
         private static readonly GraphicsFormat s_GraphicsFormat = GraphicsFormatUtility.GetGraphicsFormat(
             RenderTextureFormat.ARGB32,
             RenderTextureReadWrite.Default);
@@ -18,37 +21,34 @@ namespace CompositeCanvas
         private static readonly GraphicsFormat s_StencilFormat = GraphicsFormatUtility.GetDepthStencilFormat(0, 8);
 #endif
 
-        public static int activeCount
+        public static int count => s_Repository.count;
+
+        private static bool ShouldToRelease(RenderTexture buffer, Vector2Int size, bool useStencil)
         {
-            get;
-            private set;
+            if (!buffer) return false;
+            if (buffer.width != size.x || buffer.height != size.y) return true;
+#if UNITY_2021_3_OR_NEWER
+            if (useStencil != (buffer.depthStencilFormat != GraphicsFormat.None)) return true;
+#else
+            if (useStencil != 0 < buffer.depth) return true;
+#endif
+            return false;
         }
 
-        public static RenderTexture Get(int downSamplingRate, ref RenderTexture buffer, bool useStencil)
-        {
-            return Get(GetScreenSize(), downSamplingRate, ref buffer, useStencil);
-        }
-
-        public static RenderTexture Get(Vector2 size, int downSamplingRate, ref RenderTexture buffer, bool useStencil)
+        public static RenderTexture Get(int id, Vector2 size, int rate, ref RenderTexture buffer, bool useStencil)
         {
             var preferSize = GetPreferSize(new Vector2Int(
                 Mathf.Max(8, Mathf.RoundToInt(size.x)),
-                Mathf.Max(8, Mathf.RoundToInt(size.y))), downSamplingRate);
+                Mathf.Max(8, Mathf.RoundToInt(size.y))), rate);
 
-            Profiler.BeginSample("(CCR)[TemporaryRT] Get");
-            if (buffer && (buffer.width != preferSize.x
-                           || buffer.height != preferSize.y
-#if UNITY_2021_3_OR_NEWER
-                           || useStencil != (buffer.depthStencilFormat != GraphicsFormat.None))
-#else
-                           || useStencil != 0 < buffer.depth)
-#endif
-               )
+            if (ShouldToRelease(buffer, preferSize, useStencil))
             {
-                Release(ref buffer);
+                s_Repository.Release(ref buffer);
             }
 
-            if (!buffer)
+            Profiler.BeginSample("(CCR)[RTRepository] Get");
+            var hash = new Hash128((uint)id, 0, 0, 0);
+            s_Repository.Get(hash, ref buffer, () =>
             {
                 var rtd = new RenderTextureDescriptor(
                     preferSize.x,
@@ -61,13 +61,10 @@ namespace CompositeCanvas
 #else
                 rtd.depthBufferBits = useStencil ? 24 : 0;
 #endif
-                buffer = RenderTexture.GetTemporary(rtd);
-                activeCount++;
-                Logging.Log(typeof(TemporaryRenderTexture), $"Generate (#{activeCount}): {buffer.name}");
-            }
+                return RenderTexture.GetTemporary(rtd);
+            });
 
             Profiler.EndSample();
-
             return buffer;
         }
 
@@ -76,15 +73,8 @@ namespace CompositeCanvas
         /// </summary>
         public static void Release(ref RenderTexture buffer)
         {
-            Profiler.BeginSample("(CCR)[TemporaryRT] Release");
-            if (buffer)
-            {
-                activeCount--;
-                Logging.Log(typeof(TemporaryRenderTexture), $"Release (#{activeCount}): {buffer.name}");
-                RenderTexture.ReleaseTemporary(buffer);
-            }
-
-            buffer = null;
+            Profiler.BeginSample("(CCR)[RTRepository] Release");
+            s_Repository.Release(ref buffer);
             Profiler.EndSample();
         }
 
@@ -130,7 +120,7 @@ namespace CompositeCanvas
 #if !UNITY_EDITOR
             return new Vector2Int(Screen.width, Screen.height);
 #else
-            if (FrameCache.TryGet(nameof(TemporaryRenderTexture), nameof(GetScreenSize), out Vector2Int size))
+            if (FrameCache.TryGet(nameof(RenderTextureRepository), nameof(GetScreenSize), out Vector2Int size))
             {
                 return size;
             }
@@ -147,7 +137,7 @@ namespace CompositeCanvas
                 size.y = Screen.height;
             }
 
-            FrameCache.Set(nameof(TemporaryRenderTexture), nameof(GetScreenSize), size);
+            FrameCache.Set(nameof(RenderTextureRepository), nameof(GetScreenSize), size);
             return size;
 #endif
         }
