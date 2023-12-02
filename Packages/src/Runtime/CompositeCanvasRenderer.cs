@@ -33,6 +33,9 @@ namespace CompositeCanvas
 
         private static readonly VertexHelper s_VertexHelper = new VertexHelper();
 
+        private static readonly LinkedList<CompositeCanvasRenderer> s_ActiveRenderers =
+            new LinkedList<CompositeCanvasRenderer>();
+
         [SerializeField]
         [Header("Buffer")]
         [Tooltip("Down sampling rate for baking.\n" +
@@ -43,6 +46,11 @@ namespace CompositeCanvas
         [Tooltip("Use canvas scaler to calculate bake-buffer size.\n" +
                  "If false, the bake-buffer is the same size as the rendering size.")]
         private bool m_UseCanvasScaler = true;
+
+        [Tooltip("Bake buffer sharing group ID.\n" +
+                 "If non-zero is specified, the baked buffer are shared within the group.")]
+        [SerializeField]
+        private int m_SharingGroupId;
 
         [SerializeField]
         [Tooltip("View type to bake.\n" +
@@ -219,6 +227,21 @@ namespace CompositeCanvas
         }
 
         /// <summary>
+        /// Bake buffer sharing group ID.
+        /// If non-zero is specified, the baked buffer are shared within the group.
+        /// </summary>
+        public int sharingGroupId
+        {
+            get => m_SharingGroupId;
+            set
+            {
+                if (m_SharingGroupId == value) return;
+                m_SharingGroupId = value;
+                SetDirty();
+            }
+        }
+
+        /// <summary>
         /// Down sampling rate for baking.
         /// The higher this value, the lower the resolution of the bake, but the performance will improve.
         /// </summary>
@@ -301,10 +324,11 @@ namespace CompositeCanvas
                     }
 
                     var rate = (int)downSamplingRate;
-                    return TemporaryRenderTexture.Get(size, rate, ref _bakeBuffer, useStencil);
+                    var id = sharingGroupId == 0 ? GetInstanceID() : sharingGroupId;
+                    return RenderTextureRepository.Get(id, size, rate, ref _bakeBuffer, useStencil);
                 }
 
-                TemporaryRenderTexture.Release(ref _bakeBuffer);
+                RenderTextureRepository.Release(ref _bakeBuffer);
                 return null;
             }
         }
@@ -463,6 +487,8 @@ namespace CompositeCanvas
             {
                 SetDirty();
             }
+
+            s_ActiveRenderers.AddLast(this);
         }
 
         /// <summary>
@@ -470,13 +496,15 @@ namespace CompositeCanvas
         /// </summary>
         protected override void OnDisable()
         {
+            s_ActiveRenderers.Remove(this);
+
             UIExtraCallbacks.onBeforeCanvasRebuild -= _checkTransformChanged;
             UIExtraCallbacks.onAfterCanvasRebuild -= _bake;
 
             isDirty = false;
             s_CommandBufferPool.Return(ref _cb);
-            TemporaryRenderTexture.Release(ref _bakeBuffer);
-            MaterialRegistry.Release(ref _renderingMaterial);
+            RenderTextureRepository.Release(ref _bakeBuffer);
+            MaterialRepository.Release(ref _renderingMaterial);
             base.OnDisable();
 
             canvasRenderer.hasPopInstruction = false;
@@ -630,14 +658,14 @@ namespace CompositeCanvas
         {
             if (!isActiveAndEnabled || baseMaterial.shader != defaultMaterial.shader)
             {
-                MaterialRegistry.Release(ref _renderingMaterial);
+                MaterialRepository.Release(ref _renderingMaterial);
                 return baseMaterial;
             }
 
             Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] GetModifiedMaterial > Get material");
             var hash = CreateHash(colorMode, srcBlendMode, dstBlendMode);
             _createMaterial = _createMaterial ?? CreateMaterial;
-            MaterialRegistry.Get(hash, ref _renderingMaterial, _createMaterial);
+            MaterialRepository.Get(hash, ref _renderingMaterial, _createMaterial);
             Profiler.EndSample();
 
             return _renderingMaterial;
@@ -835,6 +863,18 @@ namespace CompositeCanvas
             return result;
         }
 
+        internal static CompositeCanvasRenderer GetFirstGroupedRenderer(int groupId)
+        {
+            var node = s_ActiveRenderers.First;
+            while (node != null)
+            {
+                if (node.Value.sharingGroupId == groupId) return node.Value;
+                node = node.Next;
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// Render the bake buffer using the source graphic.
         /// </summary>
@@ -849,6 +889,15 @@ namespace CompositeCanvas
             {
                 Logging.Log(this, "<color=orange> Baking is canceled due to not in canvas.</color>");
                 return;
+            }
+
+            if (sharingGroupId != 0)
+            {
+                if (GetFirstGroupedRenderer(sharingGroupId) != this)
+                {
+                    canvasRenderer.SetTexture(mainTexture);
+                    return;
+                }
             }
 
             if (!IsAnySourceInRenderer())

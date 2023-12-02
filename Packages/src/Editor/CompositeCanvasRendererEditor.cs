@@ -14,6 +14,7 @@ namespace CompositeCanvas
     [CanEditMultipleObjects]
     public class CompositeCanvasRendererEditor : GraphicEditor
     {
+        private static readonly GUIContent s_ContentPrimaryRenderer = new GUIContent("Primary Renderer");
         private static readonly GUIContent s_ContentNone = new GUIContent("None");
         private static readonly GUIContent s_ContentEffect = new GUIContent("Effect");
         private static readonly GUIContent s_ContentAttachedEffect = new GUIContent("Attached Effect");
@@ -33,6 +34,7 @@ namespace CompositeCanvas
         private SerializedProperty _extents;
         private SerializedProperty _foreground;
         private Editor _materialEditor;
+        private SerializedProperty _sharingGroupId;
         private SerializedProperty _showSourceGraphics;
         private SerializedProperty _srcBlendMode;
         private SerializedProperty _useCanvasScaler;
@@ -47,6 +49,7 @@ namespace CompositeCanvas
             _showSourceGraphics = serializedObject.FindProperty("m_ShowSourceGraphics");
             _downSamplingRate = serializedObject.FindProperty("m_DownSamplingRate");
             _useCanvasScaler = serializedObject.FindProperty("m_UseCanvasScaler");
+            _sharingGroupId = serializedObject.FindProperty("m_SharingGroupId");
             _foreground = serializedObject.FindProperty("m_Foreground");
             _extents = serializedObject.FindProperty("m_Extents");
             _culling = serializedObject.FindProperty("m_Culling");
@@ -84,6 +87,8 @@ namespace CompositeCanvas
             EditorGUILayout.PropertyField(_useCanvasScaler);
             EditorGUILayout.PropertyField(_extents);
             EditorGUILayout.PropertyField(_useStencil);
+            EditorGUILayout.PropertyField(_sharingGroupId);
+            ShowPrimaryRenderer();
 
             // Baking Settings
             EditorGUILayout.PropertyField(_bakingTrigger);
@@ -125,6 +130,20 @@ namespace CompositeCanvas
                     EditorGUI.EndDisabledGroup();
                 }
             }
+        }
+
+        private void ShowPrimaryRenderer()
+        {
+            if (_sharingGroupId.intValue == 0) return;
+
+            EditorGUI.indentLevel++;
+            EditorGUI.showMixedValue = _sharingGroupId.hasMultipleDifferentValues;
+            EditorGUI.BeginDisabledGroup(true);
+            var obj = CompositeCanvasRenderer.GetFirstGroupedRenderer(_sharingGroupId.intValue);
+            EditorGUILayout.ObjectField(s_ContentPrimaryRenderer, obj, typeof(CompositeCanvasRenderer), true);
+            EditorGUI.EndDisabledGroup();
+            EditorGUI.showMixedValue = false;
+            EditorGUI.indentLevel--;
         }
 
         private void ShowSourceGraphicsControlGUI()
