@@ -118,10 +118,54 @@ namespace CompositeCanvas
         }
 
         /// <summary>
+        /// Adds or retrieves a cached object based on the hash.
+        /// </summary>
+        public void Get<TS>(Hash128 hash, ref T obj, Func<TS, T> onCreate, TS source)
+        {
+            // Find existing entry.
+            Profiler.BeginSample("(CCR)[ObjectRepository] Get > Find existing entry");
+            for (var i = 0; i < _cache.Count; ++i)
+            {
+                var entry = _cache[i];
+                if (entry.hash != hash) continue;
+
+                // Existing entry found.
+                if (entry.storedObject != obj)
+                {
+                    // if the object is different, release the old one.
+                    Release(ref obj);
+                    ++entry.reference;
+                    obj = entry.storedObject;
+                    Logging.Log(_name, $"Get(#{count}): {entry}");
+                }
+
+                Profiler.EndSample();
+                return;
+            }
+
+            Profiler.EndSample();
+
+            // Create new entry.
+            Profiler.BeginSample("(CCR)[ObjectRepository] Get > Create new entry");
+            var newEntry = 0 < _pool.Count ? _pool.Pop() : new Entry();
+            newEntry.storedObject = onCreate(source);
+            newEntry.hash = hash;
+            newEntry.reference = 1;
+            _cache.Add(newEntry);
+            Logging.Log(_name, $"Get(#{count}): {newEntry}");
+
+            Release(ref obj);
+            obj = newEntry.storedObject;
+            Profiler.EndSample();
+        }
+
+        /// <summary>
         /// Release a object.
         /// </summary>
         public void Release(ref T obj)
         {
+            if (ReferenceEquals(obj, null)) return;
+
             Profiler.BeginSample("(CCR)[ObjectRepository] Release");
             for (var i = 0; i < _cache.Count; i++)
             {

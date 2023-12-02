@@ -44,6 +44,16 @@ namespace CompositeCanvas
         }
 
         /// <summary>
+        /// Adds or retrieves a cached material based on the hash.
+        /// </summary>
+        public static void Get<T>(Hash128 hash, ref Material material, Func<T, Material> onCreate, T source)
+        {
+            Profiler.BeginSample("(CCR)[MaterialRegistry] Get");
+            s_Repository.Get(hash, ref material, onCreate, source);
+            Profiler.EndSample();
+        }
+
+        /// <summary>
         /// Removes a soft mask material from the cache.
         /// </summary>
         public static void Release(ref Material material)

@@ -111,10 +111,7 @@ namespace CompositeCanvas
             source.mpb.SetColor(ShaderPropertyIds.color, color);
         }
 
-        internal void Bake(
-            CompositeCanvasRenderer renderer,
-            CompositeCanvasSource source,
-            bool usePopMaterial)
+        internal void Bake(CompositeCanvasRenderer renderer, CompositeCanvasSource source, bool usePopMaterial)
         {
             try
             {

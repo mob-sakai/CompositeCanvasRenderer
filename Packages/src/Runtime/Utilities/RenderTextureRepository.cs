@@ -41,29 +41,38 @@ namespace CompositeCanvas
                 Mathf.Max(8, Mathf.RoundToInt(size.x)),
                 Mathf.Max(8, Mathf.RoundToInt(size.y))), rate);
 
+            Profiler.BeginSample("(CCR)[RTRepository] Get > ShouldToRelease");
+
             if (ShouldToRelease(buffer, preferSize, useStencil))
             {
                 s_Repository.Release(ref buffer);
             }
 
-            Profiler.BeginSample("(CCR)[RTRepository] Get");
-            var hash = new Hash128((uint)id, 0, 0, 0);
-            s_Repository.Get(hash, ref buffer, () =>
-            {
-                var rtd = new RenderTextureDescriptor(
-                    preferSize.x,
-                    preferSize.y,
-                    s_GraphicsFormat,
-                    0);
-                rtd.mipCount = -1;
-#if UNITY_2021_3_OR_NEWER
-                rtd.depthStencilFormat = useStencil ? s_StencilFormat : GraphicsFormat.None;
-#else
-                rtd.depthBufferBits = useStencil ? 24 : 0;
-#endif
-                return RenderTexture.GetTemporary(rtd);
-            });
+            Profiler.EndSample();
 
+            Profiler.BeginSample("(CCR)[RTRepository] Get > Valid");
+            var hash = new Hash128((uint)id, 0, 0, 0);
+            if (s_Repository.Valid(hash, buffer))
+            {
+                Profiler.EndSample();
+                return buffer;
+            }
+
+            Profiler.EndSample();
+
+            Profiler.BeginSample("(CCR)[RTRepository] Get > Create 0");
+            var rtd = new RenderTextureDescriptor(
+                preferSize.x,
+                preferSize.y,
+                s_GraphicsFormat,
+                0);
+            rtd.mipCount = -1;
+#if UNITY_2021_3_OR_NEWER
+            rtd.depthStencilFormat = useStencil ? s_StencilFormat : GraphicsFormat.None;
+#else
+            rtd.depthBufferBits = useStencil ? 24 : 0;
+#endif
+            s_Repository.Get(hash, ref buffer, x => RenderTexture.GetTemporary(x), rtd);
             Profiler.EndSample();
             return buffer;
         }

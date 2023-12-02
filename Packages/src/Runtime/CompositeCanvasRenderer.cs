@@ -113,15 +113,9 @@ namespace CompositeCanvas
         private RenderTexture _bakeBuffer;
         private CommandBuffer _cb;
         private Action _checkTransformChanged;
-        private Func<Material> _createMaterial;
         private Matrix4x4 _prevTransformMatrix;
         private Material _renderingMaterial;
         private List<CompositeCanvasSource> _sources;
-
-        /// <summary>
-        /// Event that is fired after baking.
-        /// </summary>
-        public static event Action<CompositeCanvasRenderer> onBaked;
 
         private List<CompositeCanvasSource> sources => _sources ?? (_sources = ListPool<CompositeCanvasSource>.Rent());
 
@@ -524,7 +518,6 @@ namespace CompositeCanvas
             ListPool<CompositeCanvasSource>.Return(ref _sources);
             _checkTransformChanged = null;
             _bake = null;
-            _createMaterial = null;
             _cb = null;
             _bakeBuffer = null;
             _renderingMaterial = null;
@@ -539,6 +532,11 @@ namespace CompositeCanvas
         {
             this.AddComponentOnChildren<CompositeCanvasSource>(HideFlags.DontSave, false);
         }
+
+        /// <summary>
+        /// Event that is fired after baking.
+        /// </summary>
+        public static event Action<CompositeCanvasRenderer> onBaked;
 
         /// <summary>
         /// Call to update the Material of the graphic onto the CanvasRenderer.
@@ -664,8 +662,8 @@ namespace CompositeCanvas
 
             Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] GetModifiedMaterial > Get material");
             var hash = CreateHash(colorMode, srcBlendMode, dstBlendMode);
-            _createMaterial = _createMaterial ?? CreateMaterial;
-            MaterialRepository.Get(hash, ref _renderingMaterial, _createMaterial);
+            MaterialRepository.Get(hash, ref _renderingMaterial,
+                x => CreateMaterial(x.colorMode, x.srcBlendMode, x.dstBlendMode), this);
             Profiler.EndSample();
 
             return _renderingMaterial;
@@ -851,7 +849,7 @@ namespace CompositeCanvas
             else
             {
                 var viewport = canvas.rootCanvas.transform as RectTransform;
-                var bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(viewport, transform);
+                var bounds = viewport.GetRelativeBounds(transform);
                 var viewportRect = viewport.rect;
                 var ex = extents;
                 var rect = new Rect(bounds.min, bounds.size);

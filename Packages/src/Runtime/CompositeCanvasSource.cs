@@ -373,7 +373,7 @@ namespace CompositeCanvas
             else
             {
                 var viewport = renderer.rectTransform;
-                var bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(viewport, transform);
+                var bounds = viewport.GetRelativeBounds(transform);
                 var viewportRect = viewport.rect;
                 var ex = renderer.extents;
                 viewportRect.Set(viewportRect.xMin - ex.x / 2,

@@ -301,6 +301,8 @@ namespace CompositeCanvas
     /// </summary>
     internal static class TransformExtensions
     {
+        private static readonly Vector3[] s_Corners = new Vector3[4];
+
         /// <summary>
         /// Compare the hierarchy index of one transform with another transform.
         /// </summary>
@@ -384,6 +386,42 @@ namespace CompositeCanvas
             }
 
             return true;
+        }
+
+        public static Bounds GetRelativeBounds(this Transform self, Transform child)
+        {
+            if (!self || !child)
+            {
+                return new Bounds(Vector3.zero, Vector3.zero);
+            }
+
+            var list = ListPool<RectTransform>.Rent();
+            child.GetComponentsInChildren(false, list);
+            if (list.Count == 0)
+            {
+                ListPool<RectTransform>.Return(ref list);
+                return new Bounds(Vector3.zero, Vector3.zero);
+            }
+
+            var max = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+            var min = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+            var worldToLocalMatrix = self.worldToLocalMatrix;
+            for (var i = 0; i < list.Count; i++)
+            {
+                list[i].GetWorldCorners(s_Corners);
+                for (var j = 0; j < 4; j++)
+                {
+                    var lhs = worldToLocalMatrix.MultiplyPoint3x4(s_Corners[j]);
+                    max = Vector3.Min(lhs, max);
+                    min = Vector3.Max(lhs, min);
+                }
+            }
+
+            ListPool<RectTransform>.Return(ref list);
+
+            var rectTransformBounds = new Bounds(max, Vector3.zero);
+            rectTransformBounds.Encapsulate(min);
+            return rectTransformBounds;
         }
     }
 }
