@@ -17,13 +17,6 @@ namespace CompositeCanvas.Demos
         private Action _checkDirty;
         public static int bakedCount { get; private set; }
 
-        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        private static void InitializeOnLoad()
-        {
-            bakedCount = 0;
-            CompositeCanvasRenderer.onBaked += _ => bakedCount++;
-        }
-
         protected override void OnEnable()
         {
             base.OnEnable();
@@ -38,6 +31,13 @@ namespace CompositeCanvas.Demos
             base.OnDisable();
             UIExtraCallbacks.onBeforeCanvasRebuild -= _checkDirty;
             canvasRenderer.SetAlpha(1);
+        }
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void InitializeOnLoad()
+        {
+            bakedCount = 0;
+            CompositeCanvasRenderer.onBaked += _ => bakedCount++;
         }
 
         private void CheckDirty()

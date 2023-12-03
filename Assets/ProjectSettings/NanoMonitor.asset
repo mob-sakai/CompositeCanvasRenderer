@@ -31,7 +31,7 @@ MonoBehaviour:
       m_Path: UnityEngine.Screen, UnityEngine.CoreModule;height
     m_Arg2:
       m_Path: 
-  - m_Format: Baked:{0} Material:{1} RT:{2}
+  - m_Format: Baked:{0} Materials:{1} RenderTextures:{2}
     m_Arg0:
       m_Path: CompositeCanvas.Demos.CompositeCanvasRenderer_Demo_Signal, Coffee.CompositeCanvas.Demo;bakedCount
     m_Arg1:

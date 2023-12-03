@@ -49,18 +49,20 @@ public class AllocTest : MonoBehaviour
             }
         }
 
-        var v = (Mathf.PingPong(Time.timeSinceLevelLoad, 4) - 2)/2 * Time.deltaTime;
+        var v = (Mathf.PingPong(Time.timeSinceLevelLoad, 4) - 2) / 2 * Time.deltaTime;
         if (m_Translate)
         {
-            m_Target.transform.Translate( v * 100f * Vector3.one);
+            m_Target.transform.Translate(v * 100f * Vector3.one);
         }
+
         if (m_Rotate)
         {
             m_Target.transform.Rotate(v * 100f * Vector3.one);
         }
+
         if (m_Scale)
         {
-            m_Target.transform.localScale = (v * 1f) * Vector3.one + Vector3.one;
+            m_Target.transform.localScale = v * 1f * Vector3.one + Vector3.one;
         }
     }
 

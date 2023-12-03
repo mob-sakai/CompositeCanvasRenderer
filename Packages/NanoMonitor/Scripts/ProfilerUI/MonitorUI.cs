@@ -76,10 +76,10 @@ namespace Coffee.NanoMonitor
         // Private Members.
         //################################
         private readonly StringBuilder _sb = new StringBuilder(64);
+        private UnityAction _checkTextLengthChanged;
 
         private int _textLength;
         private UnityAction _updateFont;
-        private UnityAction _checkTextLengthChanged;
 
         //################################
         // Public Members.

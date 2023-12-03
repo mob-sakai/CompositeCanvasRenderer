@@ -1343,7 +1343,7 @@ MonoBehaviour:
   m_Power: 1
   m_Multiplier: 1
   m_Limit: 1
-  m_Offset: 52
+  m_Offset: 30
   m_Gradient:
     serializedVersion: 2
     key0: {r: 1, g: 1, b: 1, a: 1}
@@ -2081,7 +2081,7 @@ MonoBehaviour:
   m_Power: 1
   m_Multiplier: 1
   m_Limit: 1
-  m_Offset: 52
+  m_Offset: 30
   m_Gradient:
     serializedVersion: 2
     key0: {r: 1, g: 1, b: 1, a: 1}
