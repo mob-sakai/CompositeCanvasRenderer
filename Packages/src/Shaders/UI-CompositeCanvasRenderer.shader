@@ -27,7 +27,7 @@ Shader "UI/CompositeCanvasRenderer"
         [Header(Blend Mode)]
         [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("Src Blend Mode", Int) = 1
         [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend ("Dst Blend Mode", Int) = 10
-        
+
         [Header(Stencil)]
         _StencilComp ("Stencil Comparison", Float) = 8
         _Stencil ("Stencil ID", Float) = 0
@@ -70,7 +70,7 @@ Shader "UI/CompositeCanvasRenderer"
         Pass
         {
             Name "Default"
-        CGPROGRAM
+            CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
             #pragma target 2.0
@@ -81,27 +81,9 @@ Shader "UI/CompositeCanvasRenderer"
             #pragma multi_compile_local _ UNITY_UI_CLIP_RECT
             #pragma multi_compile_local _ UNITY_UI_ALPHACLIP
             #pragma multi_compile_local _ COLOR_MODE_ADDITIVE COLOR_MODE_FILL COLOR_MODE_SUBTRACT
-            #pragma shader_feature_local _ ENABLE_DETAIL
-            #pragma shader_feature_local _ ENABLE_UV_ANIMATION
-            #pragma shader_feature_local _ ENABLE_MASK
-
-            struct appdata_t
-            {
-                float4 vertex   : POSITION;
-                float4 color    : COLOR;
-                float2 texcoord : TEXCOORD0;
-                UNITY_VERTEX_INPUT_INSTANCE_ID
-            };
-
-            struct v2f
-            {
-                float4 vertex   : SV_POSITION;
-                fixed4 color    : COLOR;
-                float2 texcoord  : TEXCOORD0;
-                float4 worldPosition : TEXCOORD1;
-                float4  mask : TEXCOORD2;
-                UNITY_VERTEX_OUTPUT_STEREO
-            };
+            #pragma shader_feature_local ENABLE_DETAIL
+            #pragma shader_feature_local ENABLE_UV_ANIMATION
+            #pragma shader_feature_local ENABLE_MASK
 
             sampler2D _MainTex;
             fixed4 _Color;
@@ -120,24 +102,37 @@ Shader "UI/CompositeCanvasRenderer"
             sampler2D _DetailTex;
             float4 _DetailTex_ST;
 
+            struct appdata_t
+            {
+                float4 vertex : POSITION;
+                float4 color : COLOR;
+                float2 texcoord : TEXCOORD0;
+                UNITY_VERTEX_INPUT_INSTANCE_ID
+            };
+
+            struct v2f
+            {
+                float4 vertex : SV_POSITION;
+                fixed4 color : COLOR;
+                float2 texcoord : TEXCOORD0;
+                float4 worldPosition : TEXCOORD1;
+                float4 mask : TEXCOORD2;
+                UNITY_VERTEX_OUTPUT_STEREO
+            };
+
             half4 applyColor(half4 color, half4 factor)
             {
-	            #if COLOR_MODE_FILL
+                #if COLOR_MODE_FILL
                 color.rgb = factor.rgb * color.a;
-	            #elif COLOR_MODE_ADDITIVE
+                #elif COLOR_MODE_ADDITIVE
 	            color.rgb += factor.rgb * color.a;
-	            #elif COLOR_MODE_SUBTRACT
+                #elif COLOR_MODE_SUBTRACT
 	            color.rgb -= factor.rgb * color.a;
                 #else
                 color.rgb *= factor.rgb;
-	            #endif
+                #endif
 
-	            return color *= factor.a;
-            }
-        
-            float invLerp(const float from, const float to, const float value)
-            {
-                return (max(0, value - from) / max(0.000000001, to - from));
+                return color *= factor.a;
             }
 
             v2f vert(appdata_t v)
@@ -155,7 +150,8 @@ Shader "UI/CompositeCanvasRenderer"
                 float4 clampedRect = clamp(_ClipRect, -2e10, 2e10);
                 float2 maskUV = (v.vertex.xy - clampedRect.xy) / (clampedRect.zw - clampedRect.xy);
                 OUT.texcoord = TRANSFORM_TEX(v.texcoord.xy, _MainTex);
-                OUT.mask = float4(v.vertex.xy * 2 - clampedRect.xy - clampedRect.zw, 0.25 / (0.25 * half2(_UIMaskSoftnessX, _UIMaskSoftnessY) + abs(pixelSize.xy)));
+                OUT.mask = float4(v.vertex.xy * 2 - clampedRect.xy - clampedRect.zw,
+                                  0.25 / (0.25 * half2(_UIMaskSoftnessX, _UIMaskSoftnessY) + abs(pixelSize.xy)));
                 OUT.color = v.color * _Color;
                 return OUT;
             }
@@ -166,37 +162,37 @@ Shader "UI/CompositeCanvasRenderer"
                 //The incoming alpha could have numerical instability, which makes it very sensible to
                 //HDR color transparency blend, when it blends with the world's texture.
                 const half alphaPrecision = half(0xff);
-                const half invAlphaPrecision = half(1.0/alphaPrecision);
+                const half invAlphaPrecision = half(1.0 / alphaPrecision);
                 float2 uv = IN.texcoord;
 
-                #ifdef ENABLE_UV_ANIMATION
+                #if ENABLE_UV_ANIMATION
                 uv += (tex2D(_UvTex, uv + _Time.y * _UvSpeed).rg - 0.5) * _UvModifier;
                 #endif
 
-                IN.color.a = round(IN.color.a * alphaPrecision)*invAlphaPrecision;
-                half4 color = (tex2D(_MainTex, uv) + _TextureSampleAdd);
+                IN.color.a = round(IN.color.a * alphaPrecision) * invAlphaPrecision;
+                half4 color = tex2D(_MainTex, uv) + _TextureSampleAdd;
 
-                #ifdef ENABLE_DETAIL
+                #if ENABLE_DETAIL
                 color.rgb = tex2D(_DetailTex, uv).rgb;
                 #endif
-                
-                #ifdef UNITY_UI_CLIP_RECT
+
+                #if UNITY_UI_CLIP_RECT
                 half2 m = saturate((_ClipRect.zw - _ClipRect.xy - abs(IN.mask.xy)) * IN.mask.zw);
                 color.a *= m.x * m.y;
                 #endif
 
-                #ifdef UNITY_UI_ALPHACLIP
+                #if UNITY_UI_ALPHACLIP
                 clip (color.a - 0.001);
                 #endif
 
-                #ifdef ENABLE_MASK
+                #if ENABLE_MASK
                 const float2 maskUv = TRANSFORM_TEX(IN.texcoord.xy, _MaskTex);
                 color *= tex2D(_MaskTex, maskUv + _Time.y * _MaskSpeed).a;
                 #endif
 
                 return applyColor(color, IN.color);
             }
-        ENDCG
+            ENDCG
         }
     }
 }
