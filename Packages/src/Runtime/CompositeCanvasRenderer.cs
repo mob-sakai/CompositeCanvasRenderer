@@ -968,7 +968,7 @@ namespace CompositeCanvas
             // Bake sources.
             {
                 Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] Bake > Bake sources");
-                Bake(transform, true, useStencil);
+                Bake(this, transform, true, useStencil);
                 Profiler.EndSample();
             }
 
@@ -1001,7 +1001,7 @@ namespace CompositeCanvas
             onBaked?.Invoke(this);
         }
 
-        private static void Bake(Transform tr, bool isRoot, bool useStencil)
+        private static void Bake(CompositeCanvasRenderer root, Transform tr, bool isRoot, bool useStencil)
         {
             if (!tr || !tr.gameObject.activeInHierarchy) return;
 
@@ -1012,7 +1012,12 @@ namespace CompositeCanvas
             var canRenderingChildren = isRoot || (isActive && !source.ignoreChildren);
             if (canRendering)
             {
-                CompositeCanvasProcess.instance.Bake(source.renderer, source, false);
+                if (source.graphic is CompositeCanvasRenderer r)
+                {
+                    r.Bake();
+                }
+
+                CompositeCanvasProcess.instance.Bake(root, source, false);
             }
 
             if (canRenderingChildren)
@@ -1020,7 +1025,7 @@ namespace CompositeCanvas
                 var childCount = tr.childCount;
                 for (var i = 0; i < childCount; i++)
                 {
-                    Bake(tr.GetChild(i), false, useStencil);
+                    Bake(root, tr.GetChild(i), false, useStencil);
                 }
             }
 

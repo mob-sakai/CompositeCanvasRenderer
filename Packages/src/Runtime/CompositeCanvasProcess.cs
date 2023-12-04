@@ -17,7 +17,6 @@ namespace CompositeCanvas
         protected Material material { get; set; }
         protected Texture texture { get; set; }
 
-#if TMP_ENABLE
 #if UNITY_EDITOR
         [InitializeOnLoadMethod]
 #else
@@ -25,6 +24,7 @@ namespace CompositeCanvas
 #endif
         private static void InitializeOnLoad()
         {
+#if TMP_ENABLE
             TMPro_EventManager.TEXT_CHANGED_EVENT.Add(obj =>
             {
                 if (!(obj is TextMeshProUGUI textMeshProUGUI)) return;
@@ -44,8 +44,8 @@ namespace CompositeCanvas
 
                 ListPool<TMP_SubMeshUI>.Return(ref subMeshes);
             });
-        }
 #endif
+        }
 
         protected virtual Texture GetMainTexture(Graphic graphic)
         {

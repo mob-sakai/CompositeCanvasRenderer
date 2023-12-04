@@ -309,7 +309,8 @@ namespace CompositeCanvas
         private void UpdateRenderer()
         {
             Profiler.BeginSample("(CCR)[CompositeCanvasSource] UpdateRenderer (Auto)");
-            UpdateRenderer(GetComponentInParent<CompositeCanvasRenderer>());
+            var parent = transform.parent;
+            UpdateRenderer(parent ? parent.GetComponentInParent<CompositeCanvasRenderer>() : null);
             Profiler.EndSample();
         }
 
