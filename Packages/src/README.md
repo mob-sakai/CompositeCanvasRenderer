@@ -1,5 +1,4 @@
-CompositeCanvasRenderer
-===
+# <img alt="logo" height="26" src="https://github.com/mob-sakai/mob-sakai/assets/12690315/474143fa-ed3e-49bc-a0bb-d01048c5c493"/> Composite Canvas Renderer
 
 [![](https://img.shields.io/npm/v/com.coffee.composite-canvas-renderer?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/com.coffee.composite-canvas-renderer/)
 [![](https://img.shields.io/github/v/release/mob-sakai/CompositeCanvasRenderer?include_prereleases)](https://github.com/mob-sakai/CompositeCanvasRenderer/releases)
@@ -11,7 +10,9 @@ CompositeCanvasRenderer
 [![](https://img.shields.io/github/watchers/mob-sakai/CompositeCanvasRenderer.svg?style=social&label=Watch)](https://github.com/mob-sakai/CompositeCanvasRenderer/subscription)
 [![](https://img.shields.io/twitter/follow/mob_sakai.svg?label=Follow&style=social)](https://twitter.com/intent/follow?screen_name=mob_sakai)
 
-<< [📝 Description](#-description) | [📘 Documentation](#-documentation) | [🎮 Demo](#-demo) | [⚙ Installation](#-installation) | [🚀 Usage](#-usage) | [🛠 Development Note](#-development-note) | [🤝 Contributing](#-contributing) >>
+<< [📘 Documentation](#-documentation) | [🎮 Demo](#-demo) | [⚙ Installation](#-installation) | [🚀 Usage](#-usage) | [🤝 Contributing](#-contributing) >>
+
+<br><br>
 
 ## 📝 Description
 
@@ -105,7 +106,7 @@ openupm add com.coffee.composite-canvas-renderer
 
 Navigate to your project's Packages folder and open the `manifest.json` file. Then add this package somewhere in the `dependencies` block:
 
-```js
+```json
 {
   "dependencies": {
     "com.coffee.composite-canvas-renderer": "https://github.com/mob-sakai/CompositeCanvasRenderer.git?path=Packages/src",
@@ -117,24 +118,6 @@ Navigate to your project's Packages folder and open the `manifest.json` file. Th
 To update the package, change suffix `#{version}` to the target version.
 
 * e.g. `"com.coffee.composite-canvas-renderer": "https://github.com/mob-sakai/CompositeCanvasRenderer.git?path=Packages/src#1.0.0",`
-
-<!--
-#### Install manually (as embedded package)
-
-1. Download a source code zip file from [Releases](https://github.com/mob-sakai/CompositeCanvasRenderer/releases) page.
-2. Extract it.
-3. Import it into `Packages` directory in your Unity project.
--->
-
-#### How to Play the Demo
-
-1. Open `Package Manager` window.
-2. In the package list, select `Composite Canvas Renderer` package.
-3. Click `Samples > Demo > Import` button.  
-  <img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/94a5f04e-6e15-4c21-a73e-5f47f946f465" height=250/>
-1. The demo assets will be imported into `Assets/Samples/Composite Canvas Renderer/{version}/Demo`.
-2. Open `CompositeCanvasRenderer_Demo` scene.
-3. Play the scene to see the demo in action.
 
 <br><br>
 
@@ -149,11 +132,7 @@ To update the package, change suffix `#{version}` to the target version.
   <img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/8369b4e2-4463-4469-af1c-e7ac81959d03" width=400/>
 1. Select an effect in the inspector and fine-tune its settings.  
   <img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/569d59ac-8bf5-421f-baaa-8487967f15a1" width=400/>
-1. Enjoy the results!
-
-<br><br>
-
-## 🛠 Development Note
+1. Enjoy!
 
 <br><br>
 
@@ -170,7 +149,8 @@ Issues are incredibly valuable to this project:
 ### Pull Requests
 
 Pull requests offer a fantastic way to contribute your ideas to this repository.  
-Please refer to [CONTRIBUTING.md](/../../blob/main/CONTRIBUTING.md) for guidelines.
+Please refer to [CONTRIBUTING.md](https://github.com/mob-sakai/CompositeCanvasRenderer/tree/main/CONTRIBUTING.md)
+and [develop branch](https://github.com/mob-sakai/CompositeCanvasRenderer/tree/develop) for guidelines.
 
 ### Support
 
