@@ -1007,7 +1007,8 @@ namespace CompositeCanvas
 
             tr.TryGetComponent<CompositeCanvasSource>(out var source);
             var isActive = source && source.isActiveAndEnabled;
-            var canRendering = !isRoot && isActive && !source.ignoreSelf && source.IsInScreen();
+            var canRendering = !isRoot && isActive && !source.ignoreSelf && source.IsInScreen()
+                               && source.graphic && source.graphic.isActiveAndEnabled;
             var canRenderingChildren = isRoot || (isActive && !source.ignoreChildren);
             if (canRendering)
             {
