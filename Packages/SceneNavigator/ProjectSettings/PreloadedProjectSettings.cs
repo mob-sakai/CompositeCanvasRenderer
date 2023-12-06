@@ -31,7 +31,11 @@ namespace Coffee.SimpleSceneNavigator
 
         protected static PreloadedProjectSettings GetDefaultSettings(Type type)
         {
-            return GetPreloadedSettings(type).FirstOrDefault() as PreloadedProjectSettings;
+            return GetPreloadedSettings(type).FirstOrDefault() as PreloadedProjectSettings
+                ?? AssetDatabase.FindAssets($"t:{nameof(PreloadedProjectSettings)}")
+                    .Select(AssetDatabase.GUIDToAssetPath)
+                    .Select(AssetDatabase.LoadAssetAtPath<PreloadedProjectSettings>)
+                    .FirstOrDefault(x => x && x.GetType() == type);
         }
 
         protected static void SetDefaultSettings(PreloadedProjectSettings asset)
@@ -138,6 +142,9 @@ namespace Coffee.SimpleSceneNavigator
         public static T instance => s_Instance ? s_Instance : s_Instance = CreateInstance<T>();
 #endif
 
+        /// <summary>
+        /// This function is called when the object becomes enabled and active.
+        /// </summary>
         protected virtual void OnEnable()
         {
 #if UNITY_EDITOR
@@ -155,6 +162,9 @@ namespace Coffee.SimpleSceneNavigator
             s_Instance = this as T;
         }
 
+        /// <summary>
+        /// This function is called when the behaviour becomes disabled.
+        /// </summary>
         protected virtual void OnDisable()
         {
 #if UNITY_EDITOR

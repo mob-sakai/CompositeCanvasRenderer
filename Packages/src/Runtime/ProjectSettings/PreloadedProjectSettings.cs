@@ -31,7 +31,11 @@ namespace CompositeCanvas.ProjectSettings
 
         protected static PreloadedProjectSettings GetDefaultSettings(Type type)
         {
-            return GetPreloadedSettings(type).FirstOrDefault() as PreloadedProjectSettings;
+            return GetPreloadedSettings(type).FirstOrDefault() as PreloadedProjectSettings
+                ?? AssetDatabase.FindAssets($"t:{nameof(PreloadedProjectSettings)}")
+                    .Select(AssetDatabase.GUIDToAssetPath)
+                    .Select(AssetDatabase.LoadAssetAtPath<PreloadedProjectSettings>)
+                    .FirstOrDefault(x => x && x.GetType() == type);
         }
 
         protected static void SetDefaultSettings(PreloadedProjectSettings asset)
