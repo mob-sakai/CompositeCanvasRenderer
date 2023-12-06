@@ -644,7 +644,14 @@ PrefabInstance:
     - target: {fileID: 3544989262036967841, guid: 1071d44cdaf214a24b03765881634e74,
         type: 3}
       propertyPath: m_Text
-      value: Fill color
+      value: 'Apply
+
+        Effect'
+      objectReference: {fileID: 0}
+    - target: {fileID: 3544989262036967841, guid: 1071d44cdaf214a24b03765881634e74,
+        type: 3}
+      propertyPath: m_FontData.m_LineSpacing
+      value: 0.79
       objectReference: {fileID: 0}
     - target: {fileID: 3544989262161273494, guid: 1071d44cdaf214a24b03765881634e74,
         type: 3}
@@ -1202,7 +1209,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 170, y: 170}
+  m_SizeDelta: {x: 150, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &618448916
 MonoBehaviour:
@@ -1752,6 +1759,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2410690387891825491, guid: 95fbf783609f447f8aeb4da4a9e4a5ca,
         type: 3}
+      propertyPath: m_Material
+      value: 
+      objectReference: {fileID: 2100000, guid: fab97af5ccbdc4e62a25b0be2f8b448b, type: 2}
+    - target: {fileID: 2410690387891825491, guid: 95fbf783609f447f8aeb4da4a9e4a5ca,
+        type: 3}
       propertyPath: m_BlendType
       value: 2
       objectReference: {fileID: 0}
@@ -1779,6 +1791,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_ShowSourceGraphics
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2410690388034007341, guid: 95fbf783609f447f8aeb4da4a9e4a5ca,
+        type: 3}
+      propertyPath: m_Text
+      value: Result
       objectReference: {fileID: 0}
     - target: {fileID: 2410690388284480313, guid: 95fbf783609f447f8aeb4da4a9e4a5ca,
         type: 3}
@@ -1925,14 +1942,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 1205407286}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc6e0799055824aff8d0cade369fa23d, type: 3}
+  m_Script: {fileID: 11500000, guid: b6cfeb4696a7c477e9ec6dae014c1b28, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Blur: 1
-  m_Iteration: 10
+  m_Blur: 0.5
+  m_Iteration: 5
   m_Power: 1
   m_Multiplier: 1
   m_Limit: 1
+  m_EffectDistance: {x: 5, y: -10}
 --- !u!1001 &1226433175
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2960,7 +2978,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 600, y: 0}
+  m_SizeDelta: {x: 550, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1628504224
 MonoBehaviour:
@@ -3743,6 +3761,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 1543791181}
     m_Modifications:
+    - target: {fileID: 3544989262036967841, guid: 1071d44cdaf214a24b03765881634e74,
+        type: 3}
+      propertyPath: m_Text
+      value: "Bake\n & Blur"
+      objectReference: {fileID: 0}
+    - target: {fileID: 3544989262036967841, guid: 1071d44cdaf214a24b03765881634e74,
+        type: 3}
+      propertyPath: m_FontData.m_LineSpacing
+      value: 0.79
+      objectReference: {fileID: 0}
     - target: {fileID: 3544989262161273494, guid: 1071d44cdaf214a24b03765881634e74,
         type: 3}
       propertyPath: m_Pivot.x

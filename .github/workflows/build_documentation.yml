@@ -26,9 +26,11 @@ jobs:
       - name: 🚚 Checkout
         uses: actions/checkout@v4
 
-      - name: ⚙️Setup matrix
+      - name: ⚙️Setup Build Matrix
         id: matrix
-        run: echo "matrix=$(jq -c . < ./Documentation/metadata.json)" | tee $GITHUB_OUTPUT
+        run: |
+          matrix=`jq -c '{ include: .versions }' ./Documentation/metadata.json`
+          echo matrix="${matrix}" | tee -a $GITHUB_OUTPUT $GITHUB_STEP_SUMMARY
   
   build:
     name: 📘 Build Documentation

@@ -13,8 +13,6 @@ on:
       - develop
     tags:
       - "!*"
-    paths-ignore:
-      - "*.md"
   pull_request:
     types:
       - opened

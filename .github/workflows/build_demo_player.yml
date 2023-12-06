@@ -47,5 +47,5 @@ jobs:
       - name: 📦 Upload Demo Player
         uses: actions/upload-artifact@v3
         with:
-          name: Build
+          name: Demo
           path: build/WebGL/WebGL

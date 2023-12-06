@@ -1,3 +1,3 @@
 ---
-redirect_url: manual/overview.html
+redirect_url: manual/
 ---

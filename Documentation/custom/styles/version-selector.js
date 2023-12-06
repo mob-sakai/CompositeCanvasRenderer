@@ -26,7 +26,7 @@ $(function () {
     function generateVersionSelector(metadata) {
         if (!metadata) return;
 
-        metadata.include.forEach(v => {
+        metadata.versions.forEach(v => {
             $('#version-select-ul').append($(`
             <a style="color:#000;" href="${v.url}">
                 <li class="component-select__option" style='justify-content:space-between;'>

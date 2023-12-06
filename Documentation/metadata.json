@@ -3,27 +3,19 @@
   "versions": [
     {
       "ref": "develop",
-      "version": "4.0.0",
-      "unity": "2021.1",
+      "version": "1.0.0",
+      "unity": "2019.4",
       "dest": "_site",
-      "appTitle": "Composite Canvas Renderer 4.0.0",
+      "appTitle": "Composite Canvas Renderer 1.0.0",
       "url": "https://mob-sakai.github.io/CompositeCanvasRenderer"
     },
     {
       "ref": "develop",
-      "version": "2.0.0",
-      "unity": "2020.3",
-      "dest": "_site/2.0.0",
-      "appTitle": "Composite Canvas Renderer 2.0.0",
-      "url": "https://mob-sakai.github.io/CompositeCanvasRenderer/2.0.0"
-    },
-    {
-      "ref": "develop",
-      "version": "1.0.0",
+      "version": "1.0.0-preview.2",
       "unity": "2019.4",
-      "dest": "_site/1.0.0",
-      "appTitle": "Composite Canvas Renderer 1.0.0",
-      "url": "https://mob-sakai.github.io/CompositeCanvasRenderer/1.0.0"
+      "dest": "_site/1.0.0-preview.2",
+      "appTitle": "Composite Canvas Renderer 1.0.0-preview.2",
+      "url": "https://mob-sakai.github.io/CompositeCanvasRenderer/1.0.0-preview.2"
     }
   ]
 }

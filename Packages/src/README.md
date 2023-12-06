@@ -30,7 +30,7 @@ It also supports additional material modification, mesh modification, and baking
 
 Let's enjoy a wide range of effects that were previously challenging to achieve with standard UI shaders!
 
-<img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/03245b0d-ed4d-464c-8cda-6b3f4f129135" width=600/>
+<img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/28a3cab1-d939-4161-8ef5-d24c760c5d49" width="600/">
 
 #### Features
 
@@ -124,15 +124,20 @@ To update the package, change suffix `#{version}` to the target version.
 ## 🚀 Usage
 
 1. Create a GameObject with the `CompositeCanvasRenderer` component.
+
 2. Add UI elements such as Image, RawImage, Text, TextMeshProUGUI, etc., to the GameObject.  
   <img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/571dd4ed-2ab7-49fd-be88-d176728fdcb8" width=300/>
+
 3. The baking area is determined by the `RectTransform.size` and the `Expands` option. In the scene view, the baking area is displayed as a magenta rectangle.  
   <img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/c614e39d-f3f4-4178-a870-6198a71fbf01" width=300/>
+
 4. Adjust the `CompositeCanvasRenderer` settings in the inspector.  
   <img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/8369b4e2-4463-4469-af1c-e7ac81959d03" width=400/>
-1. Select an effect in the inspector and fine-tune its settings.  
+
+5. Select an effect in the inspector and fine-tune its settings.  
   <img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/569d59ac-8bf5-421f-baaa-8487967f15a1" width=400/>
-1. Enjoy!
+
+6. Enjoy!
 
 <br><br>
 
