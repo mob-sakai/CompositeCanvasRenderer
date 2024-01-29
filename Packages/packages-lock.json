@@ -8,17 +8,30 @@
         "com.unity.ugui": "1.0.0"
       }
     },
-    "com.coffee.nano-monitor": {
-      "version": "file:NanoMonitor",
+    "com.coffee.development": {
+      "version": "https://github.com/mob-sakai/Coffee.Internal.git?path=Packages/Development",
       "depth": 0,
-      "source": "embedded",
-      "dependencies": {}
+      "source": "git",
+      "dependencies": {},
+      "hash": "c3a39201fe6ef758efd1649f6364e46d203e3a93"
+    },
+    "com.coffee.nano-monitor": {
+      "version": "https://github.com/mob-sakai/Coffee.Internal.git?path=Packages/NanoMonitor",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {
+        "com.unity.ugui": "1.0.0"
+      },
+      "hash": "c3a39201fe6ef758efd1649f6364e46d203e3a93"
     },
     "com.coffee.simple-scene-navigator": {
-      "version": "file:SceneNavigator",
+      "version": "https://github.com/mob-sakai/Coffee.Internal.git?path=Packages/SceneNavigator",
       "depth": 0,
-      "source": "embedded",
-      "dependencies": {}
+      "source": "git",
+      "dependencies": {
+        "com.unity.ugui": "1.0.0"
+      },
+      "hash": "c3a39201fe6ef758efd1649f6364e46d203e3a93"
     },
     "com.unity.ext.nunit": {
       "version": "2.0.3",
@@ -28,7 +41,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ide.rider": {
-      "version": "3.0.26",
+      "version": "3.0.27",
       "depth": 0,
       "source": "registry",
       "dependencies": {
@@ -36,17 +49,8 @@
       },
       "url": "https://packages.unity.com"
     },
-    "com.unity.ide.visualstudio": {
-      "version": "2.0.22",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.test-framework": "1.1.9"
-      },
-      "url": "https://packages.unity.com"
-    },
     "com.unity.settings-manager": {
-      "version": "1.0.1",
+      "version": "2.0.1",
       "depth": 1,
       "source": "registry",
       "dependencies": {},
@@ -64,7 +68,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.testtools.codecoverage": {
-      "version": "1.2.4",
+      "version": "1.2.5",
       "depth": 0,
       "source": "registry",
       "dependencies": {
