@@ -3,6 +3,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.UI;
+using Coffee.CompositeCanvasRendererInternal;
 #if TMP_ENABLE
 using TMPro;
 #endif

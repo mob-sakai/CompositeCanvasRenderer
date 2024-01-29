@@ -35,6 +35,6 @@ MonoBehaviour:
     m_Arg0:
       m_Path: CompositeCanvas.Demos.CompositeCanvasRenderer_Demo_Signal, Coffee.CompositeCanvas.Demo;bakedCount
     m_Arg1:
-      m_Path: CompositeCanvas.MaterialRepository, Coffee.CompositeCanvas;count
+      m_Path: Coffee.CompositeCanvasRendererInternal.MaterialRepository, Coffee.CompositeCanvas;count
     m_Arg2:
-      m_Path: CompositeCanvas.RenderTextureRepository, Coffee.CompositeCanvas;count
+      m_Path: Coffee.CompositeCanvasRendererInternal.RenderTextureRepository, Coffee.CompositeCanvas;count

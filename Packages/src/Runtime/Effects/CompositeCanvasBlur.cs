@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Coffee.CompositeCanvasRendererInternal;
+using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 

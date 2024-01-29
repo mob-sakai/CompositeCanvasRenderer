@@ -1,9 +1,10 @@
 ﻿using System.Linq;
+using Coffee.CompositeCanvasRendererInternal;
 using CompositeCanvas.Enums;
 using UnityEditor;
 using UnityEngine;
 
-namespace CompositeCanvas.ProjectSettings
+namespace CompositeCanvas
 {
     public class CompositeCanvasRendererProjectSettings
         : PreloadedProjectSettings<CompositeCanvasRendererProjectSettings>
@@ -44,16 +45,16 @@ namespace CompositeCanvas.ProjectSettings
             set => instance.m_TransformSensitivity = value;
         }
 
-        public static int transformSensitivityBias
+        public static float sensitivity
         {
             get
             {
                 switch (instance.m_TransformSensitivity)
                 {
-                    case TransformSensitivity.Low: return 1 << 2;
-                    case TransformSensitivity.Medium: return 1 << 5;
-                    case TransformSensitivity.High: return 1 << 12;
-                    default: return 1 << (int)instance.m_TransformSensitivity;
+                    case TransformSensitivity.Low: return 1f / (1 << 2);
+                    case TransformSensitivity.Medium: return 1f / (1 << 5);
+                    case TransformSensitivity.High: return 1f / (1 << 12);
+                    default: return 1f / (1 << (int)instance.m_TransformSensitivity);
                 }
             }
         }

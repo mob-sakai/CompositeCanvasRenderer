@@ -1,4 +1,5 @@
 ﻿using System;
+using Coffee.CompositeCanvasRendererInternal;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -352,7 +353,8 @@ namespace CompositeCanvas
 
         internal bool HasTransformChanged(Transform baseTransform)
         {
-            return transform.HasChanged(baseTransform, ref _prevTransformMatrix);
+            return transform.HasChanged(baseTransform, ref _prevTransformMatrix,
+                CompositeCanvasRendererProjectSettings.sensitivity);
         }
 
         public bool IsInScreen()

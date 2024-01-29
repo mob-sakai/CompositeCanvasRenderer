@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Coffee.CompositeCanvasRendererInternal;
 using CompositeCanvas.Effects;
 using CompositeCanvas.Enums;
-using CompositeCanvas.ProjectSettings;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -769,7 +769,8 @@ namespace CompositeCanvas
             if (isPerspective)
             {
                 Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] CheckTransformChanged > Perspective");
-                if (transform.HasChanged(null, ref _prevTransformMatrix))
+                if (transform.HasChanged(null, ref _prevTransformMatrix,
+                        CompositeCanvasRendererProjectSettings.sensitivity))
                 {
                     SetDirty(false);
                     SetVerticesDirty();

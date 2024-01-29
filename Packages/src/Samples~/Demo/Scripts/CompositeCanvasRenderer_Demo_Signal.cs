@@ -1,4 +1,5 @@
 using System;
+using Coffee.CompositeCanvasRendererInternal;
 using UnityEngine;
 using UnityEngine.UI;
 #if UNITY_EDITOR
