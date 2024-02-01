@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Coffee.CompositeCanvasRendererInternal;
 using CompositeCanvas.Enums;
 using UnityEngine;

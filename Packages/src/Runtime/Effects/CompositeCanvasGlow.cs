@@ -1,4 +1,4 @@
-﻿using CompositeCanvas.Enums;
+using CompositeCanvas.Enums;
 using UnityEngine;
 
 namespace CompositeCanvas.Effects

@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using Coffee.CompositeCanvasRendererInternal;
 using CompositeCanvas.Enums;
 using UnityEditor;

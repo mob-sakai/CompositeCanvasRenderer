@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Coffee.CompositeCanvasRendererInternal;
 using UnityEngine;
 using UnityEngine.Events;
