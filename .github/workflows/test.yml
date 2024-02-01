@@ -1,10 +1,14 @@
 # Required secrets
 #   UNITY_LICENSE: The contents of Unity license file
+#   UNITY_EMAIL: Unity user email to login
+#   UNITY_PASSWORD: Unity user password to login
 name: 🧪 Test
 
 env:
-  minVersion: "2019.4"
-  targetPlatform: StandaloneLinux64
+  # MINIMUM_VERSION: The minimum version of Unity.
+  MINIMUM_VERSION: 2019.4
+  # EXCLUDE_FILTER: The excluded versions of Unity.
+  EXCLUDE_FILTER: '(2020.2.0)'
 
 on:
   workflow_dispatch:
@@ -28,14 +32,22 @@ jobs:
       - name: ⚙️ Find target Unity versions
         id: setup
         run: |
-          UNITY_VERSIONS=`npx unity-changeset list --versions --latest-patch --min ${{ env.minVersion }} --json`
           echo "==== Target Unity Versions ===="
-          echo "${UNITY_VERSIONS}"
-          echo "unityVersions=${UNITY_VERSIONS}" >> $GITHUB_OUTPUT
+          LATEST_VERSIONS=`npx unity-changeset list --versions --latest-patch --min ${MINIMUM_VERSION} --json --all`
+          # ADDITIONAL_VERSIONS=`npx unity-changeset list --versions --grep '0f' --min ${MINIMUM_VERSION} --json`
+          ADDITIONAL_VERSIONS=[]
+
+          VERSIONS=`echo "[${LATEST_VERSIONS}, ${ADDITIONAL_VERSIONS}]" \
+            | jq -c '[ flatten | sort | unique | .[] | select( test("${{ env.EXCLUDE_FILTER }}") | not ) ]'`
+          echo "unityVersions=${VERSIONS}" | tee $GITHUB_OUTPUT
 
   test:
     name: 🧪 Run tests
     runs-on: ubuntu-latest
+    env:
+      UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+      UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
     permissions:
       checks: write
       contents: read
@@ -49,23 +61,19 @@ jobs:
         uses: actions/checkout@v4
 
       - name: 📥 Cache library
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: Library
-          key: Library-${{ matrix.unityVersion }}-${{ env.targetPlatform }}-${{ github.sha }}
+          key: Library-${{ matrix.unityVersion }}-${{ github.sha }}
           restore-keys: |
-            Library-${{ matrix.unityVersion }}-${{ env.targetPlatform }}-
             Library-${{ matrix.unityVersion }}-
             Library-
 
       - name: 🧪 Run tests
-        uses: game-ci/unity-test-runner@v3
-        timeout-minutes: 30
-        env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        uses: game-ci/unity-test-runner@v4
+        timeout-minutes: 45
         with:
-          customImage: mobsakai/unity3d:${{ matrix.unityVersion }}
-          # unityVersion: ${{ matrix.unityVersion }}
+          customImage: ghcr.io/mob-sakai/unity3d:${{ matrix.unityVersion }}
           customParameters: -nographics
           checkName: ${{ matrix.unityVersion }} Test Results
           githubToken: ${{ github.token }}
