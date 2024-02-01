@@ -79,6 +79,13 @@ namespace CompositeCanvas
                 for (var i = 0; i < colors.Count; i++)
                 {
                     var c = colors[i];
+                    if (source.graphic.canvas.ShouldGammaToLinearInMesh())
+                    {
+                        c.r = c.r.GammaToLinear();
+                        c.g = c.g.GammaToLinear();
+                        c.b = c.b.GammaToLinear();
+                    }
+
                     c.r = (byte)(c.r * color.r);
                     c.g = (byte)(c.g * color.g);
                     c.b = (byte)(c.b * color.b);
@@ -142,6 +149,11 @@ namespace CompositeCanvas
                         // Use _TextureSampleAdd for alpha only texture
                         source.mpb.SetVector(ShaderPropertyIds.textureSampleAdd, new Vector4(1, 1, 1, 0));
                     }
+                }
+
+                if (renderer.canvas.ShouldGammaToLinearInShader())
+                {
+                    source.mpb.SetInt(ShaderPropertyIds.gammaToLinear, 1);
                 }
 
                 PreBake();

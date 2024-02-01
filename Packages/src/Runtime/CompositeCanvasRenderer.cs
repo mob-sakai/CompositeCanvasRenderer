@@ -591,6 +591,13 @@ namespace CompositeCanvas
             {
                 Color32 color32 = color;
 
+                if (canvas.ShouldGammaToLinearInMesh())
+                {
+                    color32.r = color32.r.GammaToLinear();
+                    color32.g = color32.g.GammaToLinear();
+                    color32.b = color32.b.GammaToLinear();
+                }
+
                 var r = GetRenderingRect();
                 var xMin = r.x;
                 var xMax = r.x + r.width;

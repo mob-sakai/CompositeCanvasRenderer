@@ -263,6 +263,12 @@ namespace CompositeCanvas
             Profiler.BeginSample("(CCR)[CompositeCanvasSource] ModifyMesh");
             _mesh = _mesh ? _mesh : MeshExtensions.Rent();
             mesh.CopyTo(_mesh);
+
+            if (renderer.canvas.ShouldGammaToLinearInMesh())
+            {
+                _mesh.GammaToLinear();
+            }
+
             Profiler.EndSample();
             Logging.Log(this, " >>>> Graphic mesh is modified.");
 
@@ -286,6 +292,12 @@ namespace CompositeCanvas
             _mesh = _mesh ? _mesh : MeshExtensions.Rent();
             verts.FillMesh(_mesh);
             _mesh.RecalculateBounds();
+
+            if (renderer.canvas.ShouldGammaToLinearInMesh())
+            {
+                _mesh.GammaToLinear();
+            }
+
             Profiler.EndSample();
             Logging.Log(this, " >>>> Graphic mesh is modified.");
 

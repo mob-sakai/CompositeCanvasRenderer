@@ -10,6 +10,7 @@ namespace CompositeCanvas
         public static readonly int mainTex = Shader.PropertyToID("_MainTex");
         public static readonly int color = Shader.PropertyToID("_Color");
         public static readonly int textureSampleAdd = Shader.PropertyToID("_TextureSampleAdd");
+        public static readonly int gammaToLinear = Shader.PropertyToID("_UIVertexColorAlwaysGammaSpace");
         public static readonly int colorMode = Shader.PropertyToID("Color_Mode");
         public static readonly int srcBlendMode = Shader.PropertyToID("_SrcBlend");
         public static readonly int dstBlendMode = Shader.PropertyToID("_DstBlend");
