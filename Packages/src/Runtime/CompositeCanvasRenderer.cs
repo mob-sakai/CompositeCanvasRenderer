@@ -7,6 +7,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace CompositeCanvas
@@ -43,6 +44,7 @@ namespace CompositeCanvas
         private DownSamplingRate m_DownSamplingRate = DownSamplingRate.x1;
 
         [SerializeField]
+        [FormerlySerializedAs("m_UpscalingBuffer")]
         [Tooltip("Use canvas scaler to calculate bake-buffer size.\n" +
                  "If false, the bake-buffer is the same size as the rendering size.")]
         private bool m_UseCanvasScaler = true;
