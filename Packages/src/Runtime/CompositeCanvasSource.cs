@@ -5,6 +5,9 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.Profiling;
 using UnityEngine.UI;
+#if TMP_ENABLE
+using TMPro;
+#endif
 
 namespace CompositeCanvas
 {
@@ -38,6 +41,10 @@ namespace CompositeCanvas
         private MaterialPropertyBlock _mpb;
         private Matrix4x4 _prevTransformMatrix;
         private UnityAction _setRendererDirty;
+#if TMP_ENABLE
+        private TMP_Text _tmpText;
+        private bool _tmpMaterialChanged;
+#endif
 
         /// <summary>
         /// The renderer associated with the source.
@@ -142,6 +149,9 @@ namespace CompositeCanvas
                 graphic.RegisterDirtyMaterialCallback(_setRendererDirty);
                 graphic.RegisterDirtyVerticesCallback(_setRendererDirty);
                 Profiler.EndSample();
+#if TMP_ENABLE
+                SetupTMProEventListeners();
+#endif
             }
 
             UpdateRenderer();
@@ -157,6 +167,14 @@ namespace CompositeCanvas
         protected override void OnDisable()
         {
             UIExtraCallbacks.onBeforeCanvasRebuild -= _checkRenderColor;
+
+#if TMP_ENABLE
+            if (_tmpText != null)
+            {
+                _tmpText.OnPreRenderText -= OnTMPTextChanged;
+                _tmpMaterialChanged = false;
+            }
+#endif
 
             MeshExtensions.Return(ref _mesh);
             s_MaterialPropertyBlockPool.Return(ref _mpb);
@@ -407,5 +425,32 @@ namespace CompositeCanvas
         {
             return usePopMaterial ? _graphic.canvasRenderer.GetPopMaterial(0) : _bakingMaterial;
         }
+
+#if TMP_ENABLE
+        private void OnTMPTextChanged(TMP_TextInfo textInfo)
+        {
+            _tmpMaterialChanged = true;
+        }
+
+        private void SetupTMProEventListeners()
+        {
+            if (graphic == null) return;
+
+            if (graphic is TMP_Text tmpText)
+            {
+                _tmpText = tmpText;
+                _tmpText.OnPreRenderText += OnTMPTextChanged;
+            }
+        }
+
+        private void LateUpdate()
+        {
+            if (_tmpMaterialChanged && isActiveAndEnabled && graphic && renderer && !renderer.showSourceGraphics)
+            {
+                graphic.SetMaterialDirty();
+                _tmpMaterialChanged = false;
+            }
+        }
     }
+#endif
 }
