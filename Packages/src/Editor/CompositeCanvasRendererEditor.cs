@@ -153,6 +153,7 @@ namespace CompositeCanvas
 
             if (EditorGUI.EndChangeCheck())
             {
+                serializedObject.ApplyModifiedProperties();
                 foreach (var renderer in targets.OfType<CompositeCanvasRenderer>())
                 {
                     renderer.SetSourcesMaterialDirty();
