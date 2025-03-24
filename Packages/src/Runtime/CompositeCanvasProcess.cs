@@ -96,6 +96,16 @@ namespace CompositeCanvas
                 source.mesh.SetColors(colors);
                 ListPool<Color32>.Return(ref colors);
 
+#if UNITY_6000_0_OR_NEWER
+                if (source.graphic.canvas.renderMode == RenderMode.ScreenSpaceCamera)
+                {
+                    var uv1s = ListPool<Vector2>.Rent();
+                    graphicMesh.GetUVs(0, uv1s);
+                    source.mesh.SetUVs(0, uv1s);
+                    ListPool<Vector2>.Return(ref uv1s);
+                }
+#endif
+
                 if (!source.renderer.perspectiveBaking)
                 {
                     var xScale = 1f / source.graphic.canvas.rootCanvas.transform.lossyScale.x;
