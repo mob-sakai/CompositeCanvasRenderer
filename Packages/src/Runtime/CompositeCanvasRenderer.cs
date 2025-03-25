@@ -1107,6 +1107,17 @@ namespace CompositeCanvas
             Profiler.EndSample();
         }
 
+        public void ClearBakeBuffer()
+        {
+            if (!_bakeBuffer) return;
+
+            _cb.Clear();
+            _cb.SetRenderTarget(_bakeBuffer);
+            _cb.ClearRenderTarget(true, true, Color.clear, 1f);
+            Graphics.ExecuteCommandBuffer(_cb);
+            SetDirty();
+        }
+
 #if UNITY_EDITOR
         /// <summary>
         /// Editor-only function that Unity calls when the script is loaded or a value changes in the Inspector.

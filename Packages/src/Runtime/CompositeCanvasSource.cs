@@ -176,6 +176,11 @@ namespace CompositeCanvas
             }
 #endif
 
+            if (_graphic && renderer && renderer.isActiveAndEnabled)
+            {
+                renderer.ClearBakeBuffer();
+            }
+
             MeshExtensions.Return(ref _mesh);
             s_MaterialPropertyBlockPool.Return(ref _mpb);
             UpdateRenderer(null);
