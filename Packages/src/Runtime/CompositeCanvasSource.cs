@@ -459,6 +459,6 @@ namespace CompositeCanvas
                 _tmpNeedsUpdate = false;
             }
         }
-    }
 #endif
+    }
 }
