@@ -825,23 +825,6 @@ namespace CompositeCanvas
             Logging.Log(this, $"Unregister #{sources.Count}: {canvasSource} {canvasSource.GetInstanceID()}");
         }
 
-        private bool IsAnySourceInRenderer()
-        {
-            if (!transform.lossyScale.IsVisible()) return false;
-            if (!culling) return true;
-
-            for (var i = 0; i < sources.Count; i++)
-            {
-                var source = sources[i];
-                if (source && source.IsInScreen())
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         private bool IsInCanvasViewport()
         {
             if (!culling) return true;
@@ -906,13 +889,6 @@ namespace CompositeCanvas
                     canvasRenderer.SetTexture(mainTexture);
                     return;
                 }
-            }
-
-            if (!IsAnySourceInRenderer())
-            {
-                Logging.Log(this,
-                    "<color=orange> Baking is canceled due to all source graphics are not in screen.</color>");
-                return;
             }
 
             // Get CommandBuffer.
