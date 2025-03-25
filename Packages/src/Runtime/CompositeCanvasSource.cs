@@ -451,6 +451,6 @@ namespace CompositeCanvas
                 _tmpMaterialChanged = false;
             }
         }
-    }
 #endif
+    }
 }
