@@ -19,8 +19,8 @@ namespace CompositeCanvas
     [AddComponentMenu("")]
     public class CompositeCanvasSource : UIBehaviour, IMeshModifier, IMaterialModifier
     {
-        private static readonly ObjectPool<MaterialPropertyBlock> s_MaterialPropertyBlockPool =
-            new ObjectPool<MaterialPropertyBlock>(
+        private static readonly InternalObjectPool<MaterialPropertyBlock> s_MaterialPropertyBlockPool =
+            new InternalObjectPool<MaterialPropertyBlock>(
                 () => new MaterialPropertyBlock(),
                 x => x != null,
                 x => x.Clear());

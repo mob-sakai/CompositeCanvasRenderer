@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
-using System.Reflection;
 using UnityEngine;
 using Object = UnityEngine.Object;
 #if UNITY_EDITOR
+using System.IO;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
@@ -13,41 +13,51 @@ namespace Coffee.CompositeCanvasRendererInternal
 {
     public abstract class PreloadedProjectSettings : ScriptableObject
 #if UNITY_EDITOR
-        , IPreprocessBuildWithReport
     {
-        int IOrderedCallback.callbackOrder => 0;
-
-        void IPreprocessBuildWithReport.OnPreprocessBuild(BuildReport report)
+        private class Postprocessor : AssetPostprocessor
         {
-            Initialize();
+            private static void OnPostprocessAllAssets(string[] _, string[] __, string[] ___, string[] ____)
+            {
+                Initialize();
+            }
         }
 
-        [InitializeOnLoadMethod]
-        [InitializeOnEnterPlayMode]
+        private class PreprocessBuildWithReport : IPreprocessBuildWithReport
+        {
+            int IOrderedCallback.callbackOrder => 0;
+
+            void IPreprocessBuildWithReport.OnPreprocessBuild(BuildReport report)
+            {
+                Initialize();
+            }
+        }
+
         private static void Initialize()
         {
-            const BindingFlags flags = BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy;
             foreach (var t in TypeCache.GetTypesDerivedFrom(typeof(PreloadedProjectSettings<>)))
             {
                 var defaultSettings = GetDefaultSettings(t);
                 if (!defaultSettings)
                 {
-                    defaultSettings = t.GetProperty("instance", flags)
-                        ?.GetValue(null, null) as PreloadedProjectSettings;
+                    // When create a new instance, automatically set it as default settings.
+                    defaultSettings = CreateInstance(t) as PreloadedProjectSettings;
                     SetDefaultSettings(defaultSettings);
                 }
                 else if (GetPreloadedSettings(t).Length != 1)
                 {
                     SetDefaultSettings(defaultSettings);
                 }
-            }
 
-            EditorApplication.QueuePlayerLoopUpdate();
+                if (defaultSettings)
+                {
+                    defaultSettings.OnInitialize();
+                }
+            }
         }
 
         protected static string GetDefaultName(Type type, bool nicify)
         {
-            var typeName = type.Name.Replace("ProjectSettings", "");
+            var typeName = type.Name;
             return nicify
                 ? ObjectNames.NicifyVariableName(typeName)
                 : typeName;
@@ -71,6 +81,8 @@ namespace Coffee.CompositeCanvasRendererInternal
 
         protected static void SetDefaultSettings(PreloadedProjectSettings asset)
         {
+            if (!asset) return;
+
             var type = asset.GetType();
             if (string.IsNullOrEmpty(AssetDatabase.GetAssetPath(asset)))
             {
@@ -81,7 +93,11 @@ namespace Coffee.CompositeCanvasRendererInternal
 
                 var assetPath = $"Assets/ProjectSettings/{GetDefaultName(type, false)}.asset";
                 assetPath = AssetDatabase.GenerateUniqueAssetPath(assetPath);
-                AssetDatabase.CreateAsset(asset, assetPath);
+                if (!File.Exists(assetPath))
+                {
+                    AssetDatabase.CreateAsset(asset, assetPath);
+                    asset.OnCreateAsset();
+                }
             }
 
             var preloadedAssets = PlayerSettings.GetPreloadedAssets();
@@ -95,12 +111,19 @@ namespace Coffee.CompositeCanvasRendererInternal
 
             AssetDatabase.Refresh();
         }
+
+        protected virtual void OnCreateAsset()
+        {
+        }
+
+        protected virtual void OnInitialize()
+        {
+        }
     }
 #else
     {
     }
 #endif
-
 
     public abstract class PreloadedProjectSettings<T> : PreloadedProjectSettings
         where T : PreloadedProjectSettings<T>
@@ -109,6 +132,8 @@ namespace Coffee.CompositeCanvasRendererInternal
 
 #if UNITY_EDITOR
         private string _jsonText;
+
+        public static bool hasInstance => s_Instance;
 
         public static T instance
         {

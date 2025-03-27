@@ -20,28 +20,28 @@ namespace Coffee.CompositeCanvasRendererInternal
             if (self == other) return 0;
 
             Profiler.BeginSample("(COF)[TransformExt] CompareHierarchyIndex > GetTransforms");
-            var lTrs = self.GetTransforms(stopAt, ListPool<Transform>.Rent());
-            var rTrs = other.GetTransforms(stopAt, ListPool<Transform>.Rent());
+            var lTrs = self.GetTransforms(stopAt, InternalListPool<Transform>.Rent());
+            var rTrs = other.GetTransforms(stopAt, InternalListPool<Transform>.Rent());
             Profiler.EndSample();
 
             Profiler.BeginSample("(COF)[TransformExt] CompareHierarchyIndex > Calc");
-            var loop = Mathf.Min(lTrs.Count, rTrs.Count);
+            var loop = Mathf.Max(lTrs.Count, rTrs.Count);
             var result = 0;
             for (var i = 0; i < loop; ++i)
             {
-                self = lTrs[lTrs.Count - i - 1];
-                other = rTrs[rTrs.Count - i - 1];
-                if (self == other) continue;
+                var selfIndex = 0 <= lTrs.Count - i - 1 ? lTrs[lTrs.Count - i - 1].GetSiblingIndex() : -1;
+                var otherIndex = 0 <= rTrs.Count - i - 1 ? rTrs[rTrs.Count - i - 1].GetSiblingIndex() : -1;
+                if (selfIndex == otherIndex) continue;
 
-                result = self.GetSiblingIndex() - other.GetSiblingIndex();
+                result = selfIndex - otherIndex;
                 break;
             }
 
             Profiler.EndSample();
 
             Profiler.BeginSample("(COF)[TransformExt] CompareHierarchyIndex > Return");
-            ListPool<Transform>.Return(ref lTrs);
-            ListPool<Transform>.Return(ref rTrs);
+            InternalListPool<Transform>.Return(ref lTrs);
+            InternalListPool<Transform>.Return(ref rTrs);
             Profiler.EndSample();
 
             return result;
@@ -112,11 +112,11 @@ namespace Coffee.CompositeCanvasRendererInternal
                 return new Bounds(Vector3.zero, Vector3.zero);
             }
 
-            var list = ListPool<RectTransform>.Rent();
+            var list = InternalListPool<RectTransform>.Rent();
             child.GetComponentsInChildren(false, list);
             if (list.Count == 0)
             {
-                ListPool<RectTransform>.Return(ref list);
+                InternalListPool<RectTransform>.Return(ref list);
                 return new Bounds(Vector3.zero, Vector3.zero);
             }
 
@@ -134,7 +134,7 @@ namespace Coffee.CompositeCanvasRendererInternal
                 }
             }
 
-            ListPool<RectTransform>.Return(ref list);
+            InternalListPool<RectTransform>.Return(ref list);
 
             var rectTransformBounds = new Bounds(max, Vector3.zero);
             rectTransformBounds.Encapsulate(min);

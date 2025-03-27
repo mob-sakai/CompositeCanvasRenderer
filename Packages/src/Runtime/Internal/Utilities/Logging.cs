@@ -1,11 +1,12 @@
 using System;
 using System.Text;
 using UnityEngine;
-using Conditional = System.Diagnostics.ConditionalAttribute;
 using Object = UnityEngine.Object;
 #if ENABLE_COFFEE_LOGGER
 using System.Reflection;
 using System.Collections.Generic;
+#else
+using Conditional = System.Diagnostics.ConditionalAttribute;
 #endif
 
 namespace Coffee.CompositeCanvasRendererInternal
@@ -41,7 +42,6 @@ namespace Coffee.CompositeCanvasRendererInternal
 #endif
         }
 
-
 #if !ENABLE_COFFEE_LOGGER
         [Conditional(k_DisableSymbol)]
 #endif
@@ -51,7 +51,6 @@ namespace Coffee.CompositeCanvasRendererInternal
             Log_Internal(LogType.Log, tag, message, context ? context : tag as Object);
         }
 
-
 #if !ENABLE_COFFEE_LOGGER
         [Conditional(k_DisableSymbol)]
 #endif
@@ -59,7 +58,6 @@ namespace Coffee.CompositeCanvasRendererInternal
         {
             Log_Internal(LogType.Log, tag, message, context ? context : tag as Object);
         }
-
 
 #if !ENABLE_COFFEE_LOGGER
         [Conditional(k_DisableSymbol)]
@@ -77,7 +75,6 @@ namespace Coffee.CompositeCanvasRendererInternal
             Debug.LogError($"{tag}: {message}", context);
 #endif
         }
-
 
 #if !ENABLE_COFFEE_LOGGER
         [Conditional(k_DisableSymbol)]
@@ -122,7 +119,6 @@ namespace Coffee.CompositeCanvasRendererInternal
 #endif
         }
 
-
 #if !ENABLE_COFFEE_LOGGER
         [Conditional(k_DisableSymbol)]
 #endif
@@ -139,6 +135,9 @@ namespace Coffee.CompositeCanvasRendererInternal
 
                 switch (tag)
                 {
+                    case string name:
+                        sb.Append(name);
+                        break;
                     case Type type:
                         AppendType(sb, type);
                         break;
@@ -164,7 +163,6 @@ namespace Coffee.CompositeCanvasRendererInternal
             }
 #endif
         }
-
 
 #if !ENABLE_COFFEE_LOGGER
         [Conditional(k_DisableSymbol)]
@@ -203,7 +201,6 @@ namespace Coffee.CompositeCanvasRendererInternal
             s_TypeNameCache.Add(type, sb.ToString(start, sb.Length - start));
 #endif
         }
-
 
 #if !ENABLE_COFFEE_LOGGER
         [Conditional(k_DisableSymbol)]

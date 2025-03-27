@@ -10,8 +10,9 @@ namespace Coffee.CompositeCanvasRendererInternal
     /// </summary>
     internal class FastActionBase<T>
     {
-        private static readonly ObjectPool<LinkedListNode<T>> s_NodePool =
-            new ObjectPool<LinkedListNode<T>>(() => new LinkedListNode<T>(default), _ => true, x => x.Value = default);
+        private static readonly InternalObjectPool<LinkedListNode<T>> s_NodePool =
+            new InternalObjectPool<LinkedListNode<T>>(() => new LinkedListNode<T>(default), _ => true,
+                x => x.Value = default);
 
         private readonly LinkedList<T> _delegates = new LinkedList<T>();
 
@@ -20,6 +21,7 @@ namespace Coffee.CompositeCanvasRendererInternal
         /// </summary>
         public void Add(T rhs)
         {
+            if (rhs == null) return;
             Profiler.BeginSample("(COF)[FastAction] Add Action");
             var node = s_NodePool.Rent();
             node.Value = rhs;
@@ -32,6 +34,7 @@ namespace Coffee.CompositeCanvasRendererInternal
         /// </summary>
         public void Remove(T rhs)
         {
+            if (rhs == null) return;
             Profiler.BeginSample("(COF)[FastAction] Remove Action");
             var node = _delegates.Find(rhs);
             if (node != null)
@@ -62,6 +65,11 @@ namespace Coffee.CompositeCanvasRendererInternal
 
                 node = node.Next;
             }
+        }
+
+        public void Clear()
+        {
+            _delegates.Clear();
         }
     }
 

@@ -90,7 +90,7 @@ namespace CompositeCanvas.Effects
         /// </summary>
         private void OnDestroy()
         {
-            ListPool<(float time, Color color)>.Return(ref _gradientCache);
+            InternalListPool<(float time, Color color)>.Return(ref _gradientCache);
         }
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace CompositeCanvas.Effects
             if (_gradientDirty)
             {
                 _gradientDirty = false;
-                _gradientCache = _gradientCache ?? ListPool<(float time, Color color)>.Rent();
+                _gradientCache = _gradientCache ?? InternalListPool<(float time, Color color)>.Rent();
                 gradient.ToList(_gradientCache);
             }
 

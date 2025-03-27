@@ -15,7 +15,7 @@ namespace Coffee.CompositeCanvasRendererInternal
 
 #if UNITY_EDITOR
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        private static void Clear()
+        public static void Clear()
         {
             s_Repository.Clear();
         }
@@ -39,6 +39,33 @@ namespace Coffee.CompositeCanvasRendererInternal
         {
             Profiler.BeginSample("(COF)[MaterialRepository] Get");
             s_Repository.Get(hash, ref material, onCreate);
+            Profiler.EndSample();
+        }
+
+        /// <summary>
+        /// Adds or retrieves a cached material based on the hash.
+        /// </summary>
+        public static void Get(Hash128 hash, ref Material material, string shaderName)
+        {
+            Profiler.BeginSample("(COF)[MaterialRepository] Get");
+            s_Repository.Get(hash, ref material, x => new Material(Shader.Find(x))
+            {
+                hideFlags = HideFlags.DontSave | HideFlags.NotEditable
+            }, shaderName);
+            Profiler.EndSample();
+        }
+
+        /// <summary>
+        /// Adds or retrieves a cached material based on the hash.
+        /// </summary>
+        public static void Get(Hash128 hash, ref Material material, string shaderName, string[] keywords)
+        {
+            Profiler.BeginSample("(COF)[MaterialRepository] Get");
+            s_Repository.Get(hash, ref material, x => new Material(Shader.Find(x.shaderName))
+            {
+                hideFlags = HideFlags.DontSave | HideFlags.NotEditable,
+                shaderKeywords = x.keywords
+            }, (shaderName, keywords));
             Profiler.EndSample();
         }
 

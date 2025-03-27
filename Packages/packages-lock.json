@@ -13,7 +13,7 @@
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "c3a39201fe6ef758efd1649f6364e46d203e3a93"
+      "hash": "3c280f1a8f4db5038b881ff07f270efd9638fa31"
     },
     "com.coffee.nano-monitor": {
       "version": "https://github.com/mob-sakai/Coffee.Internal.git?path=Packages/NanoMonitor",
@@ -22,16 +22,7 @@
       "dependencies": {
         "com.unity.ugui": "1.0.0"
       },
-      "hash": "c3a39201fe6ef758efd1649f6364e46d203e3a93"
-    },
-    "com.coffee.simple-scene-navigator": {
-      "version": "https://github.com/mob-sakai/Coffee.Internal.git?path=Packages/SceneNavigator",
-      "depth": 0,
-      "source": "git",
-      "dependencies": {
-        "com.unity.ugui": "1.0.0"
-      },
-      "hash": "c3a39201fe6ef758efd1649f6364e46d203e3a93"
+      "hash": "3c280f1a8f4db5038b881ff07f270efd9638fa31"
     },
     "com.unity.ext.nunit": {
       "version": "2.0.3",
@@ -41,19 +32,12 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ide.rider": {
-      "version": "3.0.27",
+      "version": "3.0.31",
       "depth": 0,
       "source": "registry",
       "dependencies": {
         "com.unity.ext.nunit": "1.0.6"
       },
-      "url": "https://packages.unity.com"
-    },
-    "com.unity.settings-manager": {
-      "version": "2.0.1",
-      "depth": 1,
-      "source": "registry",
-      "dependencies": {},
       "url": "https://packages.unity.com"
     },
     "com.unity.test-framework": {
@@ -67,18 +51,8 @@
       },
       "url": "https://packages.unity.com"
     },
-    "com.unity.testtools.codecoverage": {
-      "version": "1.2.5",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.test-framework": "1.0.16",
-        "com.unity.settings-manager": "1.0.1"
-      },
-      "url": "https://packages.unity.com"
-    },
     "com.unity.textmeshpro": {
-      "version": "2.1.6",
+      "version": "3.0.6",
       "depth": 0,
       "source": "registry",
       "dependencies": {

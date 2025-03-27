@@ -26,7 +26,7 @@ namespace CompositeCanvas
 
     internal static class MeshExtensions
     {
-        internal static readonly ObjectPool<Mesh> s_MeshPool = new ObjectPool<Mesh>(
+        internal static readonly InternalObjectPool<Mesh> s_MeshPool = new InternalObjectPool<Mesh>(
             () =>
             {
                 var mesh = new Mesh
@@ -59,10 +59,10 @@ namespace CompositeCanvas
         {
             if (!self || !dst) return;
 
-            var vector3List = ListPool<Vector3>.Rent();
-            var vector4List = ListPool<Vector4>.Rent();
-            var color32List = ListPool<Color32>.Rent();
-            var intList = ListPool<int>.Rent();
+            var vector3List = InternalListPool<Vector3>.Rent();
+            var vector4List = InternalListPool<Vector4>.Rent();
+            var color32List = InternalListPool<Color32>.Rent();
+            var intList = InternalListPool<int>.Rent();
 
             dst.Clear(false);
 
@@ -94,10 +94,10 @@ namespace CompositeCanvas
             dst.SetUVs(3, vector4List);
 
             dst.RecalculateBounds();
-            ListPool<Vector3>.Return(ref vector3List);
-            ListPool<Vector4>.Return(ref vector4List);
-            ListPool<Color32>.Return(ref color32List);
-            ListPool<int>.Return(ref intList);
+            InternalListPool<Vector3>.Return(ref vector3List);
+            InternalListPool<Vector4>.Return(ref vector4List);
+            InternalListPool<Color32>.Return(ref color32List);
+            InternalListPool<int>.Return(ref intList);
         }
     }
 
@@ -108,7 +108,7 @@ namespace CompositeCanvas
             Profiler.BeginSample("(CCR)[GradientExtensions] ToList");
             results.Clear();
 
-            var times = ListPool<float>.Rent();
+            var times = InternalListPool<float>.Rent();
             var alphaKeys = self.alphaKeys;
             var colorKeys = self.colorKeys;
             var capacity = alphaKeys.Length + colorKeys.Length + 2;
@@ -148,7 +148,7 @@ namespace CompositeCanvas
                 results.Add((time, self.Evaluate(time)));
             }
 
-            ListPool<float>.Return(ref times);
+            InternalListPool<float>.Return(ref times);
             Profiler.EndSample();
         }
     }

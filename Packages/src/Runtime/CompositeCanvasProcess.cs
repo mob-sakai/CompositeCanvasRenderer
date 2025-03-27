@@ -35,7 +35,7 @@ namespace CompositeCanvas
 
                 textMeshProUGUI.mesh.CopyTo(source.mesh);
 
-                var subMeshes = ListPool<TMP_SubMeshUI>.Rent();
+                var subMeshes = InternalListPool<TMP_SubMeshUI>.Rent();
                 textMeshProUGUI.GetComponentsInChildren(subMeshes);
                 foreach (var subMesh in subMeshes)
                 {
@@ -43,7 +43,7 @@ namespace CompositeCanvas
                     subMesh.mesh.CopyTo(subSource.mesh);
                 }
 
-                ListPool<TMP_SubMeshUI>.Return(ref subMeshes);
+                InternalListPool<TMP_SubMeshUI>.Return(ref subMeshes);
             });
 #endif
         }
@@ -74,7 +74,7 @@ namespace CompositeCanvas
 
             if (graphicMesh && source.mesh && graphicMesh.vertexCount == source.mesh.vertexCount)
             {
-                var colors = ListPool<Color32>.Rent();
+                var colors = InternalListPool<Color32>.Rent();
                 graphicMesh.GetColors(colors);
                 for (var i = 0; i < colors.Count; i++)
                 {
@@ -94,22 +94,22 @@ namespace CompositeCanvas
                 }
 
                 source.mesh.SetColors(colors);
-                ListPool<Color32>.Return(ref colors);
+                InternalListPool<Color32>.Return(ref colors);
 
 #if UNITY_6000_0_OR_NEWER
                 if (source.graphic.canvas.renderMode == RenderMode.ScreenSpaceCamera)
                 {
-                    var uv1s = ListPool<Vector2>.Rent();
+                    var uv1s = InternalListPool<Vector2>.Rent();
                     graphicMesh.GetUVs(0, uv1s);
                     source.mesh.SetUVs(0, uv1s);
-                    ListPool<Vector2>.Return(ref uv1s);
+                    InternalListPool<Vector2>.Return(ref uv1s);
                 }
 #endif
 
                 if (!source.renderer.perspectiveBaking)
                 {
                     var xScale = 1f / source.graphic.canvas.rootCanvas.transform.lossyScale.x;
-                    var uv2s = ListPool<Vector2>.Rent();
+                    var uv2s = InternalListPool<Vector2>.Rent();
                     graphicMesh.GetUVs(1, uv2s);
                     for (var i = 0; i < uv2s.Count; i++)
                     {
@@ -119,7 +119,7 @@ namespace CompositeCanvas
                     }
 
                     source.mesh.SetUVs(1, uv2s);
-                    ListPool<Vector2>.Return(ref uv2s);
+                    InternalListPool<Vector2>.Return(ref uv2s);
                 }
 
                 return;

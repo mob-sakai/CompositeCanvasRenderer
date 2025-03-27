@@ -10,6 +10,9 @@
 
 using UnityEngine;
 using UnityEngine.Profiling;
+#if UNITY_MODULE_VR
+using UnityEngine.XR;
+#endif
 
 namespace Coffee.CompositeCanvasRendererInternal
 {

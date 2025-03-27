@@ -26,8 +26,8 @@ namespace CompositeCanvas
             new[] { "COLOR_MODE_FILL" }
         };
 
-        private static readonly ObjectPool<CommandBuffer> s_CommandBufferPool =
-            new ObjectPool<CommandBuffer>(
+        private static readonly InternalObjectPool<CommandBuffer> s_CommandBufferPool =
+            new InternalObjectPool<CommandBuffer>(
                 () => new CommandBuffer(),
                 x => x != null,
                 x => x.Clear());
@@ -119,7 +119,8 @@ namespace CompositeCanvas
         private Material _renderingMaterial;
         private List<CompositeCanvasSource> _sources;
 
-        private List<CompositeCanvasSource> sources => _sources ?? (_sources = ListPool<CompositeCanvasSource>.Rent());
+        private List<CompositeCanvasSource> sources =>
+            _sources ?? (_sources = InternalListPool<CompositeCanvasSource>.Rent());
 
         /// <summary>
         /// Whether to bake in the current frame.
@@ -320,8 +321,19 @@ namespace CompositeCanvas
                     }
 
                     var rate = (int)downSamplingRate;
+                    var rtSize = RenderTextureRepository.GetPreferSize(Vector2Int.RoundToInt(size), rate);
                     var id = sharingGroupId == 0 ? GetInstanceID() : sharingGroupId;
-                    return RenderTextureRepository.Get(id, size, rate, ref _bakeBuffer, useStencil);
+                    var hash = new Hash128((uint)id, (uint)rtSize.x, (uint)rtSize.y, useStencil ? 1u : 0);
+                    if (!RenderTextureRepository.Valid(hash, _bakeBuffer))
+                    {
+                        RenderTextureRepository.Get(hash, ref _bakeBuffer,
+                            x => new RenderTexture(RenderTextureRepository.GetDescriptor(x.rtSize, x.useStencil))
+                            {
+                                hideFlags = HideFlags.DontSave
+                            }, (rtSize, useStencil));
+                    }
+
+                    return _bakeBuffer;
                 }
 
                 RenderTextureRepository.Release(ref _bakeBuffer);
@@ -517,7 +529,7 @@ namespace CompositeCanvas
         /// </summary>
         protected override void OnDestroy()
         {
-            ListPool<CompositeCanvasSource>.Return(ref _sources);
+            InternalListPool<CompositeCanvasSource>.Return(ref _sources);
             _checkTransformChanged = null;
             _bake = null;
             _cb = null;
@@ -621,7 +633,7 @@ namespace CompositeCanvas
             }
 
             Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] UpdateGeometry > Modify mesh");
-            var components = ListPool<Component>.Rent();
+            var components = InternalListPool<Component>.Rent();
             GetComponents(typeof(IMeshModifier), components);
 
             for (var i = 0; i < components.Count; i++)
@@ -629,7 +641,7 @@ namespace CompositeCanvas
                 ((IMeshModifier)components[i]).ModifyMesh(s_VertexHelper);
             }
 
-            ListPool<Component>.Return(ref components);
+            InternalListPool<Component>.Return(ref components);
             Profiler.EndSample();
 
             // In perspective mode, modify the mesh to be rendered in perspective.
