@@ -1,61 +1,28 @@
-# Required secrets
-#   UNITY_LICENSE: The contents of Unity license file
-name: 🚀 Deploy
+name: 🚀 Deploy with Zip
 
 on:
-  workflow_call:
-    secrets:
-      UNITY_LICENSE:
-        description: The contents of Unity license file
-        required: true
   workflow_dispatch:
+    inputs:
+      zip:
+        description: "The url to the zip file"
+        required: true
 
 jobs:
-  code-coverage:
-    name: 🔍 Code Coverage
-    uses: ./.github/workflows/build_code_coverage.yml
-    secrets:
-      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-    permissions:
-      contents: read
-      checks: write
-
-  demo:
-    name: 🎮 Demo
-    uses: ./.github/workflows/build_demo_player.yml
-    secrets:
-      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-    permissions:
-      contents: read
-
-  doc:
-    name: 📘 Doc
-    uses: ./.github/workflows/build_documentation.yml
-    secrets:
-      UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-    permissions:
-      contents: read
-
   deploy:
     name: 🚀 Deploy
-    needs: [code-coverage, demo, doc]
     runs-on: ubuntu-latest
     permissions:
       pages: write
       id-token: write
     steps:
-      - name: 📦 Download Artifacts To '_site'
-        uses: actions/download-artifact@v3
-        with:
-          path: _site
-
-      - name: 🚚 Move Documentation Files To '_site'
+      - name: 📦 Download zip file To '_site'
         run: |
-          mv _site/Documentation/*  _site/
-          rm -r _site/Documentation
+          curl -L ${{ github.event.inputs.zip }} -o _site.zip
+          unzip _site.zip -d _site
+          find _site -name __MACOSX | xargs rm -rf
 
       - name: 📦 Upload '_site'
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
 
       - name: 🚀 Deploy To GitHub Pages
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
