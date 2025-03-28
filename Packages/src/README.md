@@ -5,7 +5,6 @@
 [![](https://img.shields.io/github/release-date/mob-sakai/CompositeCanvasRenderer.svg)](https://github.com/mob-sakai/CompositeCanvasRenderer/releases)  
 ![](https://img.shields.io/badge/Unity-2019.4+-57b9d3.svg?style=flat&logo=unity)
 [![](https://img.shields.io/github/license/mob-sakai/CompositeCanvasRenderer.svg)](https://github.com/mob-sakai/CompositeCanvasRenderer/blob/main/LICENSE.txt)
-[![](https://mob-sakai.github.io/DocFxForUnity/CodeCoverage/badge_linecoverage.svg)](https://mob-sakai.github.io/TestPkgDev/CodeCoverage/)  
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-orange.svg)](http://makeapullrequest.com)
 [![](https://img.shields.io/github/watchers/mob-sakai/CompositeCanvasRenderer.svg?style=social&label=Watch)](https://github.com/mob-sakai/CompositeCanvasRenderer/subscription)
 [![](https://img.shields.io/twitter/follow/mob_sakai.svg?label=Follow&style=social)](https://twitter.com/intent/follow?screen_name=mob_sakai)

@@ -1,0 +1,98 @@
+# Required secrets
+#   UNITY_LICENSE: The contents of Unity license file
+name: 📘 Build Documentation
+
+env:
+  unityVersion: 2022.3.10f1
+  targetPlatform: StandaloneLinux64
+
+on:
+  workflow_call:
+    secrets:
+      UNITY_LICENSE:
+        description: The contents of Unity license file
+        required: true
+  workflow_dispatch:
+
+jobs:
+  setup:
+    name: 📘 Setup Metadata
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - name: 🚚 Checkout
+        uses: actions/checkout@v4
+
+      - name: ⚙️Setup Build Matrix
+        id: matrix
+        run: |
+          matrix=`jq -c '{ include: .versions }' ./Documentation/metadata.json`
+          echo matrix="${matrix}" | tee -a $GITHUB_OUTPUT $GITHUB_STEP_SUMMARY
+  
+  build:
+    name: 📘 Build Documentation
+    needs: setup
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    strategy:
+      matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
+    steps:
+      - name: 🚚 Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.ref }}
+
+      - name: ⚙️ Setup
+        id: setup
+        run: |
+          # install docfx
+          dotnet tool install -g docfx
+
+          # install DocFxForUnity
+          npx openupm-cli add 'com.coffee.docfx-for-unity@https://github.com/mob-sakai/TestPkgDev.git?path=Packages/src#develop'
+
+      - name: 📥 Cache Library
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-${{ env.unityVersion }}-${{ env.targetPlatform }}-${{ github.sha }}
+          restore-keys: |
+            Library-${{ env.unityVersion }}-${{ env.targetPlatform }}-
+            Library-${{ env.unityVersion }}-
+            Library-
+
+      - name: 🛠️ Run UnityEditor To Setup CsProj
+        uses: game-ci/unity-builder@v4
+        continue-on-error: true # NOTE: Disabling the check for the "Build results" output? https://github.com/game-ci/unity-builder/issues/563
+        timeout-minutes: 30
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+        with:
+          unityVersion: ${{ env.unityVersion }}
+          targetPlatform: ${{ env.targetPlatform }}
+          allowDirtyBuild: true
+          buildMethod: DocFxForUnity.SetupCsProj
+
+      - name: 📘 Build docfx
+        run: |
+          echo "==== Update Configuration ===="
+          jq " \
+          .build.sitemap.baseUrl = \"${{ matrix.url }}\" | \
+          .build.globalMetadata._appTitle = \"${{ matrix.appTitle }}\" | \
+          .build.dest = \"${{ matrix.dest }}\" \
+          " Documentation/docfx.json > Documentation/__docfx.json
+          
+          cat Documentation/__docfx.json
+          
+          echo "==== Build ===="
+          docfx Documentation/__docfx.json
+
+      - name: 📦 Upload Documentation
+        uses: actions/upload-artifact@v4
+        with:
+          name: Documentation
+          path: Documentation/_site
