@@ -440,7 +440,7 @@ namespace CompositeCanvas
             if (graphic is TMP_Text tmpText)
             {
                 _tmpText = tmpText;
-                _tmpText.OnPreRenderText += OnTMPTextChanged;               
+                _tmpText.OnPreRenderText += OnTMPTextChanged;
                 _tmpNeedsUpdate = true;
             }
         }
@@ -452,7 +452,7 @@ namespace CompositeCanvas
                 graphic.SetMaterialDirty();
                 _tmpMaterialChanged = false;
             }
-            
+
             if (_tmpNeedsUpdate && isActiveAndEnabled)
             {
                 _tmpText.ForceMeshUpdate(true, true);
