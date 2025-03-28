@@ -4,6 +4,6 @@
     "com.coffee.nano-monitor": "https://github.com/mob-sakai/Coffee.Internal.git?path=Packages/NanoMonitor",
     "com.unity.ide.rider": "3.0.31",
     "com.unity.test-framework": "1.3.9",
-    "com.unity.textmeshpro": "3.0.6"
+    "com.unity.textmeshpro": "2.1.6"
   }
 }
