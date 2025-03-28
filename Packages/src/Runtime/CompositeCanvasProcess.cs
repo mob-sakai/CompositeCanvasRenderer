@@ -96,7 +96,7 @@ namespace CompositeCanvas
                 source.mesh.SetColors(colors);
                 InternalListPool<Color32>.Return(ref colors);
 
-#if UNITY_6000_0_OR_NEWER
+#if UNITY_2023_2_OR_NEWER
                 if (source.graphic.canvas.renderMode == RenderMode.ScreenSpaceCamera)
                 {
                     var uv1s = InternalListPool<Vector2>.Rent();
