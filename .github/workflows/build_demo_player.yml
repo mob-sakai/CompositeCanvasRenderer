@@ -1,5 +1,7 @@
 # Required secrets
 #   UNITY_LICENSE: The contents of Unity license file
+#   UNITY_EMAIL: Unity user email to login
+#   UNITY_PASSWORD: Unity user password to login
 name: 🎮 Build Demo Player
 
 env:
@@ -9,6 +11,12 @@ env:
 on:
   workflow_call:
     secrets:
+      UNITY_EMAIL:
+        description: Unity user email to login
+        required: true
+      UNITY_PASSWORD:
+        description: Unity user password to login
+        required: true
       UNITY_LICENSE:
         description: The contents of Unity license file
         required: true
@@ -38,6 +46,8 @@ jobs:
         uses: game-ci/unity-builder@v4
         timeout-minutes: 30
         env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           unityVersion: ${{ env.unityVersion }}

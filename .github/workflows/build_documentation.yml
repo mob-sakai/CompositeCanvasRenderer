@@ -1,5 +1,7 @@
 # Required secrets
 #   UNITY_LICENSE: The contents of Unity license file
+#   UNITY_EMAIL: Unity user email to login
+#   UNITY_PASSWORD: Unity user password to login
 name: 📘 Build Documentation
 
 env:
@@ -9,6 +11,12 @@ env:
 on:
   workflow_call:
     secrets:
+      UNITY_EMAIL:
+        description: Unity user email to login
+        required: true
+      UNITY_PASSWORD:
+        description: Unity user password to login
+        required: true
       UNITY_LICENSE:
         description: The contents of Unity license file
         required: true
@@ -70,6 +78,8 @@ jobs:
         continue-on-error: true # NOTE: Disabling the check for the "Build results" output? https://github.com/game-ci/unity-builder/issues/563
         timeout-minutes: 30
         env:
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
           unityVersion: ${{ env.unityVersion }}
@@ -94,5 +104,6 @@ jobs:
       - name: 📦 Upload Documentation
         uses: actions/upload-artifact@v4
         with:
-          name: Documentation
+          name: Documentation_${{ matrix.version }}
           path: Documentation/_site
+          overwrite: true
