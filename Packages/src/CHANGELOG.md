@@ -1,3 +1,26 @@
+# [1.1.0](https://github.com/mob-sakai/CompositeCanvasRenderer/compare/1.0.0...1.1.0) (2025-03-28)
+
+
+### Bug Fixes
+
+* Corrected Scripting Define Symbols range. ([98ec0f0](https://github.com/mob-sakai/CompositeCanvasRenderer/commit/98ec0f0ceab791ce28d5221bae010435c364546d))
+* Fixed a problem that forced source graphics to be displayed when changing the material of tmpro. ([949f15f](https://github.com/mob-sakai/CompositeCanvasRenderer/commit/949f15f12974c2df114658581724e702912ea88c))
+* Fixed an issue where setting “Show Source Graphics” to true in Inspector would hide the SubMesh in TextMeshPro. ([e814ce1](https://github.com/mob-sakai/CompositeCanvasRenderer/commit/e814ce1de169eec28a7ed6037f8746fe0aa65a4a))
+* Fixed an issue where TextMeshPro was not baked at the time the CompositeCanvasRenderer was attached. ([4c87e02](https://github.com/mob-sakai/CompositeCanvasRenderer/commit/4c87e028403a1b8b8aa6ddcf35f1f57164afc4f7))
+* Fixed an issue where the Bake buffer was not updated and remained in the previous state when there was no longer any active gameObject in the CompositeCanvasRenderer's child elements. ([0246382](https://github.com/mob-sakai/CompositeCanvasRenderer/commit/02463828a6e41195b20315a96ecd9e536af95c91))
+* Fixed an issue with TextMeshPro not baking properly in Unity6. ([b88de5f](https://github.com/mob-sakai/CompositeCanvasRenderer/commit/b88de5f46e8c7309e92f730354c81716bb9a4678))
+* m_UpscalingBuffer is ignored ([e73bac3](https://github.com/mob-sakai/CompositeCanvasRenderer/commit/e73bac380f5679284b0cd00cacbbdfff5f51a5bd))
+* prioritize the use of PreloadedProjectSettings if present in the project. ([7a2b449](https://github.com/mob-sakai/CompositeCanvasRenderer/commit/7a2b449084f06c78b49720ade618287f87f074c2))
+* remove unused component ([eeec08a](https://github.com/mob-sakai/CompositeCanvasRenderer/commit/eeec08ad1193f4d92847553e331697e249645172))
+* support Unity 2023.2 ([e50c60f](https://github.com/mob-sakai/CompositeCanvasRenderer/commit/e50c60fb575926fe2692a509b3f391cf064de0bd))
+* support Unity 6 ([7d2f3e9](https://github.com/mob-sakai/CompositeCanvasRenderer/commit/7d2f3e9a5f93ac671f753a6426a522fd746c3f9b))
+
+
+### Features
+
+* support linear space rendering ([96d96c9](https://github.com/mob-sakai/CompositeCanvasRenderer/commit/96d96c9ab0a646c206838434749d3a62b738bcd9))
+* support z-buffer on bake ([2e8ba64](https://github.com/mob-sakai/CompositeCanvasRenderer/commit/2e8ba6477ea293c7de7e827919110d2f71ae9f50))
+
 # 1.0.0 (2023-12-06)
 
 
