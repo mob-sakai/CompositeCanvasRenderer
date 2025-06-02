@@ -13,10 +13,6 @@ namespace Coffee.CompositeCanvasRendererInternal
     {
         private static readonly ObjectRepository<RenderTexture> s_Repository = new ObjectRepository<RenderTexture>();
 
-        private static readonly GraphicsFormat s_GraphicsFormat = GraphicsFormatUtility.GetGraphicsFormat(
-            RenderTextureFormat.ARGB32,
-            RenderTextureReadWrite.Default);
-
 #if UNITY_2021_3_OR_NEWER
         private static readonly GraphicsFormat s_StencilFormat = GraphicsFormatUtility.GetDepthStencilFormat(0, 8);
 #endif
@@ -55,13 +51,14 @@ namespace Coffee.CompositeCanvasRendererInternal
         /// <summary>
         /// Adds or retrieves a cached RenderTexture based on the hash.
         /// </summary>
-        public static RenderTextureDescriptor GetDescriptor(Vector2Int size, bool useStencil)
+        public static RenderTextureDescriptor GetDescriptor(Vector2Int size, bool useStencil, RenderTextureFormat format)
         {
             Profiler.BeginSample("(COF)[RTRepository] GetDescriptor");
+            GraphicsFormat graphicsFormat = GraphicsFormatUtility.GetGraphicsFormat(format, RenderTextureReadWrite.Default);
             var rtd = new RenderTextureDescriptor(
                 Mathf.Max(8, size.x),
                 Mathf.Max(8, size.y),
-                s_GraphicsFormat,
+                graphicsFormat,
                 useStencil ? 24 : 0)
             {
                 sRGB = QualitySettings.activeColorSpace == ColorSpace.Linear,
