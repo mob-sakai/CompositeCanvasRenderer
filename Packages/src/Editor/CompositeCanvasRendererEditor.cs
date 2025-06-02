@@ -39,6 +39,7 @@ namespace CompositeCanvas
         private SerializedProperty _srcBlendMode;
         private SerializedProperty _useCanvasScaler;
         private SerializedProperty _useStencil;
+        private SerializedProperty _renderTextureFormat;
         private SerializedProperty _viewType;
 
         protected override void OnEnable()
@@ -54,6 +55,7 @@ namespace CompositeCanvas
             _extents = serializedObject.FindProperty("m_Extents");
             _culling = serializedObject.FindProperty("m_Culling");
             _useStencil = serializedObject.FindProperty("m_UseStencil");
+            _renderTextureFormat = serializedObject.FindProperty("m_RenderTextureFormat");
             _bakingTrigger = serializedObject.FindProperty("m_BakingTrigger");
             _viewType = serializedObject.FindProperty("m_ViewType");
             _colorMode = serializedObject.FindProperty("m_ColorMode");
@@ -87,6 +89,7 @@ namespace CompositeCanvas
             EditorGUILayout.PropertyField(_useCanvasScaler);
             EditorGUILayout.PropertyField(_extents);
             EditorGUILayout.PropertyField(_useStencil);
+            EditorGUILayout.PropertyField(_renderTextureFormat);
             EditorGUILayout.PropertyField(_sharingGroupId);
             ShowPrimaryRenderer();
 

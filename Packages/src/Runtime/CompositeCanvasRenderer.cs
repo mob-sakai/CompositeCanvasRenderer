@@ -74,6 +74,13 @@ namespace CompositeCanvas
         private bool m_UseStencil = true;
 
         [SerializeField]
+        [Tooltip("Render texture format for baking.\n" +
+                 "ARGB32: Standard format with good quality.\n" +
+                 "RGB24: Smaller memory usage without alpha.\n" +
+                 "ARGBHalf: High precision for HDR.")]
+        private RenderTextureFormat m_RenderTextureFormat = RenderTextureFormat.ARGB32;
+
+        [SerializeField]
         [Header("Baking")]
         [Tooltip("Baking trigger mode.\n" +
                  "Automatic: Baking is performed automatically when the transform of the source graphic changes.\n" +
@@ -323,14 +330,17 @@ namespace CompositeCanvas
                     var rate = (int)downSamplingRate;
                     var rtSize = RenderTextureRepository.GetPreferSize(Vector2Int.RoundToInt(size), rate);
                     var id = sharingGroupId == 0 ? GetInstanceID() : sharingGroupId;
-                    var hash = new Hash128((uint)id, (uint)rtSize.x, (uint)rtSize.y, useStencil ? 1u : 0);
+
+                    // Combine useStencil flag (upper 16 bits) and renderTextureFormat (lower 16 bits) into single uint
+                    var stencilAndFormatHash = ((uint)(useStencil ? 1 : 0) << 16) | (uint)renderTextureFormat;
+                    var hash = new Hash128((uint)id, (uint)rtSize.x, (uint)rtSize.y, stencilAndFormatHash);
                     if (!RenderTextureRepository.Valid(hash, _bakeBuffer))
                     {
                         RenderTextureRepository.Get(hash, ref _bakeBuffer,
-                            x => new RenderTexture(RenderTextureRepository.GetDescriptor(x.rtSize, x.useStencil))
+                            x => new RenderTexture(RenderTextureRepository.GetDescriptor(x.rtSize, x.useStencil, x.renderTextureFormat))
                             {
                                 hideFlags = HideFlags.DontSave
-                            }, (rtSize, useStencil));
+                            }, (rtSize, useStencil, renderTextureFormat));
                     }
 
                     return _bakeBuffer;
@@ -366,6 +376,20 @@ namespace CompositeCanvas
             {
                 if (m_UseStencil == value) return;
                 m_UseStencil = value;
+                SetDirty();
+            }
+        }
+
+        /// <summary>
+        /// Render texture format for baking.
+        /// </summary>
+        public RenderTextureFormat renderTextureFormat
+        {
+            get => m_RenderTextureFormat;
+            set
+            {
+                if (m_RenderTextureFormat == value) return;
+                m_RenderTextureFormat = value;
                 SetDirty();
             }
         }
