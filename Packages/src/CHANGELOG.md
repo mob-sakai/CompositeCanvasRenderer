@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/mob-sakai/CompositeCanvasRenderer/compare/1.2.0...1.3.0) (2025-06-05)
+
+
+### Features
+
+* set detailed name for identification in Memory Profiler and Frame Debugger ([840820c](https://github.com/mob-sakai/CompositeCanvasRenderer/commit/840820c31e163241def1ac6d39ed8ac72beac86a)), closes [#16](https://github.com/mob-sakai/CompositeCanvasRenderer/issues/16)
+
 # [1.2.0](https://github.com/mob-sakai/CompositeCanvasRenderer/compare/1.1.0...1.2.0) (2025-06-03)
 
 
