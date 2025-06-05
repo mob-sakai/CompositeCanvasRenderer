@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/mob-sakai/CompositeCanvasRenderer/compare/1.1.0...1.2.0) (2025-06-03)
+
+
+### Features
+
+* add `RenderTextureFormat` option to use HDR color etc. ([31dbf4b](https://github.com/mob-sakai/CompositeCanvasRenderer/commit/31dbf4b9c4c307c97b557c812deb0b5518ae3da0))
+
 # [1.1.0](https://github.com/mob-sakai/CompositeCanvasRenderer/compare/1.0.0...1.1.0) (2025-03-28)
 
 
