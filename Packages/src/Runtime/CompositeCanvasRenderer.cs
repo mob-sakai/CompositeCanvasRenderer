@@ -16,6 +16,7 @@ namespace CompositeCanvas
     /// CompositeCanvasRenderer bakes multiple source graphics into a bake-buffer (RenderTexture) and renders it.
     /// </summary>
     [RequireComponent(typeof(CanvasRenderer))]
+    [Icon("Packages/com.coffee.composite-canvas-renderer/Editor/CompositeCanvasRendererIcon.png")]
     public class CompositeCanvasRenderer : MaskableGraphic
     {
         private static readonly string[][] s_ColorModeKeywords =

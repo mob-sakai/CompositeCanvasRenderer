@@ -1,9 +1,11 @@
+using Coffee.CompositeCanvasRendererInternal;
 using CompositeCanvas.Enums;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace CompositeCanvas.Effects
 {
+    [Icon("Packages/com.coffee.composite-canvas-renderer/Editor/CompositeCanvasRendererIcon.png")]
     public class CompositeCanvasOutline : CompositeCanvasShadow
     {
         [SerializeField]

@@ -17,6 +17,7 @@ namespace CompositeCanvas
     [ExecuteAlways]
     [DisallowMultipleComponent]
     [AddComponentMenu("")]
+    [Icon("Packages/com.coffee.composite-canvas-renderer/Editor/CompositeCanvasRendererIcon.png")]
     public class CompositeCanvasSource : UIBehaviour, IMeshModifier, IMaterialModifier
     {
         private static readonly InternalObjectPool<MaterialPropertyBlock> s_MaterialPropertyBlockPool =

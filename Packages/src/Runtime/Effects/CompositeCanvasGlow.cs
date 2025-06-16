@@ -1,8 +1,10 @@
+using Coffee.CompositeCanvasRendererInternal;
 using CompositeCanvas.Enums;
 using UnityEngine;
 
 namespace CompositeCanvas.Effects
 {
+    [Icon("Packages/com.coffee.composite-canvas-renderer/Editor/CompositeCanvasRendererIcon.png")]
     public class CompositeCanvasGlow : CompositeCanvasOutline
     {
         [Header("Inner")]

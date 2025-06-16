@@ -5,6 +5,7 @@ using UnityEngine.Rendering;
 
 namespace CompositeCanvas.Effects
 {
+    [Icon("Packages/com.coffee.composite-canvas-renderer/Editor/CompositeCanvasRendererIcon.png")]
     public class CompositeCanvasBlur : CompositeCanvasEffectBase
     {
         [Header("Blur Settings")]

@@ -1,3 +1,4 @@
+using Coffee.CompositeCanvasRendererInternal;
 using CompositeCanvas.Enums;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -5,6 +6,7 @@ using UnityEngine.UI;
 
 namespace CompositeCanvas.Effects
 {
+    [Icon("Packages/com.coffee.composite-canvas-renderer/Editor/CompositeCanvasRendererIcon.png")]
     public class CompositeCanvasShadow : CompositeCanvasBlur, IMeshModifier
     {
         [Header("Effect Settings")]

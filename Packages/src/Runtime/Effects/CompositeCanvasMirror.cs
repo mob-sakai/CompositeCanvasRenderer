@@ -7,6 +7,7 @@ using UnityEngine.UI;
 
 namespace CompositeCanvas.Effects
 {
+    [Icon("Packages/com.coffee.composite-canvas-renderer/Editor/CompositeCanvasRendererIcon.png")]
     public class CompositeCanvasMirror : CompositeCanvasBlur, IMeshModifier
     {
         [SerializeField]
