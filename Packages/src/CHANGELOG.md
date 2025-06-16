@@ -1,3 +1,11 @@
+## [1.3.1](https://github.com/mob-sakai/CompositeCanvasRenderer/compare/1.3.0...1.3.1) (2025-06-16)
+
+
+### Bug Fixes
+
+* gizmo icons in scene view are annoying ([65e947c](https://github.com/mob-sakai/CompositeCanvasRenderer/commit/65e947cb4d5e2f87be96c503531649317b2259b7))
+* world camera rendering is incorrect when using TextMeshPro in Unity 2023.2+ (or v3.2.0-pre.0+) ([7e06c62](https://github.com/mob-sakai/CompositeCanvasRenderer/commit/7e06c6275abb672e58363e3019069874759ac54e)), closes [#18](https://github.com/mob-sakai/CompositeCanvasRenderer/issues/18)
+
 # [1.3.0](https://github.com/mob-sakai/CompositeCanvasRenderer/compare/1.2.0...1.3.0) (2025-06-05)
 
 
