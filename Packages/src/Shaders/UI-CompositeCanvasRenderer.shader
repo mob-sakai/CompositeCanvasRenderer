@@ -199,7 +199,8 @@ Shader "UI/CompositeCanvasRenderer"
                 color *= tex2D(_MaskTex, maskUv + _Time.y * _MaskSpeed).a;
                 #endif
 
-                return applyColor(color, IN.color);
+                half4 colorFactor = half4(IN.color.rgb, IN.color.a * color.a);
+                return applyColor(color, colorFactor);
             }
             ENDCG
         }
