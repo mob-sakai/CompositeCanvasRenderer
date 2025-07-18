@@ -19,6 +19,11 @@ namespace CompositeCanvas
         [SerializeField]
         private bool m_EnableCullingInEditMode = true;
 
+        [Header("CompositeCanvasRenderer Shader Override")]
+        [SerializeField]
+        [Tooltip("Alternative shader to use instead of 'UI/CompositeCanvasRenderer'.\nLeave empty to use the default shader.")]
+        private Shader m_CustomShader;
+
 #if UNITY_EDITOR
         [Header("Shader")]
         [SerializeField]
@@ -57,6 +62,12 @@ namespace CompositeCanvas
                     default: return 1f / (1 << (int)instance.m_TransformSensitivity);
                 }
             }
+        }
+
+        public static Shader customShader
+        {
+            get => instance.m_CustomShader;
+            set => instance.m_CustomShader = value;
         }
 
 #if UNITY_EDITOR
