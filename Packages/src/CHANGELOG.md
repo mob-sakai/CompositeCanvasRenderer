@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/mob-sakai/CompositeCanvasRenderer/compare/1.3.1...1.4.0) (2025-08-04)
+
+
+### Features
+
+* add support for RectMask2D ([eff16fe](https://github.com/mob-sakai/CompositeCanvasRenderer/commit/eff16fe17d58a2aed405f80ba3520801cd0256b5))
+
 ## [1.3.1](https://github.com/mob-sakai/CompositeCanvasRenderer/compare/1.3.0...1.3.1) (2025-06-16)
 
 
