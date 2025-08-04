@@ -3,7 +3,7 @@
   "displayName": "Composite Canvas Renderer",
   "description": "",
   "version": "1.4.0",
-  "unity": "2019.4",
+  "unity": "2022.3",
   "license": "MIT",
   "documentationUrl": "https://mob-sakai.github.io/CompositeCanvasRenderer",
   "licensesUrl": "https://mob-sakai.github.io/CompositeCanvasRenderer/license/LICENSE.html",
