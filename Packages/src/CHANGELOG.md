@@ -1,3 +1,16 @@
+# [2.0.0](https://github.com/mob-sakai/CompositeCanvasRenderer/compare/1.4.0...2.0.0) (2025-08-07)
+
+
+### Features
+
+* update the minimum supported version to 2022.3 (LTS) ([e8a21b5](https://github.com/mob-sakai/CompositeCanvasRenderer/commit/e8a21b5cae4fb45f6c4d999ab993357becf6aeba)), closes [#23](https://github.com/mob-sakai/CompositeCanvasRenderer/issues/23)
+
+
+### BREAKING CHANGES
+
+* To simplify testing and maintenance of this project, the minimum supported version will be updated.
+v1.x will be changed to a maintenance stream and hotfixes may be backported.
+
 # [1.4.0](https://github.com/mob-sakai/CompositeCanvasRenderer/compare/1.3.1...1.4.0) (2025-08-04)
 
 
