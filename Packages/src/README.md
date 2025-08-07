@@ -1,13 +1,16 @@
 # <img alt="logo" height="26" src="https://github.com/mob-sakai/mob-sakai/assets/12690315/474143fa-ed3e-49bc-a0bb-d01048c5c493"/> Composite Canvas Renderer
 
 [![](https://img.shields.io/npm/v/com.coffee.composite-canvas-renderer?label=openupm&registry_uri=https://package.openupm.com)](https://openupm.com/packages/com.coffee.composite-canvas-renderer/)
-[![](https://img.shields.io/github/v/release/mob-sakai/CompositeCanvasRenderer?include_prereleases)](https://github.com/mob-sakai/CompositeCanvasRenderer/releases)
+[![](https://img.shields.io/github/package-json/v/mob-sakai/CompositeCanvasRenderer/main?filename=Packages/src/package.json)](https://github.com/mob-sakai/CompositeCanvasRenderer/tree/main)
+[![](https://img.shields.io/github/package-json/v/mob-sakai/CompositeCanvasRenderer/v1.x?filename=Packages/src/package.json)](https://github.com/mob-sakai/CompositeCanvasRenderer/tree/v1.x)
 [![](https://img.shields.io/github/release-date/mob-sakai/CompositeCanvasRenderer.svg)](https://github.com/mob-sakai/CompositeCanvasRenderer/releases)  
-![](https://img.shields.io/badge/Unity-2019.4+-57b9d3.svg?style=flat&logo=unity)
+![](https://img.shields.io/badge/Unity-2022.3+-57b9d3.svg?style=flat&logo=unity)
 [![](https://img.shields.io/github/license/mob-sakai/CompositeCanvasRenderer.svg)](https://github.com/mob-sakai/CompositeCanvasRenderer/blob/main/LICENSE.txt)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-orange.svg)](http://makeapullrequest.com)
 [![](https://img.shields.io/github/watchers/mob-sakai/CompositeCanvasRenderer.svg?style=social&label=Watch)](https://github.com/mob-sakai/CompositeCanvasRenderer/subscription)
 [![](https://img.shields.io/twitter/follow/mob_sakai.svg?label=Follow&style=social)](https://twitter.com/intent/follow?screen_name=mob_sakai)
+
+:warning: NOTE: If you are using **Unity 2022.2 or earlier**, please use the [v1.x](https://github.com/mob-sakai/CompositeCanvasRenderer/tree/v1.x) version.
 
 << [📘 Documentation](#-documentation) | [🎮 Demo](#-demo) | [⚙ Installation](#-installation) | [🚀 Usage](#-usage) | [🤝 Contributing](#-contributing) >>
 
@@ -82,13 +85,13 @@ Check out the detailed documentation to learn more about the project and its fea
 
 [WebGL Demo](http://mob-sakai.github.io/CompositeCanvasRenderer/Demo/)
 
-![]()
-
 <br><br>
 
 ## ⚙ Installation
 
-_This package requires **Unity 2019.4 or later**._
+:warning: NOTE: If you are using **Unity 2022.2 or earlier**, please use the [v1.x](https://github.com/mob-sakai/CompositeCanvasRenderer/tree/v1.x).
+
+_This package requires **Unity 2022.3 or later**._
 
 #### Install via OpenUPM
 
@@ -116,7 +119,7 @@ Navigate to your project's Packages folder and open the `manifest.json` file. Th
 
 To update the package, change suffix `#{version}` to the target version.
 
-* e.g. `"com.coffee.composite-canvas-renderer": "https://github.com/mob-sakai/CompositeCanvasRenderer.git?path=Packages/src#1.0.0",`
+* e.g. `"com.coffee.composite-canvas-renderer": "https://github.com/mob-sakai/CompositeCanvasRenderer.git?path=Packages/src#2.0.0",`
 
 <br><br>
 
