@@ -744,12 +744,26 @@ namespace CompositeCanvas
         }
 
         /// <summary>
+        /// Get shader to use based on project settings.
+        /// </summary>
+        private static Shader GetShaderToUse()
+        {
+            var customShader = CompositeCanvasRendererProjectSettings.customShader;
+            if (customShader != null)
+            {
+                return customShader;
+            }
+            
+            return Shader.Find("UI/CompositeCanvasRenderer");
+        }
+
+        /// <summary>
         /// Create a material.
         /// </summary>
         public static Material CreateMaterial(ColorMode colorMode, BlendMode srcBlendMode, BlendMode dstBlendMode)
         {
             Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] CreateMaterial");
-            var mat = new Material(Shader.Find("UI/CompositeCanvasRenderer"))
+            var mat = new Material(GetShaderToUse())
             {
                 hideFlags = HideFlags.DontSave | HideFlags.NotEditable,
                 shaderKeywords = s_ColorModeKeywords[(int)colorMode]
