@@ -319,6 +319,7 @@ namespace CompositeCanvas.Effects
                 }
             }
 
+            // Copy to result if last pass rendered into temporary buffer
             if (rtSrc != result)
                 cb.CopyTexture(ShaderPropertyIds.tmpRt, result);
 
@@ -344,7 +345,7 @@ namespace CompositeCanvas.Effects
 
             for (var i = 0; i < m_Iteration; i++)
             {
-                // Vertical blur
+                // Directional blur
                 cb.SetGlobalVector(ShaderPropertyIds.blur, new Vector4(blurValueX, blurValueY));
 
                 if (i == iteration - 1 && useCutoffPass)
@@ -362,6 +363,7 @@ namespace CompositeCanvas.Effects
                 }
             }
 
+            // Copy to result if last pass rendered into temporary buffer
             if (rtSrc != result)
                 cb.CopyTexture(ShaderPropertyIds.tmpRt, result);
 
