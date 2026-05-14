@@ -1,3 +1,10 @@
+## [2.0.1](https://github.com/mob-sakai/CompositeCanvasRenderer/compare/2.0.0...2.0.1) (2026-05-14)
+
+
+### Bug Fixes
+
+* not displayed when `transform.scale.z=0` ([0786dfe](https://github.com/mob-sakai/CompositeCanvasRenderer/commit/0786dfe81fbaad76c6606bf9b1399039d6f83233))
+
 # [2.0.0](https://github.com/mob-sakai/CompositeCanvasRenderer/compare/1.4.0...2.0.0) (2025-08-07)
 
 
