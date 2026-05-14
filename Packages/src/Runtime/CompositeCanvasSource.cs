@@ -397,7 +397,7 @@ namespace CompositeCanvas
             }
 
             // Cull if there is no graphic or the scale is too small.
-            if (!renderer || !_graphic || !transform.lossyScale.IsVisible())
+            if (!renderer || !_graphic || !transform.lossyScale.IsVisible2D())
             {
                 result = false;
             }

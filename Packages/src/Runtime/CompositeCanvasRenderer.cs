@@ -341,12 +341,12 @@ namespace CompositeCanvas
                             x => {
                                 var rt = new RenderTexture(RenderTextureRepository.GetDescriptor(x.rtSize, x.useStencil, x.renderTextureFormat));
                                 rt.hideFlags = HideFlags.DontSave;
-                                
+
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
                                 // Set detailed name for identification in Memory Profiler and Frame Debugger
                                 rt.name = $"[CCR] {gameObject.name} {x.rtSize.x}x{x.rtSize.y} {x.renderTextureFormat}";
 #endif
-                                
+
                                 return rt;
                             }, (rtSize, useStencil, renderTextureFormat));
                     }
@@ -879,7 +879,7 @@ namespace CompositeCanvas
             }
 
             // Cull if there is no graphic or the scale is too small.
-            if (!transform.lossyScale.IsVisible())
+            if (!transform.lossyScale.IsVisible2D())
             {
                 result = false;
             }
@@ -940,12 +940,12 @@ namespace CompositeCanvas
             {
                 Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] Bake > Rent cb");
                 _cb = s_CommandBufferPool.Rent();
-                
+
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
                 // Set detailed name for identification in Memory Profiler and Frame Debugger
                 _cb.name = $"[CCR] Bake: {gameObject.name}";
 #endif
-                
+
                 Profiler.EndSample();
             }
 
