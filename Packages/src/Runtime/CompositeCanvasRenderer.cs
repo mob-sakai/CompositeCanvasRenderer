@@ -330,7 +330,7 @@ namespace CompositeCanvas
 
                     var rate = (int)downSamplingRate;
                     var rtSize = RenderTextureRepository.GetPreferSize(Vector2Int.RoundToInt(size), rate);
-                    var id = sharingGroupId == 0 ? GetInstanceID() : sharingGroupId;
+                    var id = sharingGroupId == 0 ? GetHashCode() : sharingGroupId;
 
                     // Combine useStencil flag (upper 16 bits) and renderTextureFormat (lower 16 bits) into single uint
                     var stencilAndFormatHash = ((uint)(useStencil ? 1 : 0) << 16) | (uint)renderTextureFormat;
@@ -772,11 +772,11 @@ namespace CompositeCanvas
             if (!force && m_BakingTrigger != BakingTrigger.Automatic)
             {
                 Logging.LogIf(!isDirty, this,
-                    $"<color=orange>! SetDirty {GetInstanceID()} is canceled due to non automatic mode).</color>");
+                    $"<color=orange>! SetDirty {GetHashCode()} is canceled due to non automatic mode).</color>");
                 return;
             }
 
-            Logging.LogIf(!isDirty, this, $"! SetDirty {GetInstanceID()}");
+            Logging.LogIf(!isDirty, this, $"! SetDirty {GetHashCode()}");
             isDirty = true;
         }
 
@@ -854,7 +854,7 @@ namespace CompositeCanvas
 
             sources.Add(canvasSource);
             SetDirty(false);
-            Logging.Log(this, $"Register #{sources.Count}: {canvasSource} {canvasSource.GetInstanceID()}");
+            Logging.Log(this, $"Register #{sources.Count}: {canvasSource} {canvasSource.GetHashCode()}");
         }
 
         /// <summary>
@@ -866,7 +866,7 @@ namespace CompositeCanvas
 
             sources.Remove(canvasSource);
             SetDirty(false);
-            Logging.Log(this, $"Unregister #{sources.Count}: {canvasSource} {canvasSource.GetInstanceID()}");
+            Logging.Log(this, $"Unregister #{sources.Count}: {canvasSource} {canvasSource.GetHashCode()}");
         }
 
         private bool IsInCanvasViewport()
