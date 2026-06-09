@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using UnityEngine.UI;
 using Coffee.CompositeCanvasRendererInternal;
+using Logger = Coffee.CompositeCanvasRendererInternal.Logger;
 #if TMP_ENABLE
 using TMPro;
 #endif
@@ -169,12 +170,12 @@ namespace CompositeCanvas
                 PreBake();
 
                 renderer.cb.DrawMesh(source.mesh, matrix, material, 0, 0, source.mpb);
-                Logging.Log(this,
+                Logger.Log(this,
                     $"<color=orange> >>>> '{source.name}' will render to bake-buffer '{renderer.name}'.</color>");
             }
             catch (Exception e)
             {
-                Logging.LogError(this, e);
+                Logger.LogError(this, e);
             }
             finally
             {

@@ -9,6 +9,7 @@ using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+using Logger = Coffee.CompositeCanvasRendererInternal.Logger;
 
 namespace CompositeCanvas
 {
@@ -771,12 +772,12 @@ namespace CompositeCanvas
             if (isDirty || !isActiveAndEnabled) return;
             if (!force && m_BakingTrigger != BakingTrigger.Automatic)
             {
-                Logging.LogIf(!isDirty, this,
+                Logger.LogIf(!isDirty, this,
                     $"<color=orange>! SetDirty {GetHashCode()} is canceled due to non automatic mode).</color>");
                 return;
             }
 
-            Logging.LogIf(!isDirty, this, $"! SetDirty {GetHashCode()}");
+            Logger.LogIf(!isDirty, this, $"! SetDirty {GetHashCode()}");
             isDirty = true;
         }
 
@@ -854,7 +855,7 @@ namespace CompositeCanvas
 
             sources.Add(canvasSource);
             SetDirty(false);
-            Logging.Log(this, $"Register #{sources.Count}: {canvasSource} {canvasSource.GetHashCode()}");
+            Logger.Log(this, $"Register #{sources.Count}: {canvasSource} {canvasSource.GetHashCode()}");
         }
 
         /// <summary>
@@ -866,7 +867,7 @@ namespace CompositeCanvas
 
             sources.Remove(canvasSource);
             SetDirty(false);
-            Logging.Log(this, $"Unregister #{sources.Count}: {canvasSource} {canvasSource.GetHashCode()}");
+            Logger.Log(this, $"Unregister #{sources.Count}: {canvasSource} {canvasSource.GetHashCode()}");
         }
 
         private bool IsInCanvasViewport()
@@ -922,7 +923,7 @@ namespace CompositeCanvas
             isDirty = false;
             if (!canvas)
             {
-                Logging.Log(this, "<color=orange> Baking is canceled due to not in canvas.</color>");
+                Logger.Log(this, "<color=orange> Baking is canceled due to not in canvas.</color>");
                 return;
             }
 
@@ -1022,7 +1023,7 @@ namespace CompositeCanvas
             {
                 Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] Bake > Execute command buffer");
                 Graphics.ExecuteCommandBuffer(_cb);
-                Logging.Log(this, $"<color=orange> >>>> RT '{mainTexture.name}' will render.</color>");
+                Logger.Log(this, $"<color=orange> >>>> RT '{mainTexture.name}' will render.</color>");
                 Profiler.EndSample();
             }
 

@@ -5,6 +5,7 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.Profiling;
 using UnityEngine.UI;
+using Logger = Coffee.CompositeCanvasRendererInternal.Logger;
 #if TMP_ENABLE
 using TMPro;
 #endif
@@ -290,7 +291,7 @@ namespace CompositeCanvas
             }
 
             Profiler.EndSample();
-            Logging.Log(this, " >>>> Graphic mesh is modified.");
+            Logger.Log(this, " >>>> Graphic mesh is modified.");
 
             SetRendererDirty();
         }
@@ -319,7 +320,7 @@ namespace CompositeCanvas
             }
 
             Profiler.EndSample();
-            Logging.Log(this, " >>>> Graphic mesh is modified.");
+            Logger.Log(this, " >>>> Graphic mesh is modified.");
 
             SetRendererDirty();
         }
