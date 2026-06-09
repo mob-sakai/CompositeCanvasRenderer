@@ -17,6 +17,7 @@ namespace CompositeCanvas.Effects
             compositeCanvasRenderer.showSourceGraphics = true;
             compositeCanvasRenderer.color = new Color(1, 1, 1, 0.5f);
             blur = 1f;
+            blurMode = BlurMode.Uniform;
             iteration = 10;
             power = 2f;
             multiplier = 1.5f;
