@@ -2,7 +2,7 @@
   "name": "com.coffee.composite-canvas-renderer",
   "displayName": "Composite Canvas Renderer",
   "description": "",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "unity": "2022.3",
   "license": "MIT",
   "documentationUrl": "https://mob-sakai.github.io/CompositeCanvasRenderer",

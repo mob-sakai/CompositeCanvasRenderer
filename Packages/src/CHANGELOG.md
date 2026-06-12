@@ -1,3 +1,10 @@
+## [2.0.2](https://github.com/mob-sakai/CompositeCanvasRenderer/compare/2.0.1...2.0.2) (2026-06-12)
+
+
+### Bug Fixes
+
+* support Unity 6.5 ([08eb1ba](https://github.com/mob-sakai/CompositeCanvasRenderer/commit/08eb1baffd3d4323dd601b467949cc8b1cc8bc60))
+
 ## [2.0.1](https://github.com/mob-sakai/CompositeCanvasRenderer/compare/2.0.0...2.0.1) (2026-05-14)
 
 
