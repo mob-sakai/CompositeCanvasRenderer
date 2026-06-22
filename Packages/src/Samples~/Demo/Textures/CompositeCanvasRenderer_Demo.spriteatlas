@@ -31,6 +31,7 @@ SpriteAtlas:
       m_CrunchedCompression: 0
       m_AllowsAlphaSplitting: 0
       m_Overridden: 0
+      m_IgnorePlatformSupport: 0
       m_AndroidETC2FallbackOverride: 0
       m_ForceMaximumCompressionQuality_BC6H_BC7: 1
     packingSettings:
@@ -40,10 +41,18 @@ SpriteAtlas:
       allowAlphaSplitting: 0
       enableRotation: 0
       enableTightPacking: 0
+      enableAlphaDilation: 0
+    secondaryTextureSettings: {}
     variantMultiplier: 1
     packables:
     - {fileID: 102900000, guid: 3d658442ee78046f9a241f3ecf02634a, type: 3}
     bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+    packedSpriteRenderDataKeys:
+    - 3ad57d818b4f448a190e524e494130b0: 21300000
+    - a78208a36b30c404691c2a7719c67300: 21300000
+    - e5a8e8d861f62472d8f99611cf9d12c5: 21300000
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
   - {fileID: 21300000, guid: 3ad57d818b4f448a190e524e494130b0, type: 3}
@@ -53,5 +62,6 @@ SpriteAtlas:
   - Light_Frame
   - CompositeCanvasRenderer_Demo_Arrow
   - Unity-chan
+  m_RenderDataMap: {}
   m_Tag: CompositeCanvasRenderer_Demo
   m_IsVariant: 0
