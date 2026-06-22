@@ -1,4 +1,6 @@
+using System;
 using Coffee.CompositeCanvasRendererInternal;
+using CompositeCanvas.Enums;
 using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;
@@ -9,9 +11,20 @@ namespace CompositeCanvas.Effects
     public class CompositeCanvasBlur : CompositeCanvasEffectBase
     {
         [Header("Blur Settings")]
-        [Range(0, 1)]
+        [SerializeField]
+        private BlurMode m_BlurMode = BlurMode.Uniform;
+
+        [Range(0, 10)]
         [SerializeField]
         private float m_Blur = 0.5f;
+
+        [Range(-10, 10)]
+        [SerializeField]
+        private float m_BlurX = 0.5f;
+
+        [Range(-10, 10)]
+        [SerializeField]
+        private float m_BlurY = 0.5f;
 
         [Range(1, 10)]
         [SerializeField]
@@ -31,16 +44,56 @@ namespace CompositeCanvas.Effects
 
         private Material _material;
 
+        public BlurMode blurMode
+        {
+            get => m_BlurMode;
+            set
+            {
+                if (m_BlurMode == value) return;
+
+                m_BlurMode = value;
+                SetRendererDirty();
+            }
+        }
+
         public float blur
         {
             get => m_Blur;
             set
             {
-                value = Mathf.Clamp01(value);
+                value = Mathf.Clamp(value, 0, 10);
                 if (Mathf.Approximately(m_Blur, value)) return;
 
                 m_Blur = value;
                 SetRendererDirty();
+            }
+        }
+
+        public float blurX
+        {
+            get => m_BlurX;
+            set
+            {
+                value = Mathf.Clamp(value, -10, 10);
+                if (Mathf.Approximately(m_BlurX, value)) return;
+
+                m_BlurX = value;
+                if(m_BlurMode != BlurMode.Uniform)
+                    SetRendererDirty();
+            }
+        }
+
+        public float blurY
+        {
+            get => m_BlurY;
+            set
+            {
+                value = Mathf.Clamp(value, -10, 10);
+                if (Mathf.Approximately(m_BlurY, value)) return;
+
+                m_BlurY = value;
+                if(m_BlurMode != BlurMode.Uniform)
+                    SetRendererDirty();
             }
         }
 
@@ -127,10 +180,16 @@ namespace CompositeCanvas.Effects
 
             var scale = w / compositeCanvasRenderer.renderingSize.x;
             var blurValue = blur * scale;
+            var blurValueX = blurX * scale;
+            var blurValueY = blurY * scale;
+
             Profiler.EndSample();
 
-            // Skip if blur value is zero.
-            if (blurValue <= 0 && !useCutoffPass) return;
+            var willRenderBlur = blurMode == BlurMode.Uniform && blurValue > 0
+                                  || blurMode != BlurMode.Uniform && (!Mathf.Approximately(blurValueX, 0) || !Mathf.Approximately(blurValueY, 0));
+
+            // Skip if won't render blur.
+            if (!willRenderBlur && !useCutoffPass) return;
 
             // Get blur material
             Profiler.BeginSample("(CCR)[CompositeCanvasBlur] ApplyBakedEffect > Get blur material (lambda)");
@@ -153,37 +212,24 @@ namespace CompositeCanvas.Effects
                 });
 
             Profiler.EndSample();
-            if (0 < blurValue)
+
+            var blurRendered = false;
+
+            switch (m_BlurMode)
             {
-                Profiler.BeginSample("(CCR)[CompositeCanvasBlur] ApplyBakedEffect > Construct blur effect for cb");
-                cb.GetTemporaryRT(ShaderPropertyIds.tmpRt, w, h, 0, FilterMode.Bilinear);
-                for (var i = 0; i < m_Iteration; i++)
-                {
-                    // Horizontal blur
-                    cb.SetGlobalVector(ShaderPropertyIds.blur, new Vector4(blurValue, 0));
-                    cb.Blit(result, ShaderPropertyIds.tmpRt, _material, 0);
-
-                    // Vertical blur
-                    cb.SetGlobalVector(ShaderPropertyIds.blur, new Vector4(0, blurValue));
-                    if (i == iteration - 1 && useCutoffPass)
-                    {
-                        // blur and cutoff
-                        cb.SetGlobalFloat(ShaderPropertyIds.innerCutoff, innerCutoff);
-                        cb.SetGlobalFloat(ShaderPropertyIds.power, power);
-                        cb.SetGlobalFloat(ShaderPropertyIds.multiplier, multiplier);
-                        cb.SetGlobalFloat(ShaderPropertyIds.limit, limit);
-                        cb.Blit(ShaderPropertyIds.tmpRt, result, _material);
-                    }
-                    else
-                    {
-                        cb.Blit(ShaderPropertyIds.tmpRt, result, _material, 0);
-                    }
-                }
-
-                cb.ReleaseTemporaryRT(ShaderPropertyIds.tmpRt);
-                Profiler.EndSample();
+                case BlurMode.Uniform:
+                    blurRendered = RenderBlurUniform(cb, w, h, result);
+                    break;
+                case BlurMode.SeparateAxis:
+                    blurRendered = RenderBlurSeparateAxis(cb, w, h, result);
+                    break;
+                case BlurMode.Motion:
+                default:
+                    blurRendered = RenderBlurMotion(cb, w, h, result);
+                    break;
             }
-            else if (useCutoffPass)
+
+            if (!blurRendered && useCutoffPass)
             {
                 Profiler.BeginSample("(CCR)[CompositeCanvasBlur] ApplyBakedEffect > Construct cutoff effect for cb");
                 cb.GetTemporaryRT(ShaderPropertyIds.tmpRt, w, h, 0, FilterMode.Bilinear);
@@ -199,6 +245,156 @@ namespace CompositeCanvas.Effects
                 cb.ReleaseTemporaryRT(ShaderPropertyIds.tmpRt);
                 Profiler.EndSample();
             }
+        }
+
+        private bool RenderBlurUniform(CommandBuffer cb, int w, int h, RenderTargetIdentifier result)
+        {
+            var scale = w / compositeCanvasRenderer.renderingSize.x;
+            var blurValue = blur * scale;
+
+            if(blurValue <= 0)
+                return false;
+
+            Profiler.BeginSample("(CCR)[CompositeCanvasBlur] ApplyBakedEffect > Construct blur effect for cb");
+            cb.GetTemporaryRT(ShaderPropertyIds.tmpRt, w, h, 0, FilterMode.Bilinear);
+            for (var i = 0; i < m_Iteration; i++)
+            {
+                // Horizontal blur
+                cb.SetGlobalVector(ShaderPropertyIds.blur, new Vector4(blurValue, 0));
+                cb.Blit(result, ShaderPropertyIds.tmpRt, _material, 0);
+
+                // Vertical blur
+                cb.SetGlobalVector(ShaderPropertyIds.blur, new Vector4(0, blurValue));
+
+                if (i == iteration - 1 && useCutoffPass)
+                {
+                    // blur and cutoff
+                    cb.SetGlobalFloat(ShaderPropertyIds.innerCutoff, innerCutoff);
+                    cb.SetGlobalFloat(ShaderPropertyIds.power, power);
+                    cb.SetGlobalFloat(ShaderPropertyIds.multiplier, multiplier);
+                    cb.SetGlobalFloat(ShaderPropertyIds.limit, limit);
+                    cb.Blit(ShaderPropertyIds.tmpRt, result, _material);
+                }
+                else
+                {
+                    cb.Blit(ShaderPropertyIds.tmpRt, result, _material, 0);
+                }
+            }
+
+            cb.ReleaseTemporaryRT(ShaderPropertyIds.tmpRt);
+            Profiler.EndSample();
+
+            return true;
+        }
+
+        private bool RenderBlurSeparateAxis(CommandBuffer cb, int w, int h, RenderTargetIdentifier result)
+        {
+            var scale = w / compositeCanvasRenderer.renderingSize.x;
+            var blurValueX = blurX * scale;
+            var blurValueY = blurY * scale;
+
+            if(Mathf.Approximately(blurValueX, 0) && Mathf.Approximately(blurValueY, 0))
+                return false;
+
+            Profiler.BeginSample("(CCR)[CompositeCanvasBlur] ApplyBakedEffect > Construct blur effect for cb");
+            cb.GetTemporaryRT(ShaderPropertyIds.tmpRt, w, h, 0, FilterMode.Bilinear);
+            var rtSrc = result;
+            var rtDst = new RenderTargetIdentifier(ShaderPropertyIds.tmpRt);
+
+            for (var i = 0; i < m_Iteration; i++)
+            {
+                // Horizontal blur
+                if(blurValueX > 0 && m_BlurMode != BlurMode.Motion)
+                {
+                    cb.SetGlobalVector(ShaderPropertyIds.blur, new Vector4(blurValueX, 0));
+                    BlitSwapchain(cb, ref rtSrc, ref rtDst, _material, 0);
+                }
+
+                // Vertical blur
+                cb.SetGlobalVector(ShaderPropertyIds.blur, new Vector4(0, blurValueY));
+
+                if (i == iteration - 1 && useCutoffPass)
+                {
+                    // blur and cutoff
+                    cb.SetGlobalFloat(ShaderPropertyIds.innerCutoff, innerCutoff);
+                    cb.SetGlobalFloat(ShaderPropertyIds.power, power);
+                    cb.SetGlobalFloat(ShaderPropertyIds.multiplier, multiplier);
+                    cb.SetGlobalFloat(ShaderPropertyIds.limit, limit);
+                    if(blurValueY > 0)
+                        BlitSwapchain(cb, ref rtSrc, ref rtDst, _material);
+                    else
+                        BlitSwapchain(cb, ref rtSrc, ref rtDst, _material, 1);
+                }
+                else if(blurValueY > 0)
+                {
+                    BlitSwapchain(cb, ref rtSrc, ref rtDst, _material, 0);
+                }
+            }
+
+            // Copy to result if last pass rendered into temporary buffer
+            if (rtSrc != result)
+                cb.CopyTexture(ShaderPropertyIds.tmpRt, result);
+
+            cb.ReleaseTemporaryRT(ShaderPropertyIds.tmpRt);
+            Profiler.EndSample();
+
+            return true;
+        }
+
+        private bool RenderBlurMotion(CommandBuffer cb, int w, int h, RenderTargetIdentifier result)
+        {
+            var scale = w / compositeCanvasRenderer.renderingSize.x;
+            var blurValueX = blurX * scale;
+            var blurValueY = blurY * scale;
+
+            if(Mathf.Approximately(blurValueX, 0) && Mathf.Approximately(blurValueY, 0))
+                return false;
+
+            Profiler.BeginSample("(CCR)[CompositeCanvasBlur] ApplyBakedEffect > Construct blur effect for cb");
+            cb.GetTemporaryRT(ShaderPropertyIds.tmpRt, w, h, 0, FilterMode.Bilinear);
+            var rtSrc = result;
+            var rtDst = new RenderTargetIdentifier(ShaderPropertyIds.tmpRt);
+
+            for (var i = 0; i < m_Iteration; i++)
+            {
+                // Directional blur
+                cb.SetGlobalVector(ShaderPropertyIds.blur, new Vector4(blurValueX, blurValueY));
+
+                if (i == iteration - 1 && useCutoffPass)
+                {
+                    // blur and cutoff
+                    cb.SetGlobalFloat(ShaderPropertyIds.innerCutoff, innerCutoff);
+                    cb.SetGlobalFloat(ShaderPropertyIds.power, power);
+                    cb.SetGlobalFloat(ShaderPropertyIds.multiplier, multiplier);
+                    cb.SetGlobalFloat(ShaderPropertyIds.limit, limit);
+                    BlitSwapchain(cb, ref rtSrc, ref rtDst, _material);
+                }
+                else
+                {
+                    BlitSwapchain(cb, ref rtSrc, ref rtDst, _material, 0);
+                }
+            }
+
+            // Copy to result if last pass rendered into temporary buffer
+            if (rtSrc != result)
+                cb.CopyTexture(ShaderPropertyIds.tmpRt, result);
+
+            cb.ReleaseTemporaryRT(ShaderPropertyIds.tmpRt);
+            Profiler.EndSample();
+
+            return true;
+        }
+
+        private static void BlitSwapchain(CommandBuffer cb, ref RenderTargetIdentifier src, ref RenderTargetIdentifier dst, Material material, int pass)
+        {
+            cb.Blit(src, dst, material, pass);
+            (src, dst) = (dst, src);
+        }
+
+        private static void BlitSwapchain(CommandBuffer cb, ref RenderTargetIdentifier src, ref RenderTargetIdentifier dst, Material material)
+        {
+            cb.Blit(src, dst, material);
+            (src, dst) = (dst, src);
         }
     }
 }

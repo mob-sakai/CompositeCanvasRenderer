@@ -38,6 +38,7 @@ namespace CompositeCanvas.Effects
             innerCutoff = 0.8f;
             effectDistance = new Vector2(5, -5);
             blur = 1f;
+            blurMode = BlurMode.Uniform;
             iteration = 10;
             power = 1f;
             multiplier = 1f;
