@@ -45,7 +45,7 @@ Shader "Hidden/UI/CompositeCanvasRenderer/Blur"
                 }
                 return o / sum;
             }
-            
+
             float invLerp(const float from, const float to, const float value)
             {
                 return saturate(max(0, value - from) / max(0.000000001, to - from));
@@ -58,7 +58,7 @@ Shader "Hidden/UI/CompositeCanvasRenderer/Blur"
             }
             ENDCG
         }
-        
+
         Pass
         {
             Name "Cutoff"
@@ -75,7 +75,7 @@ Shader "Hidden/UI/CompositeCanvasRenderer/Blur"
             float _Multiplier;
             float _Power;
             float _Limit;
-            
+
             float invLerp(const float from, const float to, const float value)
             {
                 return (max(0, value - from) / max(0.000000001, to - from));

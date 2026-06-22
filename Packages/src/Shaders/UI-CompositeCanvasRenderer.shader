@@ -125,9 +125,9 @@ Shader "UI/CompositeCanvasRenderer"
                 #if COLOR_MODE_FILL
                 color.rgb = factor.rgb * color.a;
                 #elif COLOR_MODE_ADDITIVE
-	            color.rgb += factor.rgb * color.a;
+                color.rgb += factor.rgb * color.a;
                 #elif COLOR_MODE_SUBTRACT
-	            color.rgb -= factor.rgb * color.a;
+                color.rgb -= factor.rgb * color.a;
                 #else
                 color.rgb *= factor.rgb;
                 #endif
@@ -191,7 +191,7 @@ Shader "UI/CompositeCanvasRenderer"
                 #endif
 
                 #if UNITY_UI_ALPHACLIP
-                clip (color.a - 0.001);
+                clip(color.a - 0.001);
                 #endif
 
                 #if ENABLE_MASK

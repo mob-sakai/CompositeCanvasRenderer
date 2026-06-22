@@ -339,8 +339,10 @@ namespace CompositeCanvas
                     if (!RenderTextureRepository.Valid(hash, _bakeBuffer))
                     {
                         RenderTextureRepository.Get(hash, ref _bakeBuffer,
-                            x => {
-                                var rt = new RenderTexture(RenderTextureRepository.GetDescriptor(x.rtSize, x.useStencil, x.renderTextureFormat));
+                            x =>
+                            {
+                                var rt = new RenderTexture(RenderTextureRepository.GetDescriptor(x.rtSize, x.useStencil,
+                                    x.renderTextureFormat));
                                 rt.hideFlags = HideFlags.DontSave;
 
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -747,14 +749,20 @@ namespace CompositeCanvas
         /// <summary>
         /// Create a material.
         /// </summary>
-        public static Material CreateMaterial(ColorMode colorMode, BlendMode srcBlendMode, BlendMode dstBlendMode)
+        private static Material CreateMaterial(ColorMode colorMode, BlendMode srcBlendMode, BlendMode dstBlendMode)
         {
             Profiler.BeginSample("(CCR)[CompositeCanvasRenderer] CreateMaterial");
-            var mat = new Material(Shader.Find("UI/CompositeCanvasRenderer"))
+            var mat = new Material(CompositeCanvasRendererProjectSettings.shaderRegistry
+                .FindShaderByName("UI/CompositeCanvasRenderer"))
             {
                 hideFlags = HideFlags.DontSave | HideFlags.NotEditable,
                 shaderKeywords = s_ColorModeKeywords[(int)colorMode]
             };
+
+#if UNITY_EDITOR
+            CompositeCanvasRendererProjectSettings.shaderRegistry
+                .RegisterVariant(mat, "UI > Composite Canvas Renderer");
+#endif
 
             mat.SetInt(ShaderPropertyIds.colorMode, (int)colorMode);
             mat.SetInt(ShaderPropertyIds.srcBlendMode, (int)srcBlendMode);

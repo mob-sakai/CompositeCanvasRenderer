@@ -136,10 +136,22 @@ namespace CompositeCanvas.Effects
             Profiler.BeginSample("(CCR)[CompositeCanvasBlur] ApplyBakedEffect > Get blur material (lambda)");
             var hash = new Hash128(ShaderPropertyIds.compositeCanvasBlur, 0, 0, 0);
             MaterialRepository.Get(hash, ref _material,
-                () => new Material(Shader.Find("Hidden/UI/CompositeCanvasRenderer/Blur"))
+                () =>
                 {
-                    hideFlags = HideFlags.DontSave | HideFlags.NotEditable
+                    var shader = CompositeCanvasRendererProjectSettings.shaderRegistry
+                        .FindShaderByName("Hidden/UI/CompositeCanvasRenderer/Blur");
+                    var mat = new Material(shader)
+                    {
+                        hideFlags = HideFlags.DontSave | HideFlags.NotEditable
+                    };
+
+#if UNITY_EDITOR
+                    CompositeCanvasRendererProjectSettings.shaderRegistry
+                        .RegisterVariant(mat, "UI > Composite Canvas Renderer");
+#endif
+                    return mat;
                 });
+
             Profiler.EndSample();
             if (0 < blurValue)
             {
