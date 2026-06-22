@@ -128,20 +128,60 @@ To update the package, change suffix `#{version}` to the target version.
 1. Create a GameObject with the `CompositeCanvasRenderer` component.
 
 2. Add UI elements such as Image, RawImage, Text, TextMeshProUGUI, etc., to the GameObject.  
-  <img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/571dd4ed-2ab7-49fd-be88-d176728fdcb8" width=300/>
+   <img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/571dd4ed-2ab7-49fd-be88-d176728fdcb8" width=300/>
 
 3. The baking area is determined by the `RectTransform.size` and the `Expands` option. In the scene view, the baking area is displayed as a magenta rectangle.  
-  <img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/c614e39d-f3f4-4178-a870-6198a71fbf01" width=300/>
+   <img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/c614e39d-f3f4-4178-a870-6198a71fbf01" width=300/>
 
 4. Adjust the `CompositeCanvasRenderer` settings in the inspector.  
-  <img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/8369b4e2-4463-4469-af1c-e7ac81959d03" width=400/>
+   <img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/8369b4e2-4463-4469-af1c-e7ac81959d03" width=400/>
 
 5. Select an effect in the inspector and fine-tune its settings.  
-  <img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/569d59ac-8bf5-421f-baaa-8487967f15a1" width=400/>
+   <img src="https://github.com/mob-sakai/mob-sakai/assets/12690315/569d59ac-8bf5-421f-baaa-8487967f15a1" width=400/>
 
 6. Enjoy!
 
 <br><br>
+
+### Project Settings
+
+You can adjust the project-wide settings for `CompositeCanvasRenderer`. (`Edit > Project Settings > UI > Composite Canvas Renderer`)
+
+![](https://github.com/mob-sakai/mob-sakai/releases/download/docs/1782094511049.png)
+
+#### Settings
+
+- **Transform Sensitivity**: Sensitivity of transform that automatically rebuilds the soft mask buffer.
+- **Enable Culling In Play Mode**:
+- **Enable Culling In Edit Mode**:
+
+#### Shader
+
+- **Registered Variants**: A list of shader variants available at runtime. Use "-" button to remove unused variants,
+  reducing build time and file size.
+    - By default, the used ui-effect shaders will be included in the build. You can remove them if you don't need.
+- **Unregistered Variants**: A list of shader variants that are not registered. Use "+" button to add variants.
+- **Error On Unregistered Variant**: If enabled, an error will be displayed when an unregistered shader variant is used.
+    - The shader variant will be automatically added to the `Unregistered Variants` list.
+
+> [!IMPORTANT]
+> - The setting file is usually saved in `Assets/ProjectSettings/CompositeCanvasRendererProjectSettings.asset`. Include this file in your version control system.
+> - The setting file is automatically added as a preloaded asset in `ProjectSettings/ProjectSettings.asset`.
+
+#### Advanced
+
+- **Pre Load Settings In Build**: When enabled, this settings asset will be added to `PlayerSettings.preloadedAssets` in build.
+- When disable, you should load this settings via `Resources`, `AssetBundles` or `Addressables` to use `CompositeCanvasRenderer`.
+- You can overwrite the settings by re-enabling `CompositeCanvasRendererProjectSettings`. This allows you to hot update shader variants and presets.
+
+```csharp
+private static IEnumerator HotUpdateCoroutine()
+{
+    const string k_SettingsAddress = "Assets/ProjectSettings/CompositeCanvasRendererProjectSettings.asset";
+    yield return Addressables.LoadAssetAsync<CompositeCanvasRendererProjectSettings>(k_SettingsAddress);
+    while (CompositeCanvasRendererProjectSettings.shaderVariantCollection.WarmUpProgressively(5) == false) yield return null;
+}
+```
 
 ## 🤝 Contributing
 
