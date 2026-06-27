@@ -48,21 +48,21 @@ namespace CompositeCanvas.Effects
 
         public void SetRendererDirty()
         {
-            if (!compositeCanvasRenderer) return;
+            if (compositeCanvasRenderer == null) return;
 
             compositeCanvasRenderer.SetDirty(false);
         }
 
         public void SetRendererVerticesDirty()
         {
-            if (!compositeCanvasRenderer) return;
+            if (compositeCanvasRenderer == null) return;
 
             compositeCanvasRenderer.SetVerticesDirty();
         }
 
         public void SetRendererMaterialDirty()
         {
-            if (!compositeCanvasRenderer) return;
+            if (compositeCanvasRenderer == null) return;
 
             compositeCanvasRenderer.SetMaterialDirty();
         }

@@ -361,12 +361,12 @@ namespace CompositeCanvas
             // Update the renderer.
             if (newRenderer != renderer)
             {
-                if (renderer)
+                if (renderer != null)
                 {
                     renderer.Unregister(this);
                 }
 
-                if (newRenderer)
+                if (newRenderer != null)
                 {
                     newRenderer.Register(this);
                 }
@@ -378,7 +378,7 @@ namespace CompositeCanvas
 
         private void SetRendererDirty()
         {
-            if (renderer)
+            if (renderer != null)
             {
                 renderer.SetDirty(false);
             }

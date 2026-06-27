@@ -82,7 +82,7 @@ namespace CompositeCanvas.Effects
         /// </summary>
         public virtual void ModifyMesh(VertexHelper vh)
         {
-            if (!isActiveAndEnabled || !compositeCanvasRenderer) return;
+            if (!isActiveAndEnabled || compositeCanvasRenderer == null) return;
 
             Profiler.BeginSample("(CCR)[CompositeCanvasShadow] ModifyMesh > Add shadow");
             var count = vh.currentVertCount;

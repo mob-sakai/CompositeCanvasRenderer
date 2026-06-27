@@ -31,8 +31,8 @@ namespace CompositeCanvas
             {
                 if (!(obj is TextMeshProUGUI textMeshProUGUI)) return;
                 if (!textMeshProUGUI.TryGetComponent<CompositeCanvasSource>(out var source)) return;
-                if (!source || !source.isActiveAndEnabled) return;
-                if (!source.renderer || !source.renderer.isActiveAndEnabled) return;
+                if (source == null || !source.isActiveAndEnabled) return;
+                if (source.renderer == null || !source.renderer.isActiveAndEnabled) return;
 
                 textMeshProUGUI.mesh.CopyTo(source.mesh);
 
@@ -151,7 +151,7 @@ namespace CompositeCanvas
                     : renderer.transform.worldToLocalMatrix * source.transform.localToWorldMatrix;
 
                 texture = GetMainTexture(source.graphic);
-                if (texture)
+                if (texture != null)
                 {
                     source.mpb.SetTexture(ShaderPropertyIds.mainTex, texture);
 

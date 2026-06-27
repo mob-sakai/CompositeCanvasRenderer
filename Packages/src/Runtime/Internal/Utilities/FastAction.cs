@@ -66,11 +66,6 @@ namespace Coffee.CompositeCanvasRendererInternal
                 node = node.Next;
             }
         }
-
-        public void Clear()
-        {
-            _delegates.Clear();
-        }
     }
 
     /// <summary>

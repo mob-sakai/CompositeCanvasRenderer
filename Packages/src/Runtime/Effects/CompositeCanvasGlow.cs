@@ -30,7 +30,7 @@ namespace CompositeCanvas.Effects
         /// </summary>
         public override void Reset()
         {
-            if (!compositeCanvasRenderer) return;
+            if (compositeCanvasRenderer == null) return;
             compositeCanvasRenderer.blendType = BlendType.Additive;
             compositeCanvasRenderer.foreground = true;
             compositeCanvasRenderer.showSourceGraphics = true;

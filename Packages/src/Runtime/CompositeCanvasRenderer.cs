@@ -929,7 +929,7 @@ namespace CompositeCanvas
 
             if (!isDirty) return;
             isDirty = false;
-            if (!canvas)
+            if (canvas == null)
             {
                 Logger.Log(this, "<color=orange> Baking is canceled due to not in canvas.</color>");
                 return;

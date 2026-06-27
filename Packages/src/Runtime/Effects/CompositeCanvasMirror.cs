@@ -60,7 +60,7 @@ namespace CompositeCanvas.Effects
         /// </summary>
         public override void Reset()
         {
-            if (!compositeCanvasRenderer) return;
+            if (compositeCanvasRenderer == null) return;
             compositeCanvasRenderer.blendType = BlendType.AlphaBlend;
             compositeCanvasRenderer.colorMode = ColorMode.Multiply;
             compositeCanvasRenderer.foreground = false;

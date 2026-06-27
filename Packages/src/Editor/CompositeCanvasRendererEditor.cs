@@ -195,7 +195,7 @@ namespace CompositeCanvas
             foreach (var renderer in targets.OfType<CompositeCanvasRenderer>())
             {
                 var effect = renderer.GetComponent<CompositeCanvasEffectBase>();
-                if (effect)
+                if (effect != null)
                 {
                     ConvertTo(effect, type);
                     renderer.GetComponent<CompositeCanvasEffectBase>()?.Reset();

@@ -9,7 +9,7 @@ namespace CompositeCanvas.Effects
     {
         public override void Reset()
         {
-            if (!compositeCanvasRenderer) return;
+            if (compositeCanvasRenderer == null) return;
 
             compositeCanvasRenderer.colorMode = ColorMode.Multiply;
             compositeCanvasRenderer.blendType = BlendType.MultiplyAdditive;
