@@ -32,7 +32,7 @@ jobs:
       matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
       - name: 🚚 Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: ⚙️Setup Build Matrix
         id: matrix
@@ -50,7 +50,7 @@ jobs:
       matrix: ${{ fromJson(needs.setup.outputs.matrix) }}
     steps:
       - name: 🚚 Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ matrix.ref }}
 
@@ -64,7 +64,7 @@ jobs:
           npx openupm-cli add 'com.coffee.docfx-for-unity@https://github.com/mob-sakai/TestPkgDev.git?path=Packages/src#develop'
 
       - name: 📥 Cache Library
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: Library
           key: Library-${{ env.unityVersion }}-${{ env.targetPlatform }}-${{ github.sha }}
@@ -74,7 +74,7 @@ jobs:
             Library-
 
       - name: 🛠️ Run UnityEditor To Setup CsProj
-        uses: game-ci/unity-builder@v4
+        uses: game-ci/unity-builder@main
         continue-on-error: true # NOTE: Disabling the check for the "Build results" output? https://github.com/game-ci/unity-builder/issues/563
         timeout-minutes: 30
         env:
@@ -102,7 +102,7 @@ jobs:
           docfx Documentation/__docfx.json
 
       - name: 📦 Upload Documentation
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Documentation_${{ matrix.version }}
           path: Documentation/_site

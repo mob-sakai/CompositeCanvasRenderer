@@ -30,10 +30,10 @@ jobs:
       contents: read
     steps:
       - name: 🚚 Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: 📥 Cache Library
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: Library
           key: Library-${{ env.unityVersion }}-${{ env.targetPlatform }}-${{ github.sha }}
@@ -43,7 +43,7 @@ jobs:
             Library-
 
       - name: 🛠️ Build Demo Player
-        uses: game-ci/unity-builder@v4
+        uses: game-ci/unity-builder@main
         timeout-minutes: 30
         env:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -55,7 +55,7 @@ jobs:
           allowDirtyBuild: true
 
       - name: 📦 Upload Demo Player
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: Demo
           path: build/WebGL/WebGL
