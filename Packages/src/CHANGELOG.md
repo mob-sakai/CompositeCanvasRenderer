@@ -1,3 +1,15 @@
+# [2.1.0](https://github.com/mob-sakai/CompositeCanvasRenderer/compare/2.0.2...2.1.0) (2026-06-29)
+
+
+### Bug Fixes
+
+* support "disable domain reload" on Unity 6.6 or later ([83d4b67](https://github.com/mob-sakai/CompositeCanvasRenderer/commit/83d4b674d7dea3b2d05b6a77fd49de0bec2d0e22))
+
+
+### Features
+
+* add option to remove from preloadedAssets when build player ([99d1cc1](https://github.com/mob-sakai/CompositeCanvasRenderer/commit/99d1cc192d3694b1d10af2aaf203c519a0b6f768))
+
 ## [2.0.2](https://github.com/mob-sakai/CompositeCanvasRenderer/compare/2.0.1...2.0.2) (2026-06-12)
 
 
